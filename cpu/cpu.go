@@ -1,11 +1,35 @@
 package cpu
 
+import "fmt"
+
+// StatusRegister holds data for each status flag
+// in the 6502 status register.
 type StatusRegister struct {
-	C bool
-	Z bool
-	I bool
-	D bool
-	B bool
-	V bool
-	N bool
+	C bool // carry
+	Z bool // zero result
+	I bool // interrupt disable
+	D bool // decimal mode
+	B bool // break command
+	V bool // overflow
+	N bool // zero result
+}
+
+// String implements Stringer
+func (s *StatusRegister) String() string {
+	convert := func(bit bool) string {
+		if bit {
+			return "1"
+		}
+		return "0"
+	}
+
+	return fmt.Sprintf("%s%s0%s%s%s%s%s",
+		convert(s.N),
+		convert(s.V),
+		convert(s.B),
+		convert(s.D),
+		convert(s.I),
+		convert(s.Z),
+		convert(s.C),
+	)
 }

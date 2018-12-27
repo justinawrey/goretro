@@ -2,23 +2,33 @@ package cpu_test
 
 import (
 	"errors"
+	"fmt"
+	"testing"
 
 	"github.com/justinawrey/nes/cpu"
 )
 
 const statusBitLen = 8
 
-var validBits = map[byte]bool{'0': true, '1': true, 'X': true}
+var validBits = map[string]bool{"0": true, "1": true, "X": true}
 
 var errInvalidStatusString = errors.New("invalid format of status string")
 
+func statusRegisterDiff(want string, got *cpu.StatusRegister) string {
+	return fmt.Sprintf(`       NV BDIZC
+      ---------
+want | %s
+ got | %v 
+`, want, got)
+}
+
 func statusEquals(status string, sr *cpu.StatusRegister) (success bool, err error) {
-	bitEquals := func(bitRepr byte, actual bool) (success bool, err error) {
-		if _, ok := validBits[bitRepr]; !ok {
+	bitEquals := func(bit string, actual bool) (success bool, err error) {
+		if _, ok := validBits[bit]; !ok {
 			return false, errInvalidStatusString
 		}
 
-		if (bitRepr == 'X') || (bitRepr == '1' && actual) || (bitRepr == '0' && !actual) {
+		if (bit == "X") || (bit == "1" && actual) || (bit == "0" && !actual) {
 			return true, nil
 		}
 
@@ -29,32 +39,50 @@ func statusEquals(status string, sr *cpu.StatusRegister) (success bool, err erro
 		return false, errInvalidStatusString
 	}
 
-	eqc, errc := bitEquals(status[0], sr.C)
-	eqz, errz := bitEquals(status[1], sr.Z)
-	eqi, erri := bitEquals(status[2], sr.I)
-	eqd, errd := bitEquals(status[3], sr.D)
-	eqb, errb := bitEquals(status[4], sr.B)
-	eqv, errv := bitEquals(status[6], sr.V)
-	eqn, errn := bitEquals(status[7], sr.N)
+	if status[2] != 'X' {
+		return false, errInvalidStatusString
+	}
+
+	eqn, errn := bitEquals(string(status[0]), sr.N)
+	eqv, errv := bitEquals(string(status[1]), sr.V)
+	eqb, errb := bitEquals(string(status[3]), sr.B)
+	eqd, errd := bitEquals(string(status[4]), sr.D)
+	eqi, erri := bitEquals(string(status[5]), sr.I)
+	eqz, errz := bitEquals(string(status[6]), sr.Z)
+	eqc, errc := bitEquals(string(status[7]), sr.C)
 
 	for _, res := range []struct {
 		err error
 		eq  bool
 	}{
-		{errc, eqc},
-		{errz, eqz},
-		{erri, eqi},
-		{errd, eqd},
-		{errb, eqb},
-		{errv, eqv},
 		{errn, eqn},
+		{errv, eqv},
+		{errb, eqb},
+		{errd, eqd},
+		{erri, eqi},
+		{errz, eqz},
+		{errc, eqc},
 	} {
 		if res.err != nil {
-			return false, err
+			return false, res.err
 		}
 		if !res.eq {
 			return false, nil
 		}
 	}
 	return true, nil
+}
+
+func TestCpu(t *testing.T) {
+	testStatusRegister := &cpu.StatusRegister{D: true, C: true}
+	testStatusString := "00X01001"
+
+	eq, err := statusEquals(testStatusString, testStatusRegister)
+	if err != nil {
+		t.Error(err)
+		return
+	}
+	if !eq {
+		t.Errorf("\n%s\n", statusRegisterDiff(testStatusString, testStatusRegister))
+	}
 }
