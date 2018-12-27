@@ -106,4 +106,14 @@ func TestCpu(t *testing.T) {
 		cpu.CLI(sr)
 		assertStatus("00X00000", sr, t)
 	})
+
+	t.Run("test SED", func(t *testing.T) {
+		cpu.SED(sr)
+		assertStatus("00X01000", sr, t)
+	})
+
+	t.Run("test CLD", func(t *testing.T) {
+		cpu.CLD(sr)
+		assertStatus("00X00000", sr, t)
+	})
 }
