@@ -96,4 +96,14 @@ func TestCpu(t *testing.T) {
 		cpu.CLC(sr)
 		assertStatus("00X00000", sr, t)
 	})
+
+	t.Run("test SEI", func(t *testing.T) {
+		cpu.SEI(sr)
+		assertStatus("00X00100", sr, t)
+	})
+
+	t.Run("test CLI", func(t *testing.T) {
+		cpu.CLI(sr)
+		assertStatus("00X00000", sr, t)
+	})
 }
