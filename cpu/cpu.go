@@ -43,3 +43,23 @@ func SEC(sr *StatusRegister) {
 func CLC(sr *StatusRegister) {
 	sr.C = false
 }
+
+// SEI Set Interrupt Disable
+func SEI(sr *StatusRegister) {
+	sr.I = true
+}
+
+// CLI Clear Interrupt Disable
+func CLI(sr *StatusRegister) {
+	sr.I = false
+}
+
+// SED Set Decimal Mode
+func SED(sr *StatusRegister) {
+	sr.D = true
+}
+
+// CLD Clear Decimal Mode
+func CLD(sr *StatusRegister) {
+	sr.D = false
+}
