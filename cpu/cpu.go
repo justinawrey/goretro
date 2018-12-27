@@ -34,6 +34,18 @@ func (sr *StatusRegister) String() string {
 	)
 }
 
+// Clear clears all bits of the status register,
+// i.e. will set all flags to '0'.
+func (sr *StatusRegister) Clear() {
+	sr.C = false
+	sr.Z = false
+	sr.I = false
+	sr.D = false
+	sr.B = false
+	sr.V = false
+	sr.N = false
+}
+
 // SEC Set Carry Flag
 func SEC(sr *StatusRegister) {
 	sr.C = true
