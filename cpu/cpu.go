@@ -63,3 +63,8 @@ func SED(sr *StatusRegister) {
 func CLD(sr *StatusRegister) {
 	sr.D = false
 }
+
+// CLV Clear Overflow Flag
+func CLV(sr *StatusRegister) {
+	sr.V = false
+}
