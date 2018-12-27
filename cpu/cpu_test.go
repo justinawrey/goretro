@@ -73,16 +73,27 @@ func statusEquals(status string, sr *cpu.StatusRegister) (success bool, err erro
 	return true, nil
 }
 
-func TestCpu(t *testing.T) {
-	testStatusRegister := &cpu.StatusRegister{D: true, C: true}
-	testStatusString := "00X01001"
-
-	eq, err := statusEquals(testStatusString, testStatusRegister)
+func assertStatus(status string, sr *cpu.StatusRegister, t *testing.T) {
+	eq, err := statusEquals(status, sr)
 	if err != nil {
 		t.Error(err)
 		return
 	}
 	if !eq {
-		t.Errorf("\n%s\n", statusRegisterDiff(testStatusString, testStatusRegister))
+		t.Errorf("\n%s\n", statusRegisterDiff(status, sr))
 	}
+}
+
+func TestCpu(t *testing.T) {
+	sr := &cpu.StatusRegister{}
+
+	t.Run("test SEC", func(t *testing.T) {
+		cpu.SEC(sr)
+		assertStatus("00X00001", sr, t)
+	})
+
+	t.Run("test CLC", func(t *testing.T) {
+		cpu.CLC(sr)
+		assertStatus("00X00000", sr, t)
+	})
 }
