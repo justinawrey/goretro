@@ -15,7 +15,7 @@ type StatusRegister struct {
 }
 
 // String implements Stringer
-func (s *StatusRegister) String() string {
+func (sr *StatusRegister) String() string {
 	convert := func(bit bool) string {
 		if bit {
 			return "1"
@@ -24,12 +24,22 @@ func (s *StatusRegister) String() string {
 	}
 
 	return fmt.Sprintf("%s%s0%s%s%s%s%s",
-		convert(s.N),
-		convert(s.V),
-		convert(s.B),
-		convert(s.D),
-		convert(s.I),
-		convert(s.Z),
-		convert(s.C),
+		convert(sr.N),
+		convert(sr.V),
+		convert(sr.B),
+		convert(sr.D),
+		convert(sr.I),
+		convert(sr.Z),
+		convert(sr.C),
 	)
+}
+
+// SEC Set Carry Flag
+func SEC(sr *StatusRegister) {
+	sr.C = true
+}
+
+// CLC Clear Carry Flag
+func CLC(sr *StatusRegister) {
+	sr.C = false
 }
