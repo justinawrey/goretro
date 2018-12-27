@@ -116,4 +116,10 @@ func TestCpu(t *testing.T) {
 		cpu.CLD(sr)
 		assertStatus("00X00000", sr, t)
 	})
+
+	t.Run("test CLV", func(t *testing.T) {
+		sr.V = true
+		cpu.CLV(sr)
+		assertStatus("00X00000", sr, t)
+	})
 }
