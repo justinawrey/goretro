@@ -2,9 +2,9 @@ package cpu
 
 import "fmt"
 
-// StatusRegister holds data for each status flag
+// Status holds data for each status flag
 // in the 6502 status register.
-type StatusRegister struct {
+type Status struct {
 	C bool // carry
 	Z bool // zero result
 	I bool // interrupt disable
@@ -15,7 +15,7 @@ type StatusRegister struct {
 }
 
 // String implements Stringer
-func (sr *StatusRegister) String() string {
+func (sr *Status) String() string {
 	convert := func(bit bool) string {
 		if bit {
 			return "1"
@@ -36,7 +36,7 @@ func (sr *StatusRegister) String() string {
 
 // Clear clears all bits of the status register,
 // i.e. will set all flags to '0'.
-func (sr *StatusRegister) Clear() {
+func (sr *Status) Clear() {
 	sr.C = false
 	sr.Z = false
 	sr.I = false
@@ -47,43 +47,43 @@ func (sr *StatusRegister) Clear() {
 }
 
 // Registers holds data for each register
-// used by the 6502 (apart from the status register, which
-// has its own dedicated type).t
+// used by the 6502,
 type Registers struct {
+	Status      Status
 	Accumulator byte
 }
 
 // SEC Set Carry Flag
-func SEC(sr *StatusRegister) {
-	sr.C = true
+func SEC(r *Registers) {
+	r.Status.C = true
 }
 
 // CLC Clear Carry Flag
-func CLC(sr *StatusRegister) {
-	sr.C = false
+func CLC(r *Registers) {
+	r.Status.C = false
 }
 
 // SEI Set Interrupt Disable
-func SEI(sr *StatusRegister) {
-	sr.I = true
+func SEI(r *Registers) {
+	r.Status.I = true
 }
 
 // CLI Clear Interrupt Disable
-func CLI(sr *StatusRegister) {
-	sr.I = false
+func CLI(r *Registers) {
+	r.Status.I = false
 }
 
 // SED Set Decimal Mode
-func SED(sr *StatusRegister) {
-	sr.D = true
+func SED(r *Registers) {
+	r.Status.D = true
 }
 
 // CLD Clear Decimal Mode
-func CLD(sr *StatusRegister) {
-	sr.D = false
+func CLD(r *Registers) {
+	r.Status.D = false
 }
 
 // CLV Clear Overflow Flag
-func CLV(sr *StatusRegister) {
-	sr.V = false
+func CLV(r *Registers) {
+	r.Status.D = false
 }
