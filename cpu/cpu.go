@@ -49,7 +49,7 @@ func (sr *Status) Clear() {
 // Registers holds data for each register
 // used by the 6502,
 type Registers struct {
-	Status      Status
+	Status      *Status
 	Accumulator byte
 }
 
