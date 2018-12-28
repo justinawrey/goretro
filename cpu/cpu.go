@@ -77,3 +77,51 @@ func (r *Registers) String() string {
 		r.Y,
 	)
 }
+
+const (
+	memSize = 0xFFFF // 6502 has a 64kB memory map
+
+	// See table below for more details
+	ramEnd       = 0x1FFF
+	ppuEnd       = 0x3FFF
+	apuIoEnd     = 0x4017
+	testModeEnd  = 0x401F
+	cartridgeEnd = 0xFFFF
+)
+
+// MemoryMap is the 64kB memory map contained within the CPU.
+// The memory is organized as follows (https://wiki.nesdev.com/w/index.php/CPU_memory_map):
+//
+// AddressRange	Size	Device
+// ---------------------------------------------
+// $0000-$07FF	$0800	2KB internal RAM
+// $0800-$0FFF	$0800	Mirrors of $0000-$07FF
+// $1000-$17FF	$0800
+// $1800-$1FFF	$0800
+// $2000-$2007	$0008	NES PPU registers
+// $2008-$3FFF	$1FF8	Mirrors of $2000-2007 (repeats every 8 bytes)
+// $4000-$4017	$0018	NES APU and I/O registers
+// $4018-$401F	$0008	APU and I/O functionality that is normally disabled. See CPU Test Mode.
+// $4020-$FFFF	$BFE0	Cartridge space: PRG ROM, PRG RAM, and mapper registers (See Note)
+type MemoryMap [memSize]byte
+
+// String implements Stringer
+// TODO: complete memory dump
+func (m *MemoryMap) String() string {
+	return ""
+}
+
+func (m *MemoryMap) Write(to uint16, data byte) {
+	m[to] = data
+}
+
+func (m *MemoryMap) Read(from uint16) byte {
+	return m[from]
+}
+
+// CPU represents to 6502 and its associated registers and memory map.
+// This should be declared and used as a singleton during emulator execution.
+type CPU struct {
+	*MemoryMap
+	*Registers
+}
