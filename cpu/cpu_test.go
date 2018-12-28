@@ -85,7 +85,7 @@ func assertStatus(status string, sr *cpu.Status, t *testing.T) {
 }
 
 func TestCpu(t *testing.T) {
-	r := &cpu.Registers{}
+	r := &cpu.Registers{Status: &cpu.Status{}}
 
 	// Test status register bit toggling instructions first
 	t.Run("test SEC", func(t *testing.T) {
@@ -121,6 +121,6 @@ func TestCpu(t *testing.T) {
 	t.Run("test CLV", func(t *testing.T) {
 		r.Status.V = true
 		cpu.CLV(r)
-		assertStatus("00X00000", r.Status, t)
+		assertStatus("01X00000", r.Status, t)
 	})
 }
