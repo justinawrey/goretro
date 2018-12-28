@@ -85,42 +85,42 @@ func assertStatus(status string, sr *cpu.Status, t *testing.T) {
 }
 
 func TestCpu(t *testing.T) {
-	r := &cpu.Registers{Status: &cpu.Status{}}
+	cpu := cpu.NewCPU()
 
 	// Test status register bit toggling instructions first
 	t.Run("test SEC", func(t *testing.T) {
-		cpu.SEC(r)
-		assertStatus("00X00001", r.Status, t)
+		cpu.SEC()
+		assertStatus("00X00001", cpu.Status, t)
 	})
 
 	t.Run("test CLC", func(t *testing.T) {
-		cpu.CLC(r)
-		assertStatus("00X00000", r.Status, t)
+		cpu.CLC()
+		assertStatus("00X00000", cpu.Status, t)
 	})
 
 	t.Run("test SEI", func(t *testing.T) {
-		cpu.SEI(r)
-		assertStatus("00X00100", r.Status, t)
+		cpu.SEI()
+		assertStatus("00X00100", cpu.Status, t)
 	})
 
 	t.Run("test CLI", func(t *testing.T) {
-		cpu.CLI(r)
-		assertStatus("00X00000", r.Status, t)
+		cpu.CLI()
+		assertStatus("00X00000", cpu.Status, t)
 	})
 
 	t.Run("test SED", func(t *testing.T) {
-		cpu.SED(r)
-		assertStatus("00X01000", r.Status, t)
+		cpu.SED()
+		assertStatus("00X01000", cpu.Status, t)
 	})
 
 	t.Run("test CLD", func(t *testing.T) {
-		cpu.CLD(r)
-		assertStatus("00X00000", r.Status, t)
+		cpu.CLD()
+		assertStatus("00X00000", cpu.Status, t)
 	})
 
 	t.Run("test CLV", func(t *testing.T) {
-		r.Status.V = true
-		cpu.CLV(r)
-		assertStatus("01X00000", r.Status, t)
+		cpu.Status.V = true
+		cpu.CLV()
+		assertStatus("01X00000", cpu.Status, t)
 	})
 }
