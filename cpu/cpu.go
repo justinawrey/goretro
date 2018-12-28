@@ -47,7 +47,7 @@ func (sr *Status) Clear() {
 }
 
 // Registers holds data for each register
-// used by the 6502,
+// used by the 6502.
 type Registers struct {
 	// Special purpose registers
 	Status *Status // Status register
@@ -111,10 +111,12 @@ func (m *MemoryMap) String() string {
 	return ""
 }
 
+// Write writes to the memory map.
 func (m *MemoryMap) Write(to uint16, data byte) {
 	m[to] = data
 }
 
+// Read reads from the memory map.
 func (m *MemoryMap) Read(from uint16) byte {
 	return m[from]
 }
