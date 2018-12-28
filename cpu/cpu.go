@@ -127,3 +127,14 @@ type CPU struct {
 	*MemoryMap
 	*Registers
 }
+
+// NewCPU initializes a new 6502 CPU with all status bits, register, and memory
+// initialized to zero.
+func NewCPU() *CPU {
+	return &CPU{
+		MemoryMap: &MemoryMap{},
+		Registers: &Registers{
+			Status: &Status{},
+		},
+	}
+}
