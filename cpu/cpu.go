@@ -46,6 +46,13 @@ func (sr *StatusRegister) Clear() {
 	sr.N = false
 }
 
+// Registers holds data for each register
+// used by the 6502 (apart from the status register, which
+// has its own dedicated type).t
+type Registers struct {
+	Accumulator byte
+}
+
 // SEC Set Carry Flag
 func SEC(sr *StatusRegister) {
 	sr.C = true
