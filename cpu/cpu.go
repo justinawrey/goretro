@@ -55,22 +55,22 @@ type Registers struct {
 	SP     byte    // Stack pointer
 
 	// General purpose registers
-	Accumulator byte // Accumulator register
-	X           byte // Index register X
-	Y           byte // Index register Y
+	A byte // Accumulator register
+	X byte // Index register X
+	Y byte // Index register Y
 }
 
 // String implements Stringer
 func (r *Registers) String() string {
-	return fmt.Sprintf("%11s | %v\n%11s | %v\n%11s | %v\n%11s | %v\n%11s | %v\n%11s | %v\n",
+	return fmt.Sprintf("%6s | %v\n%6s | %v\n%6s | %v\n%6s | %v\n%6s | %v\n%6s | %v\n",
 		"Status",
 		r.Status,
 		"PC",
 		r.PC,
 		"SP",
 		r.SP,
-		"Accumulator",
-		r.Accumulator,
+		"A",
+		r.A,
 		"X",
 		r.X,
 		"Y",
