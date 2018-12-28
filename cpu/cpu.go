@@ -59,3 +59,21 @@ type Registers struct {
 	X           byte // Index register X
 	Y           byte // Index register Y
 }
+
+// String implements Stringer
+func (r *Registers) String() string {
+	return fmt.Sprintf("%11s | %v\n%11s | %v\n%11s | %v\n%11s | %v\n%11s | %v\n%11s | %v\n",
+		"Status",
+		r.Status,
+		"PC",
+		r.PC,
+		"SP",
+		r.SP,
+		"Accumulator",
+		r.Accumulator,
+		"X",
+		r.X,
+		"Y",
+		r.Y,
+	)
+}
