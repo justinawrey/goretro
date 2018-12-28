@@ -5,13 +5,13 @@ import "fmt"
 // Status holds data for each status flag
 // in the 6502 status register.
 type Status struct {
-	C bool // carry
-	Z bool // zero result
-	I bool // interrupt disable
-	D bool // decimal mode
-	B bool // break command
-	V bool // overflow
-	N bool // zero result
+	C bool // Carry
+	Z bool // Zero result
+	I bool // Interrupt disable
+	D bool // Decimal mode
+	B bool // Break command
+	V bool // Overflow
+	N bool // Zero result
 }
 
 // String implements Stringer
@@ -49,6 +49,13 @@ func (sr *Status) Clear() {
 // Registers holds data for each register
 // used by the 6502,
 type Registers struct {
-	Status      *Status
-	Accumulator byte
+	// Special purpose registers
+	Status *Status // Status register
+	PC     uint16  // Program counter
+	SP     byte    // Stack pointer
+
+	// General purpose registers
+	Accumulator byte // Accumulator register
+	X           byte // Index register X
+	Y           byte // Index register Y
 }
