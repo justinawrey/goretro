@@ -112,11 +112,13 @@ func (m *MemoryMap) String() string {
 }
 
 // Write writes to the memory map.
+// TODO: make robust
 func (m *MemoryMap) Write(to uint16, data byte) {
 	m[to] = data
 }
 
 // Read reads from the memory map.
+// TODO: make robust
 func (m *MemoryMap) Read(from uint16) byte {
 	return m[from]
 }
