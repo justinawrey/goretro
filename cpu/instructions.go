@@ -646,5 +646,5 @@ func (cpu *CPU) CLD() {
 
 // CLV Clear Overflow Flag
 func (cpu *CPU) CLV() {
-	cpu.Status.D = false
+	cpu.Status.V = false
 }
