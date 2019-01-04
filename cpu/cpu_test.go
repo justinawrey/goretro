@@ -121,6 +121,6 @@ func TestCpu(t *testing.T) {
 	t.Run("test CLV", func(t *testing.T) {
 		cpu.Status.V = true
 		cpu.CLV()
-		assertStatus("01X00000", cpu.Status, t)
+		assertStatus("00X00000", cpu.Status, t)
 	})
 }
