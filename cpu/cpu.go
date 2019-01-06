@@ -128,15 +128,19 @@ func (m *MemoryMap) Read(from uint16) byte {
 type CPU struct {
 	*MemoryMap
 	*Registers
+
+	instructions map[byte]instruction
 }
 
 // NewCPU initializes a new 6502 CPU with all status bits, register, and memory
 // initialized to zero.
 func NewCPU() *CPU {
-	return &CPU{
+	cpu := &CPU{
 		MemoryMap: &MemoryMap{},
 		Registers: &Registers{
 			Status: &Status{},
 		},
 	}
+	initInstructions(cpu)
+	return cpu
 }
