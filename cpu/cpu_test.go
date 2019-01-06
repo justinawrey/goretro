@@ -84,6 +84,19 @@ func assertStatus(status string, sr *cpu.Status, t *testing.T) {
 	}
 }
 
+func assertRegister(reg byte, expected byte, t *testing.T) {
+	if reg != expected {
+		t.Errorf("want: %v, got %v\n", expected, reg)
+	}
+}
+
+func assertMemory(mem *cpu.MemoryMap, loc uint16, expected byte, t *testing.T) {
+	got := mem[loc]
+	if got != expected {
+		t.Errorf("want: %v, got %v\n", expected, got)
+	}
+}
+
 func TestCpu(t *testing.T) {
 	cpu := cpu.NewCPU()
 
