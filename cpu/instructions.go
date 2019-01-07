@@ -37,7 +37,7 @@ func initInstructions(c *CPU) {
 			byteCost:       2,
 			cycleCost:      2,
 			pageCrossCost:  0,
-			execute:        func() {},
+			execute:        c.ADC,
 		},
 		0x65: {
 			"ADC",
@@ -45,7 +45,7 @@ func initInstructions(c *CPU) {
 			2,
 			3,
 			0,
-			func() {},
+			c.ADC,
 		},
 		0x75: {
 			"ADC",
@@ -53,7 +53,7 @@ func initInstructions(c *CPU) {
 			2,
 			4,
 			0,
-			func() {},
+			c.ADC,
 		},
 		0x6D: {
 			"ADC",
@@ -61,7 +61,7 @@ func initInstructions(c *CPU) {
 			3,
 			4,
 			0,
-			func() {},
+			c.ADC,
 		},
 		0x7D: {
 			"ADC",
@@ -69,7 +69,7 @@ func initInstructions(c *CPU) {
 			3,
 			4,
 			1,
-			func() {},
+			c.ADC,
 		},
 		0x79: {
 			"ADC",
@@ -77,7 +77,7 @@ func initInstructions(c *CPU) {
 			3,
 			4,
 			1,
-			func() {},
+			c.ADC,
 		},
 		0x61: {
 			"ADC",
@@ -85,7 +85,7 @@ func initInstructions(c *CPU) {
 			2,
 			6,
 			0,
-			func() {},
+			c.ADC,
 		},
 		0x71: {
 			"ADC",
@@ -93,7 +93,7 @@ func initInstructions(c *CPU) {
 			2,
 			5,
 			1,
-			func() {},
+			c.ADC,
 		},
 		0x29: {
 			"AND",
@@ -101,7 +101,7 @@ func initInstructions(c *CPU) {
 			2,
 			2,
 			0,
-			func() {},
+			c.AND,
 		},
 		0x25: {
 			"AND",
@@ -109,7 +109,7 @@ func initInstructions(c *CPU) {
 			2,
 			3,
 			0,
-			func() {},
+			c.AND,
 		},
 		0x35: {
 			"AND",
@@ -117,7 +117,7 @@ func initInstructions(c *CPU) {
 			2,
 			4,
 			0,
-			func() {},
+			c.AND,
 		},
 		0x2D: {
 			"AND",
@@ -125,7 +125,7 @@ func initInstructions(c *CPU) {
 			3,
 			4,
 			0,
-			func() {},
+			c.AND,
 		},
 		0x3D: {
 			"AND",
@@ -133,7 +133,7 @@ func initInstructions(c *CPU) {
 			3,
 			4,
 			1,
-			func() {},
+			c.AND,
 		},
 		0x39: {
 			"AND",
@@ -141,7 +141,7 @@ func initInstructions(c *CPU) {
 			3,
 			4,
 			1,
-			func() {},
+			c.AND,
 		},
 		0x21: {
 			"AND",
@@ -149,7 +149,7 @@ func initInstructions(c *CPU) {
 			2,
 			6,
 			0,
-			func() {},
+			c.AND,
 		},
 		0x31: {
 			"AND",
@@ -157,7 +157,7 @@ func initInstructions(c *CPU) {
 			2,
 			5,
 			1,
-			func() {},
+			c.AND,
 		},
 		0x0A: {
 			"ASL",
@@ -165,7 +165,7 @@ func initInstructions(c *CPU) {
 			1,
 			2,
 			0,
-			func() {},
+			c.ASL,
 		},
 		0x06: {
 			"ASL",
@@ -173,7 +173,7 @@ func initInstructions(c *CPU) {
 			2,
 			5,
 			0,
-			func() {},
+			c.ASL,
 		},
 		0x16: {
 			"ASL",
@@ -181,7 +181,7 @@ func initInstructions(c *CPU) {
 			2,
 			6,
 			0,
-			func() {},
+			c.ASL,
 		},
 		0x0E: {
 			"ASL",
@@ -189,7 +189,7 @@ func initInstructions(c *CPU) {
 			3,
 			6,
 			0,
-			func() {},
+			c.ASL,
 		},
 		0x1E: {
 			"ASL",
@@ -197,7 +197,7 @@ func initInstructions(c *CPU) {
 			3,
 			7,
 			0,
-			func() {},
+			c.ASL,
 		},
 		// TODO: special case
 		0x90: {
@@ -206,7 +206,7 @@ func initInstructions(c *CPU) {
 			2,
 			2,
 			0,
-			func() {},
+			c.BCC,
 		},
 		// TODO: special case
 		0xB0: {
@@ -215,7 +215,7 @@ func initInstructions(c *CPU) {
 			2,
 			2,
 			0,
-			func() {},
+			c.BCS,
 		},
 		// TODO: special case
 		0xF0: {
@@ -224,7 +224,7 @@ func initInstructions(c *CPU) {
 			2,
 			2,
 			0,
-			func() {},
+			c.BEQ,
 		},
 		0x24: {
 			"BIT",
@@ -232,7 +232,7 @@ func initInstructions(c *CPU) {
 			2,
 			3,
 			0,
-			func() {},
+			c.BIT,
 		},
 		0x2C: {
 			"BIT",
@@ -240,7 +240,7 @@ func initInstructions(c *CPU) {
 			3,
 			4,
 			0,
-			func() {},
+			c.BIT,
 		},
 		// TODO: special case
 		0x30: {
@@ -249,7 +249,7 @@ func initInstructions(c *CPU) {
 			2,
 			2,
 			0,
-			func() {},
+			c.BMI,
 		},
 		// TODO: special case
 		0xD0: {
@@ -258,7 +258,7 @@ func initInstructions(c *CPU) {
 			2,
 			2,
 			0,
-			func() {},
+			c.BNE,
 		},
 		// TODO: special case
 		0x10: {
@@ -267,7 +267,7 @@ func initInstructions(c *CPU) {
 			2,
 			2,
 			0,
-			func() {},
+			c.BPL,
 		},
 		0x00: {
 			"BRK",
@@ -275,7 +275,7 @@ func initInstructions(c *CPU) {
 			1,
 			7,
 			0,
-			func() {},
+			c.BRK,
 		},
 		// TODO: special case
 		0x50: {
@@ -284,7 +284,7 @@ func initInstructions(c *CPU) {
 			2,
 			2,
 			0,
-			func() {},
+			c.BVC,
 		},
 		// TODO: special case
 		0x70: {
@@ -293,7 +293,7 @@ func initInstructions(c *CPU) {
 			2,
 			2,
 			0,
-			func() {},
+			c.BVS,
 		},
 		0x18: {
 			"CLC",
@@ -301,7 +301,7 @@ func initInstructions(c *CPU) {
 			1,
 			2,
 			0,
-			func() {},
+			c.CLC,
 		},
 		0xD8: {
 			"CLD",
@@ -309,7 +309,7 @@ func initInstructions(c *CPU) {
 			1,
 			2,
 			0,
-			func() {},
+			c.CLD,
 		},
 		0x58: {
 			"CLI",
@@ -317,7 +317,7 @@ func initInstructions(c *CPU) {
 			1,
 			2,
 			0,
-			func() {},
+			c.CLI,
 		},
 		0xB8: {
 			"CLV",
@@ -325,7 +325,7 @@ func initInstructions(c *CPU) {
 			1,
 			2,
 			0,
-			func() {},
+			c.CLV,
 		},
 		0xC9: {
 			"CMP",
@@ -333,7 +333,7 @@ func initInstructions(c *CPU) {
 			2,
 			2,
 			0,
-			func() {},
+			c.CMP,
 		},
 		0xC5: {
 			"CMP",
@@ -341,7 +341,7 @@ func initInstructions(c *CPU) {
 			2,
 			3,
 			0,
-			func() {},
+			c.CMP,
 		},
 		0xD5: {
 			"CMP",
@@ -349,7 +349,7 @@ func initInstructions(c *CPU) {
 			2,
 			4,
 			0,
-			func() {},
+			c.CMP,
 		},
 		0xCD: {
 			"CMP",
@@ -357,7 +357,7 @@ func initInstructions(c *CPU) {
 			3,
 			4,
 			0,
-			func() {},
+			c.CMP,
 		},
 		0xDD: {
 			"CMP",
@@ -365,7 +365,7 @@ func initInstructions(c *CPU) {
 			3,
 			4,
 			1,
-			func() {},
+			c.CMP,
 		},
 		0xD9: {
 			"CMP",
@@ -373,7 +373,7 @@ func initInstructions(c *CPU) {
 			3,
 			4,
 			1,
-			func() {},
+			c.CMP,
 		},
 		0xC1: {
 			"CMP",
@@ -381,7 +381,7 @@ func initInstructions(c *CPU) {
 			2,
 			6,
 			0,
-			func() {},
+			c.CMP,
 		},
 		0xD1: {
 			"CMP",
@@ -389,7 +389,7 @@ func initInstructions(c *CPU) {
 			2,
 			5,
 			1,
-			func() {},
+			c.CMP,
 		},
 		0xE0: {
 			"CPX",
@@ -397,7 +397,7 @@ func initInstructions(c *CPU) {
 			2,
 			2,
 			0,
-			func() {},
+			c.CPX,
 		},
 		0xE4: {
 			"CPX",
@@ -405,7 +405,7 @@ func initInstructions(c *CPU) {
 			2,
 			3,
 			0,
-			func() {},
+			c.CPX,
 		},
 		0xEC: {
 			"CPX",
@@ -413,7 +413,7 @@ func initInstructions(c *CPU) {
 			3,
 			4,
 			0,
-			func() {},
+			c.CPX,
 		},
 		0xC0: {
 			"CPY",
@@ -421,7 +421,7 @@ func initInstructions(c *CPU) {
 			2,
 			2,
 			0,
-			func() {},
+			c.CPY,
 		},
 		0xC4: {
 			"CPY",
@@ -429,7 +429,7 @@ func initInstructions(c *CPU) {
 			2,
 			3,
 			0,
-			func() {},
+			c.CPY,
 		},
 		0xCC: {
 			"CPY",
@@ -437,7 +437,7 @@ func initInstructions(c *CPU) {
 			3,
 			4,
 			0,
-			func() {},
+			c.CPY,
 		},
 		0xC6: {
 			"DEC",
@@ -445,7 +445,7 @@ func initInstructions(c *CPU) {
 			2,
 			5,
 			0,
-			func() {},
+			c.DEC,
 		},
 		0xD6: {
 			"DEC",
@@ -453,7 +453,7 @@ func initInstructions(c *CPU) {
 			2,
 			6,
 			0,
-			func() {},
+			c.DEC,
 		},
 		0xCE: {
 			"DEC",
@@ -461,7 +461,7 @@ func initInstructions(c *CPU) {
 			3,
 			6,
 			0,
-			func() {},
+			c.DEC,
 		},
 		0xDE: {
 			"DEC",
@@ -469,7 +469,7 @@ func initInstructions(c *CPU) {
 			3,
 			7,
 			0,
-			func() {},
+			c.DEC,
 		},
 		0xCA: {
 			"DEX",
@@ -477,7 +477,7 @@ func initInstructions(c *CPU) {
 			1,
 			2,
 			0,
-			func() {},
+			c.DEX,
 		},
 		0x88: {
 			"DEY",
@@ -485,7 +485,7 @@ func initInstructions(c *CPU) {
 			1,
 			2,
 			0,
-			func() {},
+			c.DEY,
 		},
 		0x49: {
 			"EOR",
@@ -493,7 +493,7 @@ func initInstructions(c *CPU) {
 			2,
 			2,
 			0,
-			func() {},
+			c.EOR,
 		},
 		0x45: {
 			"EOR",
@@ -501,7 +501,7 @@ func initInstructions(c *CPU) {
 			2,
 			3,
 			0,
-			func() {},
+			c.EOR,
 		},
 		0x55: {
 			"EOR",
@@ -509,7 +509,7 @@ func initInstructions(c *CPU) {
 			2,
 			4,
 			0,
-			func() {},
+			c.EOR,
 		},
 		0x4D: {
 			"EOR",
@@ -517,7 +517,7 @@ func initInstructions(c *CPU) {
 			3,
 			4,
 			0,
-			func() {},
+			c.EOR,
 		},
 		0x5D: {
 			"EOR",
@@ -525,7 +525,7 @@ func initInstructions(c *CPU) {
 			3,
 			4,
 			1,
-			func() {},
+			c.EOR,
 		},
 		0x59: {
 			"EOR",
@@ -533,7 +533,7 @@ func initInstructions(c *CPU) {
 			3,
 			4,
 			1,
-			func() {},
+			c.EOR,
 		},
 		0x41: {
 			"EOR",
@@ -541,7 +541,7 @@ func initInstructions(c *CPU) {
 			2,
 			6,
 			0,
-			func() {},
+			c.EOR,
 		},
 		0x51: {
 			"EOR",
@@ -549,7 +549,7 @@ func initInstructions(c *CPU) {
 			2,
 			5,
 			1,
-			func() {},
+			c.EOR,
 		},
 		0xE6: {
 			"INC",
@@ -557,7 +557,7 @@ func initInstructions(c *CPU) {
 			2,
 			5,
 			0,
-			func() {},
+			c.INC,
 		},
 		0xF6: {
 			"INC",
@@ -565,7 +565,7 @@ func initInstructions(c *CPU) {
 			2,
 			6,
 			0,
-			func() {},
+			c.INC,
 		},
 		0xEE: {
 			"INC",
@@ -573,7 +573,7 @@ func initInstructions(c *CPU) {
 			3,
 			6,
 			0,
-			func() {},
+			c.INC,
 		},
 		0xFE: {
 			"INC",
@@ -581,7 +581,7 @@ func initInstructions(c *CPU) {
 			3,
 			7,
 			0,
-			func() {},
+			c.INC,
 		},
 		0xE8: {
 			"INX",
@@ -589,7 +589,7 @@ func initInstructions(c *CPU) {
 			1,
 			2,
 			0,
-			func() {},
+			c.INX,
 		},
 		0xC8: {
 			"INY",
@@ -597,7 +597,7 @@ func initInstructions(c *CPU) {
 			1,
 			2,
 			0,
-			func() {},
+			c.INY,
 		},
 		0x4C: {
 			"JMP",
@@ -605,7 +605,7 @@ func initInstructions(c *CPU) {
 			3,
 			3,
 			0,
-			func() {},
+			c.JMP,
 		},
 		0x6C: {
 			"JMP",
@@ -613,14 +613,61 @@ func initInstructions(c *CPU) {
 			3,
 			5,
 			0,
-			func() {},
+			c.JMP,
 		},
 	}
 }
 
-// SEC Set Carry Flag
-func (cpu *CPU) SEC() {
-	cpu.Status.C = true
+// ADC Add with Carry
+func (cpu *CPU) ADC() {
+}
+
+// AND Logical AND
+func (cpu *CPU) AND() {
+}
+
+// ASL Arithmetic Shift Left
+func (cpu *CPU) ASL() {
+}
+
+// BCC Branch if Carry Clear
+func (cpu *CPU) BCC() {
+}
+
+// BCS Branch if Carry Set
+func (cpu *CPU) BCS() {
+}
+
+// BEQ Branch if Equal
+func (cpu *CPU) BEQ() {
+}
+
+// BIT Bit Test
+func (cpu *CPU) BIT() {
+}
+
+// BMI Branch if Minus
+func (cpu *CPU) BMI() {
+}
+
+// BNE Branch if Not Equal
+func (cpu *CPU) BNE() {
+}
+
+// BPL Branch if Positive
+func (cpu *CPU) BPL() {
+}
+
+// BRK Force Interrupt
+func (cpu *CPU) BRK() {
+}
+
+// BVC Branch if Overflow Clear
+func (cpu *CPU) BVC() {
+}
+
+// BVS Branch if Overflow Set
+func (cpu *CPU) BVS() {
 }
 
 // CLC Clear Carry Flag
@@ -628,9 +675,9 @@ func (cpu *CPU) CLC() {
 	cpu.Status.C = false
 }
 
-// SEI Set Interrupt Disable
-func (cpu *CPU) SEI() {
-	cpu.Status.I = true
+// CLD Clear Decimal Mode
+func (cpu *CPU) CLD() {
+	cpu.Status.D = false
 }
 
 // CLI Clear Interrupt Disable
@@ -638,17 +685,166 @@ func (cpu *CPU) CLI() {
 	cpu.Status.I = false
 }
 
+// CLV Clear Overflow Flag
+func (cpu *CPU) CLV() {
+	cpu.Status.V = false
+}
+
+// CMP Compare
+func (cpu *CPU) CMP() {
+}
+
+// CPX Compare X Register
+func (cpu *CPU) CPX() {
+}
+
+// CPY Compare Y Register
+func (cpu *CPU) CPY() {
+}
+
+// DEC Decrement Memory
+func (cpu *CPU) DEC() {
+}
+
+// DEX Decrement X Register
+func (cpu *CPU) DEX() {
+}
+
+// DEY Decrement Y Register
+func (cpu *CPU) DEY() {
+}
+
+// EOR Exclusive OR
+func (cpu *CPU) EOR() {
+}
+
+// INC Increment Register
+func (cpu *CPU) INC() {
+}
+
+// INX Increment X Register
+func (cpu *CPU) INX() {
+}
+
+// INY Increment Y Register
+func (cpu *CPU) INY() {
+}
+
+// JMP Jump
+func (cpu *CPU) JMP() {
+}
+
+// JSR Jump to Subroutine
+func (cpu *CPU) JSR() {
+}
+
+// LDA Load Accumulator
+func (cpu *CPU) LDA() {
+}
+
+// LDX Load X Register
+func (cpu *CPU) LDX() {
+}
+
+// LDY Load Y Register
+func (cpu *CPU) LDY() {
+}
+
+// LSR Logical Shift Right
+func (cpu *CPU) LSR() {
+}
+
+// NOP No Operation
+func (cpu *CPU) NOP() {
+}
+
+// ORA Logical Inclusive OR
+func (cpu *CPU) ORA() {
+}
+
+// PHA Push Accumulator
+func (cpu *CPU) PHA() {
+}
+
+// PHP Push Processor Status
+func (cpu *CPU) PHP() {
+}
+
+// PLA Pull Accumulator
+func (cpu *CPU) PLA() {
+}
+
+// PLP Pull Processor Status
+func (cpu *CPU) PLP() {
+}
+
+// ROL Rotate Left
+func (cpu *CPU) ROL() {
+}
+
+// ROR Rotate Right
+func (cpu *CPU) ROR() {
+}
+
+// RTI Return from Interrupt
+func (cpu *CPU) RTI() {
+}
+
+// RTS Return from Subroutine
+func (cpu *CPU) RTS() {
+}
+
+// SBC Subtract with Carry
+func (cpu *CPU) SBC() {
+}
+
+// SEC Set Carry Flag
+func (cpu *CPU) SEC() {
+	cpu.Status.C = true
+}
+
 // SED Set Decimal Mode
 func (cpu *CPU) SED() {
 	cpu.Status.D = true
 }
 
-// CLD Clear Decimal Mode
-func (cpu *CPU) CLD() {
-	cpu.Status.D = false
+// SEI Set Interrupt Disable
+func (cpu *CPU) SEI() {
+	cpu.Status.I = true
 }
 
-// CLV Clear Overflow Flag
-func (cpu *CPU) CLV() {
-	cpu.Status.V = false
+// STA Store Accumulator
+func (cpu *CPU) STA() {
+}
+
+// STX Store X Register
+func (cpu *CPU) STX() {
+}
+
+// STY Store Y Register
+func (cpu *CPU) STY() {
+}
+
+// TAX Transfer Accumulator to X
+func (cpu *CPU) TAX() {
+}
+
+// TAY Transfer Accumulator to Y
+func (cpu *CPU) TAY() {
+}
+
+// TSX Transfer Stack Pointer to X
+func (cpu *CPU) TSX() {
+}
+
+// TXA Transfer X to Accumulator
+func (cpu *CPU) TXA() {
+}
+
+// TXS Transfer X to Stack Pointer
+func (cpu *CPU) TXS() {
+}
+
+// TYA Transfer Y to Accumulator
+func (cpu *CPU) TYA() {
 }
