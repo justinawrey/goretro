@@ -29,7 +29,7 @@ type instruction struct {
 // from http://obelisk.me.uk/6502/reference.html.
 // Instruction "execute" functions are assigned to c, i.e. set to make
 // use of the memory and registers assigned to c.
-func initInstructions(c *CPU) {
+func (c *CPU) initInstructions() {
 	c.instructions = map[byte]instruction{
 		// example
 		0x69: {

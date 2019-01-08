@@ -141,14 +141,14 @@ func NewCPU() *CPU {
 			Status: &Status{},
 		},
 	}
-	initInstructions(cpu)
+	cpu.initInstructions()
 	return cpu
 }
 
 // Decode decodes opcode opcode and returns relevant information.
 // TODO: handle case where opcode is invalid
-func (cpu *CPU) Decode(opcode byte) (name string, addressingMode, cycleCost, pageCrossCost, byteCost int, execute func()) {
-	instruction := cpu.instructions[opcode]
+func (c *CPU) Decode(opcode byte) (name string, addressingMode, cycleCost, pageCrossCost, byteCost int, execute func()) {
+	instruction := c.instructions[opcode]
 	return instruction.name,
 		instruction.addressingMode,
 		instruction.cycleCost,
