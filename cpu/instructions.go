@@ -1,7 +1,5 @@
 package cpu
 
-import "github.com/justinawrey/nes/cpu"
-
 const (
 	modeImplied = iota
 	modeRelative
@@ -1437,17 +1435,17 @@ func (c *CPU) SBC() {
 
 // SEC Set Carry Flag
 func (c *CPU) SEC() {
-	cpu.Status.C = true
+	c.Status.C = true
 }
 
 // SED Set Decimal Mode
 func (c *CPU) SED() {
-	cpu.Status.D = true
+	c.Status.D = true
 }
 
 // SEI Set Interrupt Disable
 func (c *CPU) SEI() {
-	cpu.Status.I = true
+	c.Status.I = true
 }
 
 // STA Store Accumulator
