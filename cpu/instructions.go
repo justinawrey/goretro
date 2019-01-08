@@ -1,5 +1,7 @@
 package cpu
 
+import "github.com/justinawrey/nes/cpu"
+
 const (
 	modeImplied = iota
 	modeRelative
@@ -1254,232 +1256,232 @@ func (c *CPU) initInstructions() {
 }
 
 // ADC Add with Carry
-func (cpu *CPU) ADC() {
+func (c *CPU) ADC() {
 }
 
 // AND Logical AND
-func (cpu *CPU) AND() {
+func (c *CPU) AND() {
 }
 
 // ASL Arithmetic Shift Left
-func (cpu *CPU) ASL() {
+func (c *CPU) ASL() {
 }
 
 // BCC Branch if Carry Clear
-func (cpu *CPU) BCC() {
+func (c *CPU) BCC() {
 }
 
 // BCS Branch if Carry Set
-func (cpu *CPU) BCS() {
+func (c *CPU) BCS() {
 }
 
 // BEQ Branch if Equal
-func (cpu *CPU) BEQ() {
+func (c *CPU) BEQ() {
 }
 
 // BIT Bit Test
-func (cpu *CPU) BIT() {
+func (c *CPU) BIT() {
 }
 
 // BMI Branch if Minus
-func (cpu *CPU) BMI() {
+func (c *CPU) BMI() {
 }
 
 // BNE Branch if Not Equal
-func (cpu *CPU) BNE() {
+func (c *CPU) BNE() {
 }
 
 // BPL Branch if Positive
-func (cpu *CPU) BPL() {
+func (c *CPU) BPL() {
 }
 
 // BRK Force Interrupt
-func (cpu *CPU) BRK() {
+func (c *CPU) BRK() {
 }
 
 // BVC Branch if Overflow Clear
-func (cpu *CPU) BVC() {
+func (c *CPU) BVC() {
 }
 
 // BVS Branch if Overflow Set
-func (cpu *CPU) BVS() {
+func (c *CPU) BVS() {
 }
 
 // CLC Clear Carry Flag
-func (cpu *CPU) CLC() {
-	cpu.Status.C = false
+func (c *CPU) CLC() {
+	c.Status.C = false
 }
 
 // CLD Clear Decimal Mode
-func (cpu *CPU) CLD() {
-	cpu.Status.D = false
+func (c *CPU) CLD() {
+	c.Status.D = false
 }
 
 // CLI Clear Interrupt Disable
-func (cpu *CPU) CLI() {
-	cpu.Status.I = false
+func (c *CPU) CLI() {
+	c.Status.I = false
 }
 
 // CLV Clear Overflow Flag
-func (cpu *CPU) CLV() {
-	cpu.Status.V = false
+func (c *CPU) CLV() {
+	c.Status.V = false
 }
 
 // CMP Compare
-func (cpu *CPU) CMP() {
+func (c *CPU) CMP() {
 }
 
 // CPX Compare X Register
-func (cpu *CPU) CPX() {
+func (c *CPU) CPX() {
 }
 
 // CPY Compare Y Register
-func (cpu *CPU) CPY() {
+func (c *CPU) CPY() {
 }
 
 // DEC Decrement Memory
-func (cpu *CPU) DEC() {
+func (c *CPU) DEC() {
 }
 
 // DEX Decrement X Register
-func (cpu *CPU) DEX() {
+func (c *CPU) DEX() {
 }
 
 // DEY Decrement Y Register
-func (cpu *CPU) DEY() {
+func (c *CPU) DEY() {
 }
 
 // EOR Exclusive OR
-func (cpu *CPU) EOR() {
+func (c *CPU) EOR() {
 }
 
 // INC Increment Register
-func (cpu *CPU) INC() {
+func (c *CPU) INC() {
 }
 
 // INX Increment X Register
-func (cpu *CPU) INX() {
+func (c *CPU) INX() {
 }
 
 // INY Increment Y Register
-func (cpu *CPU) INY() {
+func (c *CPU) INY() {
 }
 
 // JMP Jump
-func (cpu *CPU) JMP() {
+func (c *CPU) JMP() {
 }
 
 // JSR Jump to Subroutine
-func (cpu *CPU) JSR() {
+func (c *CPU) JSR() {
 }
 
 // LDA Load Accumulator
-func (cpu *CPU) LDA() {
+func (c *CPU) LDA() {
 }
 
 // LDX Load X Register
-func (cpu *CPU) LDX() {
+func (c *CPU) LDX() {
 }
 
 // LDY Load Y Register
-func (cpu *CPU) LDY() {
+func (c *CPU) LDY() {
 }
 
 // LSR Logical Shift Right
-func (cpu *CPU) LSR() {
+func (c *CPU) LSR() {
 }
 
 // NOP No Operation
-func (cpu *CPU) NOP() {
+func (c *CPU) NOP() {
 }
 
 // ORA Logical Inclusive OR
-func (cpu *CPU) ORA() {
+func (c *CPU) ORA() {
 }
 
 // PHA Push Accumulator
-func (cpu *CPU) PHA() {
+func (c *CPU) PHA() {
 }
 
 // PHP Push Processor Status
-func (cpu *CPU) PHP() {
+func (c *CPU) PHP() {
 }
 
 // PLA Pull Accumulator
-func (cpu *CPU) PLA() {
+func (c *CPU) PLA() {
 }
 
 // PLP Pull Processor Status
-func (cpu *CPU) PLP() {
+func (c *CPU) PLP() {
 }
 
 // ROL Rotate Left
-func (cpu *CPU) ROL() {
+func (c *CPU) ROL() {
 }
 
 // ROR Rotate Right
-func (cpu *CPU) ROR() {
+func (c *CPU) ROR() {
 }
 
 // RTI Return from Interrupt
-func (cpu *CPU) RTI() {
+func (c *CPU) RTI() {
 }
 
 // RTS Return from Subroutine
-func (cpu *CPU) RTS() {
+func (c *CPU) RTS() {
 }
 
 // SBC Subtract with Carry
-func (cpu *CPU) SBC() {
+func (c *CPU) SBC() {
 }
 
 // SEC Set Carry Flag
-func (cpu *CPU) SEC() {
+func (c *CPU) SEC() {
 	cpu.Status.C = true
 }
 
 // SED Set Decimal Mode
-func (cpu *CPU) SED() {
+func (c *CPU) SED() {
 	cpu.Status.D = true
 }
 
 // SEI Set Interrupt Disable
-func (cpu *CPU) SEI() {
+func (c *CPU) SEI() {
 	cpu.Status.I = true
 }
 
 // STA Store Accumulator
-func (cpu *CPU) STA() {
+func (c *CPU) STA() {
 }
 
 // STX Store X Register
-func (cpu *CPU) STX() {
+func (c *CPU) STX() {
 }
 
 // STY Store Y Register
-func (cpu *CPU) STY() {
+func (c *CPU) STY() {
 }
 
 // TAX Transfer Accumulator to X
-func (cpu *CPU) TAX() {
+func (c *CPU) TAX() {
 }
 
 // TAY Transfer Accumulator to Y
-func (cpu *CPU) TAY() {
+func (c *CPU) TAY() {
 }
 
 // TSX Transfer Stack Pointer to X
-func (cpu *CPU) TSX() {
+func (c *CPU) TSX() {
 }
 
 // TXA Transfer X to Accumulator
-func (cpu *CPU) TXA() {
+func (c *CPU) TXA() {
 }
 
 // TXS Transfer X to Stack Pointer
-func (cpu *CPU) TXS() {
+func (c *CPU) TXS() {
 }
 
 // TYA Transfer Y to Accumulator
-func (cpu *CPU) TYA() {
+func (c *CPU) TYA() {
 }
