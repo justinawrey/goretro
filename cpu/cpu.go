@@ -123,6 +123,16 @@ func (m *MemoryMap) Read(from uint16) byte {
 	return m[from]
 }
 
+// Read16 reads two bytes, in little endian order, starting
+// at memory location from.  The bytes are concatenated
+// into a two byte word and returned.
+// TODO: make robust
+func (m *MemoryMap) Read16(from uint16) uint16 {
+	lo := uint16(m.Read(from))
+	hi := uint16(m.Read(from + 1))
+	return hi<<8 | lo
+}
+
 // CPU represents to 6502 and its associated registers and memory map.
 // This should be declared and used as a singleton during emulator execution.
 type CPU struct {
@@ -155,4 +165,45 @@ func (c *CPU) Decode(opcode byte) (name string, addressingMode, cycleCost, pageC
 		instruction.pageCrossCost,
 		instruction.byteCost,
 		instruction.execute
+}
+
+// GetAddressWithMode ...
+// TODO: complete
+func (c *CPU) GetAddressWithMode(addressingMode int) uint16 {
+	switch addressingMode {
+	case modeImplied:
+		return 0
+	case modeRelative:
+		return 0
+	case modeAccumulator:
+		return 0
+	case modeImmediate:
+		return 0
+	case modeZeroPage:
+		return 0
+	case modeZeroPageX:
+		return 0
+	case modeZeroPageY:
+		return 0
+	case modeAbsolute:
+		// Instructions with modeAbsolute take 3 bytes:
+		// 1. opcode
+		// 2. least significant byte of address
+		// 3. most significant byte of address
+		return c.Read16(c.PC + 1)
+	case modeAbsoluteX:
+		// Same as modeAbsolute, with address being added to contents of X register
+		return c.Read16(c.PC+1) + uint16(c.X)
+	case modeAbsoluteY:
+		// Same as modeAbsolute, with address being added to contents of Y register
+		return c.Read16(c.PC+1) + uint16(c.Y)
+	case modeIndirect:
+		return 0
+	case modeIndirectX:
+		return 0
+	case modeIndirectY:
+		return 0
+	default:
+		return 0
+	}
 }
