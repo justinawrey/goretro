@@ -82,6 +82,7 @@ const (
 	memSize = 0xFFFF // 6502 has a 64kB memory map
 
 	// See table below for more details
+	zeroPageEnd  = 0x00FF
 	ramEnd       = 0x1FFF
 	ppuEnd       = 0x3FFF
 	apuIoEnd     = 0x4017
@@ -169,22 +170,33 @@ func (c *CPU) Decode(opcode byte) (name string, addressingMode, cycleCost, pageC
 
 // GetAddressWithMode ...
 // TODO: complete
+// TODO: maybe assert c.PC is on an opcode address
 func (c *CPU) GetAddressWithMode(addressingMode int) uint16 {
 	switch addressingMode {
 	case modeImplied:
+		// TODO: flag as unneeded somehow
 		return 0
 	case modeRelative:
+		// TODO: complete
 		return 0
 	case modeAccumulator:
+		// TODO: flag as unneeded somehow
 		return 0
 	case modeImmediate:
+		// TODO: complete
 		return 0
 	case modeZeroPage:
+		// TODO: complete
 		return 0
 	case modeZeroPageX:
+		// TODO: complete
 		return 0
 	case modeZeroPageY:
+		// TODO: complete
 		return 0
+	case modeIndirect:
+		// Same as modeAbsolute
+		fallthrough
 	case modeAbsolute:
 		// Instructions with modeAbsolute take 3 bytes:
 		// 1. opcode
@@ -197,13 +209,19 @@ func (c *CPU) GetAddressWithMode(addressingMode int) uint16 {
 	case modeAbsoluteY:
 		// Same as modeAbsolute, with address being added to contents of Y register
 		return c.Read16(c.PC+1) + uint16(c.Y)
-	case modeIndirect:
-		return 0
 	case modeIndirectX:
-		return 0
+		// Instructions with modeIndirectX take 2 bytes:
+		// 1. opcode
+		// 2. zero page byte address
+		// byte retrieved in 2. is then added to the contents of X register with zero page wraparound
+		// TODO: might be able to be simplified
+		return (uint16(c.Read(c.PC+1)) + uint16(c.X)) & zeroPageEnd
 	case modeIndirectY:
-		return 0
+		// Same as modeIndirectX, with byte retrieved being added to contents of Y register with zero page wraparound
+		// TODO: might be able to be simplified
+		return (uint16(c.Read(c.PC+1)) + uint16(c.Y)) & zeroPageEnd
 	default:
+		// TODO: shouldn't happen, but should handle gracefully
 		return 0
 	}
 }
