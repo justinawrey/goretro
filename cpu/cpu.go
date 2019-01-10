@@ -233,7 +233,6 @@ func (c *CPU) GetAddressWithMode(addressingMode int) (addr uint16) {
 // 3. Incrementing the program counter by the correct amount.
 func (c *CPU) Step() {
 	// TODO: flesh out
-
 	opcode := c.Read(c.PC)
 	name, addressingMode, cycleCost, pageCrossCost, byteCost, execute := c.Decode(opcode)
 	instructionAddress := c.GetAddressWithMode(addressingMode)
