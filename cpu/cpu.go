@@ -225,3 +225,19 @@ func (c *CPU) GetAddressWithMode(addressingMode int) (addr uint16) {
 		return 0
 	}
 }
+
+func (c *CPU) Step() {
+	// TODO: flesh out
+
+	opcode := c.Read(c.PC)
+	name, addressingMode, cycleCost, pageCrossCost, byteCost, execute := c.Decode(opcode)
+	instructionAddress := c.GetAddressWithMode(addressingMode)
+	execute(instructionAddress)
+	c.PC += uint16(byteCost)
+
+	// TODO: use these vars later
+	_ = name
+	_ = cycleCost
+	_ = pageCrossCost
+	_ = execute
+}
