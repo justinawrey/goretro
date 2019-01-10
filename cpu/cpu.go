@@ -15,7 +15,7 @@ type Status struct {
 }
 
 // String implements Stringer
-func (sr *Status) String() string {
+func (sr *Status) String() (repr string) {
 	convert := func(bit bool) string {
 		if bit {
 			return "1"
@@ -61,7 +61,7 @@ type Registers struct {
 }
 
 // String implements Stringer
-func (r *Registers) String() string {
+func (r *Registers) String() (repr string) {
 	return fmt.Sprintf("%6s | %v\n%6s | %v\n%6s | %v\n%6s | %v\n%6s | %v\n%6s | %v\n",
 		"Status",
 		r.Status,
@@ -108,7 +108,7 @@ type MemoryMap [memSize]byte
 
 // String implements Stringer
 // TODO: complete memory dump
-func (m *MemoryMap) String() string {
+func (m *MemoryMap) String() (repr string) {
 	return ""
 }
 
@@ -120,7 +120,7 @@ func (m *MemoryMap) Write(to uint16, data byte) {
 
 // Read reads from the memory map.
 // TODO: make robust
-func (m *MemoryMap) Read(from uint16) byte {
+func (m *MemoryMap) Read(from uint16) (b byte) {
 	return m[from]
 }
 
@@ -128,7 +128,7 @@ func (m *MemoryMap) Read(from uint16) byte {
 // at memory location from.  The bytes are concatenated
 // into a two byte word and returned.
 // TODO: make robust
-func (m *MemoryMap) Read16(from uint16) uint16 {
+func (m *MemoryMap) Read16(from uint16) (word uint16) {
 	lo := uint16(m.Read(from))
 	hi := uint16(m.Read(from + 1))
 	return hi<<8 | lo
@@ -145,7 +145,7 @@ type CPU struct {
 
 // NewCPU initializes a new 6502 CPU with all status bits, register, and memory
 // initialized to zero.
-func NewCPU() *CPU {
+func NewCPU() (c *CPU) {
 	cpu := &CPU{
 		MemoryMap: &MemoryMap{},
 		Registers: &Registers{
@@ -171,7 +171,7 @@ func (c *CPU) Decode(opcode byte) (name string, addressingMode, cycleCost, pageC
 // GetAddressWithMode ...
 // TODO: complete
 // TODO: maybe assert c.PC is on an opcode address
-func (c *CPU) GetAddressWithMode(addressingMode int) uint16 {
+func (c *CPU) GetAddressWithMode(addressingMode int) (addr uint16) {
 	switch addressingMode {
 	case modeImplied:
 		// TODO: flag as unneeded somehow
