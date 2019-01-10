@@ -158,7 +158,7 @@ func NewCPU() (c *CPU) {
 
 // Decode decodes opcode opcode and returns relevant information.
 // TODO: handle case where opcode is invalid
-func (c *CPU) Decode(opcode byte) (name string, addressingMode, cycleCost, pageCrossCost, byteCost int, execute func()) {
+func (c *CPU) Decode(opcode byte) (name string, addressingMode, cycleCost, pageCrossCost, byteCost int, execute func(uint16)) {
 	instruction := c.instructions[opcode]
 	return instruction.name,
 		instruction.addressingMode,
@@ -226,6 +226,11 @@ func (c *CPU) GetAddressWithMode(addressingMode int) (addr uint16) {
 	}
 }
 
+// Step performs a single step of the CPU.
+// Briefly, this consists of:
+// 1. Retrieving the opcode at current PC
+// 2. Decoding the opcode and performing instruction.
+// 3. Incrementing the program counter by the correct amount.
 func (c *CPU) Step() {
 	// TODO: flesh out
 

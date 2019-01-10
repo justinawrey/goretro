@@ -22,7 +22,7 @@ type instruction struct {
 	cycleCost      int
 	pageCrossCost  int
 	byteCost       int
-	execute        func()
+	execute        func(uint16)
 }
 
 // initInstructions assembles instructions according to information
@@ -1254,232 +1254,232 @@ func (c *CPU) initInstructions() {
 }
 
 // ADC Add with Carry
-func (c *CPU) ADC() {
+func (c *CPU) ADC(address uint16) {
 }
 
 // AND Logical AND
-func (c *CPU) AND() {
+func (c *CPU) AND(address uint16) {
 }
 
 // ASL Arithmetic Shift Left
-func (c *CPU) ASL() {
+func (c *CPU) ASL(address uint16) {
 }
 
 // BCC Branch if Carry Clear
-func (c *CPU) BCC() {
+func (c *CPU) BCC(address uint16) {
 }
 
 // BCS Branch if Carry Set
-func (c *CPU) BCS() {
+func (c *CPU) BCS(address uint16) {
 }
 
 // BEQ Branch if Equal
-func (c *CPU) BEQ() {
+func (c *CPU) BEQ(address uint16) {
 }
 
 // BIT Bit Test
-func (c *CPU) BIT() {
+func (c *CPU) BIT(address uint16) {
 }
 
 // BMI Branch if Minus
-func (c *CPU) BMI() {
+func (c *CPU) BMI(address uint16) {
 }
 
 // BNE Branch if Not Equal
-func (c *CPU) BNE() {
+func (c *CPU) BNE(address uint16) {
 }
 
 // BPL Branch if Positive
-func (c *CPU) BPL() {
+func (c *CPU) BPL(address uint16) {
 }
 
 // BRK Force Interrupt
-func (c *CPU) BRK() {
+func (c *CPU) BRK(address uint16) {
 }
 
 // BVC Branch if Overflow Clear
-func (c *CPU) BVC() {
+func (c *CPU) BVC(address uint16) {
 }
 
 // BVS Branch if Overflow Set
-func (c *CPU) BVS() {
+func (c *CPU) BVS(address uint16) {
 }
 
 // CLC Clear Carry Flag
-func (c *CPU) CLC() {
+func (c *CPU) CLC(address uint16) {
 	c.Status.C = false
 }
 
 // CLD Clear Decimal Mode
-func (c *CPU) CLD() {
+func (c *CPU) CLD(address uint16) {
 	c.Status.D = false
 }
 
 // CLI Clear Interrupt Disable
-func (c *CPU) CLI() {
+func (c *CPU) CLI(address uint16) {
 	c.Status.I = false
 }
 
 // CLV Clear Overflow Flag
-func (c *CPU) CLV() {
+func (c *CPU) CLV(address uint16) {
 	c.Status.V = false
 }
 
 // CMP Compare
-func (c *CPU) CMP() {
+func (c *CPU) CMP(address uint16) {
 }
 
 // CPX Compare X Register
-func (c *CPU) CPX() {
+func (c *CPU) CPX(address uint16) {
 }
 
 // CPY Compare Y Register
-func (c *CPU) CPY() {
+func (c *CPU) CPY(address uint16) {
 }
 
 // DEC Decrement Memory
-func (c *CPU) DEC() {
+func (c *CPU) DEC(address uint16) {
 }
 
 // DEX Decrement X Register
-func (c *CPU) DEX() {
+func (c *CPU) DEX(address uint16) {
 }
 
 // DEY Decrement Y Register
-func (c *CPU) DEY() {
+func (c *CPU) DEY(address uint16) {
 }
 
 // EOR Exclusive OR
-func (c *CPU) EOR() {
+func (c *CPU) EOR(address uint16) {
 }
 
 // INC Increment Register
-func (c *CPU) INC() {
+func (c *CPU) INC(address uint16) {
 }
 
 // INX Increment X Register
-func (c *CPU) INX() {
+func (c *CPU) INX(address uint16) {
 }
 
 // INY Increment Y Register
-func (c *CPU) INY() {
+func (c *CPU) INY(address uint16) {
 }
 
 // JMP Jump
-func (c *CPU) JMP() {
+func (c *CPU) JMP(address uint16) {
 }
 
 // JSR Jump to Subroutine
-func (c *CPU) JSR() {
+func (c *CPU) JSR(address uint16) {
 }
 
 // LDA Load Accumulator
-func (c *CPU) LDA() {
+func (c *CPU) LDA(address uint16) {
 }
 
 // LDX Load X Register
-func (c *CPU) LDX() {
+func (c *CPU) LDX(address uint16) {
 }
 
 // LDY Load Y Register
-func (c *CPU) LDY() {
+func (c *CPU) LDY(address uint16) {
 }
 
 // LSR Logical Shift Right
-func (c *CPU) LSR() {
+func (c *CPU) LSR(address uint16) {
 }
 
 // NOP No Operation
-func (c *CPU) NOP() {
+func (c *CPU) NOP(address uint16) {
 }
 
 // ORA Logical Inclusive OR
-func (c *CPU) ORA() {
+func (c *CPU) ORA(address uint16) {
 }
 
 // PHA Push Accumulator
-func (c *CPU) PHA() {
+func (c *CPU) PHA(address uint16) {
 }
 
 // PHP Push Processor Status
-func (c *CPU) PHP() {
+func (c *CPU) PHP(address uint16) {
 }
 
 // PLA Pull Accumulator
-func (c *CPU) PLA() {
+func (c *CPU) PLA(address uint16) {
 }
 
 // PLP Pull Processor Status
-func (c *CPU) PLP() {
+func (c *CPU) PLP(address uint16) {
 }
 
 // ROL Rotate Left
-func (c *CPU) ROL() {
+func (c *CPU) ROL(address uint16) {
 }
 
 // ROR Rotate Right
-func (c *CPU) ROR() {
+func (c *CPU) ROR(address uint16) {
 }
 
 // RTI Return from Interrupt
-func (c *CPU) RTI() {
+func (c *CPU) RTI(address uint16) {
 }
 
 // RTS Return from Subroutine
-func (c *CPU) RTS() {
+func (c *CPU) RTS(address uint16) {
 }
 
 // SBC Subtract with Carry
-func (c *CPU) SBC() {
+func (c *CPU) SBC(address uint16) {
 }
 
 // SEC Set Carry Flag
-func (c *CPU) SEC() {
+func (c *CPU) SEC(address uint16) {
 	c.Status.C = true
 }
 
 // SED Set Decimal Mode
-func (c *CPU) SED() {
+func (c *CPU) SED(address uint16) {
 	c.Status.D = true
 }
 
 // SEI Set Interrupt Disable
-func (c *CPU) SEI() {
+func (c *CPU) SEI(address uint16) {
 	c.Status.I = true
 }
 
 // STA Store Accumulator
-func (c *CPU) STA() {
+func (c *CPU) STA(address uint16) {
 }
 
 // STX Store X Register
-func (c *CPU) STX() {
+func (c *CPU) STX(address uint16) {
 }
 
 // STY Store Y Register
-func (c *CPU) STY() {
+func (c *CPU) STY(address uint16) {
 }
 
 // TAX Transfer Accumulator to X
-func (c *CPU) TAX() {
+func (c *CPU) TAX(address uint16) {
 }
 
 // TAY Transfer Accumulator to Y
-func (c *CPU) TAY() {
+func (c *CPU) TAY(address uint16) {
 }
 
 // TSX Transfer Stack Pointer to X
-func (c *CPU) TSX() {
+func (c *CPU) TSX(address uint16) {
 }
 
 // TXA Transfer X to Accumulator
-func (c *CPU) TXA() {
+func (c *CPU) TXA(address uint16) {
 }
 
 // TXS Transfer X to Stack Pointer
-func (c *CPU) TXS() {
+func (c *CPU) TXS(address uint16) {
 }
 
 // TYA Transfer Y to Accumulator
-func (c *CPU) TYA() {
+func (c *CPU) TYA(address uint16) {
 }
