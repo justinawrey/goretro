@@ -1,6 +1,9 @@
 package cpu
 
-import "fmt"
+import (
+	"fmt"
+	"log"
+)
 
 // Status holds data for each status flag
 // in the 6502 status register.
@@ -158,14 +161,17 @@ func NewCPU() (c *CPU) {
 
 // Decode decodes opcode opcode and returns relevant information.
 // TODO: handle case where opcode is invalid
-func (c *CPU) Decode(opcode byte) (name string, addressingMode, cycleCost, pageCrossCost, byteCost int, execute func(uint16)) {
-	instruction := c.instructions[opcode]
-	return instruction.name,
-		instruction.addressingMode,
-		instruction.cycleCost,
-		instruction.pageCrossCost,
-		instruction.byteCost,
-		instruction.execute
+func (c *CPU) Decode(opcode byte) (name string, addressingMode, cycleCost, pageCrossCost, byteCost int, execute func(uint16), err error) {
+	if instruction, ok := c.instructions[opcode]; ok {
+		return instruction.name,
+			instruction.addressingMode,
+			instruction.cycleCost,
+			instruction.pageCrossCost,
+			instruction.byteCost,
+			instruction.execute,
+			nil
+	}
+	return "", 0, 0, 0, 0, nil, ErrInvalidOpcode(opcode)
 }
 
 // GetAddressWithMode ...
@@ -234,7 +240,12 @@ func (c *CPU) GetAddressWithMode(addressingMode int) (addr uint16) {
 func (c *CPU) Step() {
 	// TODO: flesh out
 	opcode := c.Read(c.PC)
-	name, addressingMode, cycleCost, pageCrossCost, byteCost, execute := c.Decode(opcode)
+	name, addressingMode, cycleCost, pageCrossCost, byteCost, execute, err := c.Decode(opcode)
+	if IsInvalidOpcodeErr(err) {
+		// If the opcode is invalid, continue to the next instruction.
+		log.Println(err)
+		return
+	}
 	instructionAddress := c.GetAddressWithMode(addressingMode)
 	execute(instructionAddress)
 	c.PC += uint16(byteCost)
@@ -243,5 +254,4 @@ func (c *CPU) Step() {
 	_ = name
 	_ = cycleCost
 	_ = pageCrossCost
-	_ = execute
 }

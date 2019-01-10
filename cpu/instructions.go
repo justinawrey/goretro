@@ -1,5 +1,7 @@
 package cpu
 
+import "fmt"
+
 const (
 	modeImplied = iota
 	modeRelative
@@ -23,6 +25,24 @@ type instruction struct {
 	pageCrossCost  int
 	byteCost       int
 	execute        func(uint16)
+}
+
+// ErrInvalidOpcode is an invalid opcode error.
+// Only official opcodes are supported.
+type ErrInvalidOpcode byte
+
+// Error() implements error
+func (e ErrInvalidOpcode) Error() (repr string) {
+	return fmt.Sprintf("invalid opcode: %v", byte(e))
+}
+
+// IsInvalidOpcodeErr returns whether or not err is of type
+// ErrInvalidOpcode.
+func IsInvalidOpcodeErr(err error) (invalid bool) {
+	if _, ok := err.(ErrInvalidOpcode); ok {
+		return true
+	}
+	return false
 }
 
 // initInstructions assembles instructions according to information
