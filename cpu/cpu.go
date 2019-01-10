@@ -235,11 +235,15 @@ func (c *CPU) GetAddressWithMode(addressingMode int) (addr uint16) {
 // Step performs a single step of the CPU.
 // Briefly, this consists of:
 // 1. Retrieving the opcode at current PC
-// 2. Decoding the opcode and performing instruction.
-// 3. Incrementing the program counter by the correct amount.
+// 2. Decoding the opcode.
+// 3. Performing the instruction.
+// 4. Incrementing the program counter by the correct amount.
+// TODO: flesh out
 func (c *CPU) Step() {
-	// TODO: flesh out
+	// 1. Retrieve opcode at current PC
 	opcode := c.Read(c.PC)
+
+	// 2. Decode opcode
 	name, addressingMode, cycleCost, pageCrossCost, byteCost, execute, err := c.Decode(opcode)
 	if IsInvalidOpcodeErr(err) {
 		// If the opcode is invalid, continue to the next instruction.
@@ -247,7 +251,11 @@ func (c *CPU) Step() {
 		return
 	}
 	instructionAddress := c.GetAddressWithMode(addressingMode)
+
+	// 3. Perform instruction
 	execute(instructionAddress)
+
+	// 4. Increment program counter
 	c.PC += uint16(byteCost)
 
 	// TODO: use these vars later
