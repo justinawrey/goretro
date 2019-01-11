@@ -130,7 +130,6 @@ func (m *MemoryMap) Read(from uint16) (b byte) {
 // Read16 reads two bytes, in little endian order, starting
 // at memory location from.  The bytes are concatenated
 // into a two byte word and returned.
-// TODO: make robust
 func (m *MemoryMap) Read16(from uint16) (word uint16) {
 	lo := uint16(m.Read(from))
 	hi := uint16(m.Read(from + 1))
@@ -160,7 +159,6 @@ func NewCPU() (c *CPU) {
 }
 
 // Decode decodes opcode opcode and returns relevant information.
-// TODO: handle case where opcode is invalid
 func (c *CPU) Decode(opcode byte) (name string, addressingMode, cycleCost, pageCrossCost, byteCost int, execute func(uint16), err error) {
 	if instruction, ok := c.instructions[opcode]; ok {
 		return instruction.name,
@@ -174,60 +172,91 @@ func (c *CPU) Decode(opcode byte) (name string, addressingMode, cycleCost, pageC
 	return "", 0, 0, 0, 0, nil, ErrInvalidOpcode(opcode)
 }
 
-// GetAddressWithMode ...
-// TODO: complete
-// TODO: maybe assert c.PC is on an opcode address
+// GetAddressWithMode uses addressing mode addressingMode to get
+// an address on which any instruction can execute.
+// Must be used when c.PC is on an opcode address, otherwise
+// the following addresses will be interpreted incorrectly.
 func (c *CPU) GetAddressWithMode(addressingMode int) (addr uint16) {
 	switch addressingMode {
 	case modeImplied:
-		// TODO: flag as unneeded somehow
-		return 0
-	case modeRelative:
-		// TODO: complete
-		return 0
-	case modeAccumulator:
-		// TODO: flag as unneeded somehow
-		return 0
-	case modeImmediate:
-		// TODO: complete
-		return 0
-	case modeZeroPage:
-		// TODO: complete
-		return 0
-	case modeZeroPageX:
-		// TODO: complete
-		return 0
-	case modeZeroPageY:
-		// TODO: complete
-		return 0
-	case modeIndirect:
-		// Same as modeAbsolute
+		// Address will be unused for following two addressing modes; return 0
 		fallthrough
+
+	case modeAccumulator:
+		return 0
+
+	case modeRelative:
+		// Instructions with modeRelative take 2 bytes:
+		// 1. opcode
+		// 2. 8 bit constant value
+		// The address containing the constant value
+		// will only be accessed if the branch succeeeds.
+		// TODO: special case?
+		return c.PC + uint16(c.Read(c.PC+1))
+
+	case modeImmediate:
+		// Instructions with modeImmediate take 2 bytes:
+		// 1. opcode
+		// 2. 8 bit constant value
+		return c.PC + 1
+
+	case modeZeroPage:
+		// Instructions with modeZeroPage take 2 bytes:
+		// 1. opcode
+		// 2. zero-page address
+		return uint16(c.Read(c.PC + 1))
+
+	case modeZeroPageX:
+		// Same as modeZeroPage, but with zero page address being added to X register with wraparound
+		return uint16(c.Read(c.PC+1)+c.X) & zeroPageEnd
+
+	case modeZeroPageY:
+		// Same as modeZeroPage, but with zero page address being added to Y register with wraparound
+		return uint16(c.Read(c.PC+1)+c.Y) & zeroPageEnd
+
 	case modeAbsolute:
 		// Instructions with modeAbsolute take 3 bytes:
 		// 1. opcode
 		// 2. least significant byte of address
 		// 3. most significant byte of address
 		return c.Read16(c.PC + 1)
+
 	case modeAbsoluteX:
 		// Same as modeAbsolute, with address being added to contents of X register
 		return c.Read16(c.PC+1) + uint16(c.X)
+
 	case modeAbsoluteY:
 		// Same as modeAbsolute, with address being added to contents of Y register
 		return c.Read16(c.PC+1) + uint16(c.Y)
+
+	case modeIndirect:
+		// Instructions with modeIndirect take 3 bytes:
+		// 1. opcode
+		// 2. least significant byte of address
+		// 3. most significant byte of address
+		// The formulated address, along with the next,
+		// are then accessed again to get the final address.
+		return c.Read16(c.Read16(c.PC + 1))
+
 	case modeIndirectX:
 		// Instructions with modeIndirectX take 2 bytes:
 		// 1. opcode
-		// 2. zero page byte address
-		// byte retrieved in 2. is then added to the contents of X register with zero page wraparound
-		// TODO: might be able to be simplified
-		return (uint16(c.Read(c.PC+1)) + uint16(c.X)) & zeroPageEnd
+		// 2. single byte
+		// The byte is then added to the X register, which then
+		// gives the least significant byte of the target address.
+		return c.Read16(uint16(c.Read(c.PC+1) + c.X))
+
 	case modeIndirectY:
-		// Same as modeIndirectX, with byte retrieved being added to contents of Y register with zero page wraparound
-		// TODO: might be able to be simplified
-		return (uint16(c.Read(c.PC+1)) + uint16(c.Y)) & zeroPageEnd
+		// Instructions with modeIndirectY take 2 bytes:
+		// 1. opcode
+		// 2. least significant byte of zero page address
+		// The zero page address is then accessed, and the data
+		// is added to the Y register. The resulting data is the
+		// target address.
+		return c.Read16(uint16(c.Read(c.PC+1))) + uint16(c.Y)
+
 	default:
-		// TODO: shouldn't happen, but should handle gracefully
+		// shouldn't happen, but handle gracefully
 		return 0
 	}
 }
