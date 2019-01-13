@@ -90,6 +90,12 @@ func assertRegister(expected, reg byte, t *testing.T) {
 	}
 }
 
+func assertPC(expected, reg uint16, t *testing.T) {
+	if reg != expected {
+		t.Errorf("want: %v, got %v\n", expected, reg)
+	}
+}
+
 func assertMemory(expected byte, loc uint16, mem *cpu.MemoryMap, t *testing.T) {
 	got := mem[loc]
 	if got != expected {
