@@ -103,7 +103,7 @@ func assertMemory(expected byte, loc uint16, mem *cpu.MemoryMap, t *testing.T) {
 	}
 }
 
-func TestCpu(t *testing.T) {
+func TestInstructions(t *testing.T) {
 	cpu := cpu.NewCPU()
 
 	clearAndTest := func(inner func(t *testing.T)) func(*testing.T) {
@@ -192,5 +192,71 @@ func TestCpu(t *testing.T) {
 		cpu.INC(addr)
 		assertStatus("00X00010", cpu.Status, t)
 		assertMemory(0, addr, cpu.MemoryMap, t)
+	}))
+
+	t.Run("test LDA", clearAndTest(func(t *testing.T) {
+		// Should set negative flag, no zero flag
+		var addr uint16 = 0x000A
+		var data byte = 0xAA
+		cpu.Write(addr, data)
+		cpu.LDA(addr)
+		assertStatus("10X00000", cpu.Status, t)
+		assertRegister(data, cpu.A, t)
+
+		// Should set zero flag, no negative flag
+		data = 0x00
+		cpu.Write(addr, data)
+		cpu.LDA(addr)
+		assertStatus("00X00010", cpu.Status, t)
+		assertRegister(data, cpu.A, t)
+	}))
+
+	t.Run("test LDX", clearAndTest(func(t *testing.T) {
+		// Should set negative flag, no zero flag
+		var addr uint16 = 0x000A
+		var data byte = 0xAA
+		cpu.Write(addr, data)
+		cpu.LDX(addr)
+		assertStatus("10X00000", cpu.Status, t)
+		assertRegister(data, cpu.X, t)
+
+		// Should set zero flag, no negative flag
+		data = 0x00
+		cpu.Write(addr, data)
+		cpu.LDX(addr)
+		assertStatus("00X00010", cpu.Status, t)
+		assertRegister(data, cpu.X, t)
+	}))
+
+	t.Run("test LDY", clearAndTest(func(t *testing.T) {
+		// Should set negative flag, no zero flag
+		var addr uint16 = 0x000A
+		var data byte = 0xAA
+		cpu.Write(addr, data)
+		cpu.LDY(addr)
+		assertStatus("10X00000", cpu.Status, t)
+		assertRegister(data, cpu.Y, t)
+
+		// Should set zero flag, no negative flag
+		data = 0x00
+		cpu.Write(addr, data)
+		cpu.LDY(addr)
+		assertStatus("00X00010", cpu.Status, t)
+		assertRegister(data, cpu.Y, t)
+	}))
+
+	t.Run("test NOP", clearAndTest(func(t *testing.T) {
+		cpu.Status.C = true
+		cpu.Status.Z = true
+		cpu.Status.I = true
+		cpu.X = 0xAA
+		cpu.Y = 0xBB
+
+		// unused addr, NOP should not affect any of above
+		// TODO: make more robust
+		cpu.NOP(0x00)
+		assertStatus("00X00111", cpu.Status, t)
+		assertRegister(0xAA, cpu.X, t)
+		assertRegister(0xBB, cpu.Y, t)
 	}))
 }
