@@ -199,8 +199,7 @@ func (c *CPU) GetAddressWithMode(addressingMode int) (addr uint16) {
 		// Instructions with modeRelative take 2 bytes:
 		// 1. opcode
 		// 2. 8 bit constant value
-		// The address containing the constant value
-		// will only be accessed if the branch succeeeds.
+		// The address will only be jumped to if the branch succeeeds.
 		// TODO: special case?
 		return c.PC + uint16(c.Read(c.PC+1))
 
