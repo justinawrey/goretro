@@ -108,38 +108,38 @@ func TestCpu(t *testing.T) {
 
 	// Test status register bit toggling instructions first
 	t.Run("test SEC", func(t *testing.T) {
-		cpu.SEC()
+		cpu.SEC(0x0)
 		assertStatus("00X00001", cpu.Status, t)
 	})
 
 	t.Run("test CLC", func(t *testing.T) {
-		cpu.CLC()
+		cpu.CLC(0x0)
 		assertStatus("00X00000", cpu.Status, t)
 	})
 
 	t.Run("test SEI", func(t *testing.T) {
-		cpu.SEI()
+		cpu.SEI(0x0)
 		assertStatus("00X00100", cpu.Status, t)
 	})
 
 	t.Run("test CLI", func(t *testing.T) {
-		cpu.CLI()
+		cpu.CLI(0x0)
 		assertStatus("00X00000", cpu.Status, t)
 	})
 
 	t.Run("test SED", func(t *testing.T) {
-		cpu.SED()
+		cpu.SED(0x0)
 		assertStatus("00X01000", cpu.Status, t)
 	})
 
 	t.Run("test CLD", func(t *testing.T) {
-		cpu.CLD()
+		cpu.CLD(0x0)
 		assertStatus("00X00000", cpu.Status, t)
 	})
 
 	t.Run("test CLV", func(t *testing.T) {
 		cpu.Status.V = true
-		cpu.CLV()
+		cpu.CLV(0x0)
 		assertStatus("00X00000", cpu.Status, t)
 	})
 }
