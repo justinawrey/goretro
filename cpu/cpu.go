@@ -127,6 +127,13 @@ func (m *MemoryMap) Read(from uint16) (b byte) {
 	return m[from]
 }
 
+// Clear sets all memory to 0x00.
+func (m *MemoryMap) Clear() {
+	for i := 0; i <= memSize; i++ {
+		m[i] = 0x00
+	}
+}
+
 // Read16 reads two bytes, in little endian order, starting
 // at memory location from.  The bytes are concatenated
 // into a two byte word and returned.
@@ -158,14 +165,21 @@ func NewCPU() (c *CPU) {
 	return cpu
 }
 
-// ClearAll sets every register in c (including PC, SP, and status) to 0x00.
-func (c *CPU) ClearAll() {
+// ClearAllRegisters sets every register in c (including PC, SP, and status) to 0x00.
+func (c *CPU) ClearAllRegisters() {
 	c.Status.Clear()
 	c.PC = 0
 	c.SP = 0
 	c.A = 0
 	c.X = 0
 	c.Y = 0
+}
+
+// ClearAll sets every register in c (including PC, SP, and status) to 0x00, as well
+// as sets all memory to 0.
+func (c *CPU) ClearAll() {
+	c.ClearAllRegisters()
+	c.MemoryMap.Clear()
 }
 
 // Decode decodes opcode opcode and returns relevant information.
