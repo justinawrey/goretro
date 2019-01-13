@@ -178,4 +178,19 @@ func TestCpu(t *testing.T) {
 		assertStatus("00X00010", cpu.Status, t)
 		assertRegister(0, cpu.Y, t)
 	}))
+
+	t.Run("test INC", clearAndTest(func(t *testing.T) {
+		// Should set negative flag, no zero flag
+		var addr uint16 = 0x000A
+		cpu.Write(addr, 127)
+		cpu.INC(addr)
+		assertStatus("10X00000", cpu.Status, t)
+		assertMemory(128, addr, cpu.MemoryMap, t)
+
+		// Should set zero flag, no negative flag
+		cpu.Write(addr, 255)
+		cpu.INC(addr)
+		assertStatus("00X00010", cpu.Status, t)
+		assertMemory(0, addr, cpu.MemoryMap, t)
+	}))
 }
