@@ -247,16 +247,11 @@ func TestInstructions(t *testing.T) {
 
 	t.Run("test NOP", clearAndTest(func(t *testing.T) {
 		cpu.Status.C = true
-		cpu.Status.Z = true
-		cpu.Status.I = true
 		cpu.X = 0xAA
-		cpu.Y = 0xBB
 
 		// unused addr, NOP should not affect any of above
-		// TODO: make more robust
 		cpu.NOP(0x00)
-		assertStatus("00X00111", cpu.Status, t)
+		assertStatus("00X00001", cpu.Status, t)
 		assertRegister(0xAA, cpu.X, t)
-		assertRegister(0xBB, cpu.Y, t)
 	}))
 }
