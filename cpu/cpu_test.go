@@ -142,4 +142,32 @@ func TestCpu(t *testing.T) {
 		cpu.CLV(0x0)
 		assertStatus("00X00000", cpu.Status, t)
 	})
+
+	t.Run("test INX", func(t *testing.T) {
+		// Should set negative flag, no zero flag
+		cpu.X = 127
+		cpu.INX(0x0)
+		assertStatus("10X00000", cpu.Status, t)
+		assertRegister(128, cpu.X, t)
+
+		// Should set zero flag, no negative flag
+		cpu.X = 255
+		cpu.INX(0x0)
+		assertStatus("00X00010", cpu.Status, t)
+		assertRegister(0, cpu.X, t)
+	})
+
+	t.Run("test INY", func(t *testing.T) {
+		// Should set negative flag, no zero flag
+		cpu.Y = 127
+		cpu.INY(0x0)
+		assertStatus("10X00000", cpu.Status, t)
+		assertRegister(128, cpu.Y, t)
+
+		// Should set zero flag, no negative flag
+		cpu.Y = 255
+		cpu.INY(0x0)
+		assertStatus("00X00010", cpu.Status, t)
+		assertRegister(0, cpu.Y, t)
+	})
 }
