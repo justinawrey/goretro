@@ -158,6 +158,16 @@ func NewCPU() (c *CPU) {
 	return cpu
 }
 
+// ClearAll sets every register in c (including PC, SP, and status) to 0x00.
+func (c *CPU) ClearAll() {
+	c.Status.Clear()
+	c.PC = 0
+	c.SP = 0
+	c.A = 0
+	c.X = 0
+	c.Y = 0
+}
+
 // Decode decodes opcode opcode and returns relevant information.
 func (c *CPU) Decode(opcode byte) (name string, addressingMode, cycleCost, pageCrossCost, byteCost int, execute func(uint16), err error) {
 	if instruction, ok := c.instructions[opcode]; ok {

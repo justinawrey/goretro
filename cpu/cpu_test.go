@@ -106,44 +106,52 @@ func assertMemory(expected byte, loc uint16, mem *cpu.MemoryMap, t *testing.T) {
 func TestCpu(t *testing.T) {
 	cpu := cpu.NewCPU()
 
+	clearAndTest := func(inner func(t *testing.T)) func(*testing.T) {
+		// pre computation closure
+		cpu.ClearAll()
+		return func(t *testing.T) {
+			inner(t)
+		}
+	}
+
 	// Test status register bit toggling instructions first
-	t.Run("test SEC", func(t *testing.T) {
+	t.Run("test SEC", clearAndTest(func(t *testing.T) {
 		cpu.SEC(0x0)
 		assertStatus("00X00001", cpu.Status, t)
-	})
+	}))
 
-	t.Run("test CLC", func(t *testing.T) {
+	t.Run("test CLC", clearAndTest(func(t *testing.T) {
 		cpu.CLC(0x0)
 		assertStatus("00X00000", cpu.Status, t)
-	})
+	}))
 
-	t.Run("test SEI", func(t *testing.T) {
+	t.Run("test SEI", clearAndTest(func(t *testing.T) {
 		cpu.SEI(0x0)
 		assertStatus("00X00100", cpu.Status, t)
-	})
+	}))
 
-	t.Run("test CLI", func(t *testing.T) {
+	t.Run("test CLI", clearAndTest(func(t *testing.T) {
 		cpu.CLI(0x0)
 		assertStatus("00X00000", cpu.Status, t)
-	})
+	}))
 
-	t.Run("test SED", func(t *testing.T) {
+	t.Run("test SED", clearAndTest(func(t *testing.T) {
 		cpu.SED(0x0)
 		assertStatus("00X01000", cpu.Status, t)
-	})
+	}))
 
-	t.Run("test CLD", func(t *testing.T) {
+	t.Run("test CLD", clearAndTest(func(t *testing.T) {
 		cpu.CLD(0x0)
 		assertStatus("00X00000", cpu.Status, t)
-	})
+	}))
 
-	t.Run("test CLV", func(t *testing.T) {
+	t.Run("test CLV", clearAndTest(func(t *testing.T) {
 		cpu.Status.V = true
 		cpu.CLV(0x0)
 		assertStatus("00X00000", cpu.Status, t)
-	})
+	}))
 
-	t.Run("test INX", func(t *testing.T) {
+	t.Run("test INX", clearAndTest(func(t *testing.T) {
 		// Should set negative flag, no zero flag
 		cpu.X = 127
 		cpu.INX(0x0)
@@ -155,9 +163,9 @@ func TestCpu(t *testing.T) {
 		cpu.INX(0x0)
 		assertStatus("00X00010", cpu.Status, t)
 		assertRegister(0, cpu.X, t)
-	})
+	}))
 
-	t.Run("test INY", func(t *testing.T) {
+	t.Run("test INY", clearAndTest(func(t *testing.T) {
 		// Should set negative flag, no zero flag
 		cpu.Y = 127
 		cpu.INY(0x0)
@@ -169,5 +177,5 @@ func TestCpu(t *testing.T) {
 		cpu.INY(0x0)
 		assertStatus("00X00010", cpu.Status, t)
 		assertRegister(0, cpu.Y, t)
-	})
+	}))
 }
