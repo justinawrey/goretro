@@ -314,4 +314,22 @@ func TestInstructions(t *testing.T) {
 		assertStatus("00X00010", cpu.Status, t)
 		assertRegister(0x00, cpu.A, t)
 	}))
+
+	t.Run("test ASLA", clearAndTest(func(t *testing.T) {
+	}))
+
+	t.Run("test ASLM", clearAndTest(func(t *testing.T) {
+	}))
+
+	t.Run("test ROLA", clearAndTest(func(t *testing.T) {
+	}))
+
+	t.Run("test ROLM", clearAndTest(func(t *testing.T) {
+	}))
+
+	t.Run("test RORA", clearAndTest(func(t *testing.T) {
+	}))
+
+	t.Run("test RORM", clearAndTest(func(t *testing.T) {
+	}))
 }
