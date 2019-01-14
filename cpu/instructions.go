@@ -186,7 +186,7 @@ func (c *CPU) initInstructions() {
 			1,
 			2,
 			0,
-			c.ASL,
+			c.ASLA,
 		},
 		0x06: {
 			"ASL",
@@ -194,7 +194,7 @@ func (c *CPU) initInstructions() {
 			2,
 			5,
 			0,
-			c.ASL,
+			c.ASLM,
 		},
 		0x16: {
 			"ASL",
@@ -202,7 +202,7 @@ func (c *CPU) initInstructions() {
 			2,
 			6,
 			0,
-			c.ASL,
+			c.ASLM,
 		},
 		0x0E: {
 			"ASL",
@@ -210,7 +210,7 @@ func (c *CPU) initInstructions() {
 			3,
 			6,
 			0,
-			c.ASL,
+			c.ASLM,
 		},
 		0x1E: {
 			"ASL",
@@ -218,7 +218,7 @@ func (c *CPU) initInstructions() {
 			3,
 			7,
 			0,
-			c.ASL,
+			c.ASLM,
 		},
 		// TODO: special case
 		0x90: {
@@ -938,7 +938,7 @@ func (c *CPU) initInstructions() {
 			1,
 			2,
 			0,
-			c.ROL,
+			c.ROLA,
 		},
 
 		0x26: {
@@ -947,7 +947,7 @@ func (c *CPU) initInstructions() {
 			2,
 			5,
 			0,
-			c.ROL,
+			c.ROLM,
 		},
 		0x36: {
 			"ROL",
@@ -955,7 +955,7 @@ func (c *CPU) initInstructions() {
 			2,
 			6,
 			0,
-			c.ROL,
+			c.ROLM,
 		},
 		0x2E: {
 			"ROL",
@@ -963,7 +963,7 @@ func (c *CPU) initInstructions() {
 			3,
 			6,
 			0,
-			c.ROL,
+			c.ROLM,
 		},
 		0x3E: {
 			"ROL",
@@ -971,7 +971,7 @@ func (c *CPU) initInstructions() {
 			3,
 			7,
 			0,
-			c.ROL,
+			c.ROLM,
 		},
 		0x6A: {
 			"ROR",
@@ -979,7 +979,7 @@ func (c *CPU) initInstructions() {
 			1,
 			2,
 			0,
-			c.ROR,
+			c.RORA,
 		},
 
 		0x66: {
@@ -988,7 +988,7 @@ func (c *CPU) initInstructions() {
 			2,
 			5,
 			0,
-			c.ROR,
+			c.RORM,
 		},
 		0x76: {
 			"ROR",
@@ -996,7 +996,7 @@ func (c *CPU) initInstructions() {
 			2,
 			6,
 			0,
-			c.ROR,
+			c.RORM,
 		},
 		0x6E: {
 			"ROR",
@@ -1004,7 +1004,7 @@ func (c *CPU) initInstructions() {
 			3,
 			6,
 			0,
-			c.ROR,
+			c.RORM,
 		},
 		0x7E: {
 			"ROR",
@@ -1012,7 +1012,7 @@ func (c *CPU) initInstructions() {
 			3,
 			7,
 			0,
-			c.ROR,
+			c.RORM,
 		},
 		0x40: {
 			"RTI",
@@ -1281,8 +1281,17 @@ func (c *CPU) ADC(address uint16) {
 func (c *CPU) AND(address uint16) {
 }
 
-// ASL Arithmetic Shift Left
-func (c *CPU) ASL(address uint16) {
+// ASLA Arithmetic Shift Left, acting on Accumulator
+// ASL is separated into two functions here for implementation
+// reasons; one function which is called when ASL is called in
+// modeAccumulator, and the other is called when ASL is
+// called in any other addressing mode.
+func (c *CPU) ASLA(address uint16) {
+}
+
+// ASLM Arithmetic Shift Left, acting on Memory
+// See explanation for ASLA
+func (c *CPU) ASLM(address uint16) {
 }
 
 // BCC Branch if Carry Clear
@@ -1442,12 +1451,30 @@ func (c *CPU) PLA(address uint16) {
 func (c *CPU) PLP(address uint16) {
 }
 
-// ROL Rotate Left
-func (c *CPU) ROL(address uint16) {
+// ROLA Rotate Left, acting on Accumulator
+// ROL is separated into two functions here for implementation
+// reasons; one function which is called when ROL is called in
+// modeAccumulator, and the other is called when ROL is
+// called in any other addressing mode.
+func (c *CPU) ROLA(address uint16) {
 }
 
-// ROR Rotate Right
-func (c *CPU) ROR(address uint16) {
+// ROLM Rotate Left, acting on Memory
+// See explanation for ROLA
+func (c *CPU) ROLM(address uint16) {
+}
+
+// RORA Rotate Right, acting on Accumulator
+// ROR is separated into two functions here for implementation
+// reasons; one function which is called when ROR is called in
+// modeAccumulator, and the other is called when ROR is
+// called in any other addressing mode.
+func (c *CPU) RORA(address uint16) {
+}
+
+// RORM Rotate Right, acting on Memory
+// See explanation for RORA
+func (c *CPU) RORM(address uint16) {
 }
 
 // RTI Return from Interrupt
