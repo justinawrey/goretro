@@ -295,4 +295,23 @@ func TestInstructions(t *testing.T) {
 		assertStatus("00X00000", cpu.Status, t)
 		assertMemory(0x01, addr, cpu.MemoryMap, t)
 	}))
+
+	t.Run("test ORA", clearAndTest(func(t *testing.T) {
+		// Should set negative flag, no zero flag
+		// Assert that 0x46 | 0xAA = 0xEE
+		var addr uint16 = 0x000A
+		cpu.Write(addr, 0x46)
+		cpu.A = 0xAA
+		cpu.ORA(addr)
+		assertStatus("10X00000", cpu.Status, t)
+		assertRegister(0xEE, cpu.A, t)
+
+		// Should set zero flag, no negative flag
+		// Assert that 0x00 | 0x00 = 0x00
+		cpu.Write(addr, 0x00)
+		cpu.A = 0x00
+		cpu.ORA(addr)
+		assertStatus("00X00010", cpu.Status, t)
+		assertRegister(0x00, cpu.A, t)
+	}))
 }
