@@ -254,4 +254,39 @@ func TestInstructions(t *testing.T) {
 		assertStatus("00X00001", cpu.Status, t)
 		assertRegister(0xAA, cpu.X, t)
 	}))
+
+	t.Run("test LSRA", clearAndTest(func(t *testing.T) {
+		// Should set carry flag, zero flag
+		// Accumulator should result in having data 0x00
+		cpu.A = 0x01
+		cpu.LSRA(0x00)
+		assertStatus("00X00011", cpu.Status, t)
+		assertRegister(0x00, cpu.A, t)
+
+		// Should unset carry flag, zero flag
+		// Accumulator should result in having data 0x01
+		cpu.A = 0x02
+		cpu.LSRA(0x00)
+		assertStatus("00X00000", cpu.Status, t)
+		assertRegister(0x01, cpu.A, t)
+	}))
+
+	t.Run("test LSRM", clearAndTest(func(t *testing.T) {
+		// Should set carry flag, zero flag
+		// Memory at 0x000A should result in having data 0x00
+		var addr uint16 = 0x000A
+		var data byte = 0x01
+		cpu.Write(addr, data)
+		cpu.LSRM(addr)
+		assertStatus("00X00011", cpu.Status, t)
+		assertMemory(0x00, addr, cpu.MemoryMap, t)
+
+		// Should unset carry flag, zero flag
+		// Memory at 0x000A should result in having data 0x01
+		data = 0x00
+		cpu.Write(addr, data)
+		cpu.LSRM(addr)
+		assertStatus("00X00000", cpu.Status, t)
+		assertMemory(0x01, addr, cpu.MemoryMap, t)
+	}))
 }
