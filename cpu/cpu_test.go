@@ -197,52 +197,46 @@ func TestInstructions(t *testing.T) {
 	t.Run("test LDA", clearAndTest(func(t *testing.T) {
 		// Should set negative flag, no zero flag
 		var addr uint16 = 0x000A
-		var data byte = 0xAA
-		cpu.Write(addr, data)
+		cpu.Write(addr, 0xAA)
 		cpu.LDA(addr)
 		assertStatus("10X00000", cpu.Status, t)
-		assertRegister(data, cpu.A, t)
+		assertRegister(0xAA, cpu.A, t)
 
 		// Should set zero flag, no negative flag
-		data = 0x00
-		cpu.Write(addr, data)
+		cpu.Write(addr, 0x00)
 		cpu.LDA(addr)
 		assertStatus("00X00010", cpu.Status, t)
-		assertRegister(data, cpu.A, t)
+		assertRegister(0x00, cpu.A, t)
 	}))
 
 	t.Run("test LDX", clearAndTest(func(t *testing.T) {
 		// Should set negative flag, no zero flag
 		var addr uint16 = 0x000A
-		var data byte = 0xAA
-		cpu.Write(addr, data)
+		cpu.Write(addr, 0xAA)
 		cpu.LDX(addr)
 		assertStatus("10X00000", cpu.Status, t)
-		assertRegister(data, cpu.X, t)
+		assertRegister(0xAA, cpu.X, t)
 
 		// Should set zero flag, no negative flag
-		data = 0x00
-		cpu.Write(addr, data)
+		cpu.Write(addr, 0x00)
 		cpu.LDX(addr)
 		assertStatus("00X00010", cpu.Status, t)
-		assertRegister(data, cpu.X, t)
+		assertRegister(0x00, cpu.X, t)
 	}))
 
 	t.Run("test LDY", clearAndTest(func(t *testing.T) {
 		// Should set negative flag, no zero flag
 		var addr uint16 = 0x000A
-		var data byte = 0xAA
-		cpu.Write(addr, data)
+		cpu.Write(addr, 0xAA)
 		cpu.LDY(addr)
 		assertStatus("10X00000", cpu.Status, t)
-		assertRegister(data, cpu.Y, t)
+		assertRegister(0xAA, cpu.Y, t)
 
 		// Should set zero flag, no negative flag
-		data = 0x00
-		cpu.Write(addr, data)
+		cpu.Write(addr, 0x00)
 		cpu.LDY(addr)
 		assertStatus("00X00010", cpu.Status, t)
-		assertRegister(data, cpu.Y, t)
+		assertRegister(0x00, cpu.Y, t)
 	}))
 
 	t.Run("test NOP", clearAndTest(func(t *testing.T) {
@@ -282,23 +276,21 @@ func TestInstructions(t *testing.T) {
 		// Should set carry flag, zero flag
 		// Memory at 0x000A should result in having data 0x00
 		var addr uint16 = 0x000A
-		var data byte = 0x01
-		cpu.Write(addr, data)
+		cpu.Write(addr, 0x01)
 		cpu.LSRM(addr)
 		assertStatus("00X00011", cpu.Status, t)
 		assertMemory(0x00, addr, cpu.MemoryMap, t)
 
 		// Should unset carry flag, zero flag
 		// Memory at 0x000A should result in having data 0x01
-		data = 0x02
-		cpu.Write(addr, data)
+		cpu.Write(addr, 0x02)
 		cpu.LSRM(addr)
 		assertStatus("00X00000", cpu.Status, t)
 		assertMemory(0x01, addr, cpu.MemoryMap, t)
 
 		// Carry flag should NOT rotate into bit 7 of memory
 		cpu.Status.C = true
-		cpu.Write(addr, data)
+		cpu.Write(addr, 0x02)
 		cpu.LSRM(addr)
 		assertStatus("00X00000", cpu.Status, t)
 		assertMemory(0x01, addr, cpu.MemoryMap, t)
