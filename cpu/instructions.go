@@ -794,7 +794,7 @@ func (c *CPU) initInstructions() {
 			1,
 			2,
 			0,
-			c.LSR,
+			c.LSRA,
 		},
 		0x46: {
 			"LSR",
@@ -802,7 +802,7 @@ func (c *CPU) initInstructions() {
 			2,
 			5,
 			0,
-			c.LSR,
+			c.LSRM,
 		},
 		0x56: {
 			"LSR",
@@ -810,7 +810,7 @@ func (c *CPU) initInstructions() {
 			2,
 			6,
 			0,
-			c.LSR,
+			c.LSRM,
 		},
 		0x4E: {
 			"LSR",
@@ -818,7 +818,7 @@ func (c *CPU) initInstructions() {
 			3,
 			6,
 			0,
-			c.LSR,
+			c.LSRM,
 		},
 		0x5E: {
 			"LSR",
@@ -826,7 +826,7 @@ func (c *CPU) initInstructions() {
 			3,
 			7,
 			0,
-			c.LSR,
+			c.LSRM,
 		},
 		0xEA: {
 			"NOP",
@@ -1405,8 +1405,17 @@ func (c *CPU) LDX(address uint16) {
 func (c *CPU) LDY(address uint16) {
 }
 
-// LSR Logical Shift Right
-func (c *CPU) LSR(address uint16) {
+// LSRA Logical Shift Right, acting on Accumulator
+// LSR is separated into two functions here for implementation
+// reasons; one function which is called when LSR is called in
+// modeAccumulator, and the other is called when LSR is
+// called in any other addressing mode.
+func (c *CPU) LSRA(address uint16) {
+}
+
+// LSRM Logical Shift Right, acting on Memory
+// See explanation for LSRA
+func (c *CPU) LSRM(address uint16) {
 }
 
 // NOP No Operation
