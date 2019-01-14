@@ -269,6 +269,13 @@ func TestInstructions(t *testing.T) {
 		cpu.LSRA(0x00)
 		assertStatus("00X00000", cpu.Status, t)
 		assertRegister(0x01, cpu.A, t)
+
+		// Carry flag should NOT rotate into bit 7 of accumulator
+		cpu.Status.C = true
+		cpu.A = 0x02
+		cpu.LSRA(0x00)
+		assertStatus("00X00000", cpu.Status, t)
+		assertRegister(0x01, cpu.A, t)
 	}))
 
 	t.Run("test LSRM", clearAndTest(func(t *testing.T) {
@@ -283,7 +290,14 @@ func TestInstructions(t *testing.T) {
 
 		// Should unset carry flag, zero flag
 		// Memory at 0x000A should result in having data 0x01
-		data = 0x00
+		data = 0x02
+		cpu.Write(addr, data)
+		cpu.LSRM(addr)
+		assertStatus("00X00000", cpu.Status, t)
+		assertMemory(0x01, addr, cpu.MemoryMap, t)
+
+		// Carry flag should NOT rotate into bit 7 of memory
+		cpu.Status.C = true
 		cpu.Write(addr, data)
 		cpu.LSRM(addr)
 		assertStatus("00X00000", cpu.Status, t)
