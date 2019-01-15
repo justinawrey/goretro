@@ -104,54 +104,54 @@ func assertMemory(expected byte, loc uint16, mem *cpu.MemoryMap, t *testing.T) {
 }
 
 func TestInstructions(t *testing.T) {
-	cpu := cpu.NewCPU()
-
-	clearAndTest := func(inner func(t *testing.T)) func(*testing.T) {
+	newCPUAndTest := func(inner func(c *cpu.CPU, t *testing.T)) func(*testing.T) {
 		// pre computation closure
-		cpu.ClearAll()
 		return func(t *testing.T) {
-			inner(t)
+			t.Parallel()
+			cpu := cpu.NewCPU()
+			cpu.ClearAll()
+			inner(cpu, t)
 		}
 	}
 
 	// Test status register bit toggling instructions first
-	t.Run("test SEC", clearAndTest(func(t *testing.T) {
+	t.Run("test SEC", newCPUAndTest(func(cpu *cpu.CPU, t *testing.T) {
 		cpu.SEC(0x0)
 		assertStatus("00X00001", cpu.Status, t)
 	}))
 
-	t.Run("test CLC", clearAndTest(func(t *testing.T) {
+	t.Run("test CLC", newCPUAndTest(func(cpu *cpu.CPU, t *testing.T) {
 		cpu.CLC(0x0)
 		assertStatus("00X00000", cpu.Status, t)
 	}))
 
-	t.Run("test SEI", clearAndTest(func(t *testing.T) {
+	t.Run("test SEI", newCPUAndTest(func(cpu *cpu.CPU, t *testing.T) {
 		cpu.SEI(0x0)
 		assertStatus("00X00100", cpu.Status, t)
 	}))
 
-	t.Run("test CLI", clearAndTest(func(t *testing.T) {
+	t.Run("test CLI", newCPUAndTest(func(cpu *cpu.CPU, t *testing.T) {
 		cpu.CLI(0x0)
 		assertStatus("00X00000", cpu.Status, t)
 	}))
 
-	t.Run("test SED", clearAndTest(func(t *testing.T) {
+	t.Run("test SED", newCPUAndTest(func(cpu *cpu.CPU, t *testing.T) {
 		cpu.SED(0x0)
 		assertStatus("00X01000", cpu.Status, t)
 	}))
 
-	t.Run("test CLD", clearAndTest(func(t *testing.T) {
+	t.Run("test CLD", newCPUAndTest(func(cpu *cpu.CPU, t *testing.T) {
 		cpu.CLD(0x0)
 		assertStatus("00X00000", cpu.Status, t)
 	}))
 
-	t.Run("test CLV", clearAndTest(func(t *testing.T) {
+	t.Run("test CLV", newCPUAndTest(func(cpu *cpu.CPU, t *testing.T) {
 		cpu.Status.V = true
 		cpu.CLV(0x0)
 		assertStatus("00X00000", cpu.Status, t)
 	}))
 
-	t.Run("test INX", clearAndTest(func(t *testing.T) {
+	t.Run("test INX", newCPUAndTest(func(cpu *cpu.CPU, t *testing.T) {
 		// Should set negative flag, no zero flag
 		cpu.X = 127
 		cpu.INX(0x0)
@@ -165,7 +165,7 @@ func TestInstructions(t *testing.T) {
 		assertRegister(0, cpu.X, t)
 	}))
 
-	t.Run("test INY", clearAndTest(func(t *testing.T) {
+	t.Run("test INY", newCPUAndTest(func(cpu *cpu.CPU, t *testing.T) {
 		// Should set negative flag, no zero flag
 		cpu.Y = 127
 		cpu.INY(0x0)
@@ -179,7 +179,7 @@ func TestInstructions(t *testing.T) {
 		assertRegister(0, cpu.Y, t)
 	}))
 
-	t.Run("test INC", clearAndTest(func(t *testing.T) {
+	t.Run("test INC", newCPUAndTest(func(cpu *cpu.CPU, t *testing.T) {
 		// Should set negative flag, no zero flag
 		var addr uint16 = 0x000A
 		cpu.Write(addr, 127)
@@ -194,7 +194,7 @@ func TestInstructions(t *testing.T) {
 		assertMemory(0, addr, cpu.MemoryMap, t)
 	}))
 
-	t.Run("test LDA", clearAndTest(func(t *testing.T) {
+	t.Run("test LDA", newCPUAndTest(func(cpu *cpu.CPU, t *testing.T) {
 		// Should set negative flag, no zero flag
 		var addr uint16 = 0x000A
 		cpu.Write(addr, 0xAA)
@@ -209,7 +209,7 @@ func TestInstructions(t *testing.T) {
 		assertRegister(0x00, cpu.A, t)
 	}))
 
-	t.Run("test LDX", clearAndTest(func(t *testing.T) {
+	t.Run("test LDX", newCPUAndTest(func(cpu *cpu.CPU, t *testing.T) {
 		// Should set negative flag, no zero flag
 		var addr uint16 = 0x000A
 		cpu.Write(addr, 0xAA)
@@ -224,7 +224,7 @@ func TestInstructions(t *testing.T) {
 		assertRegister(0x00, cpu.X, t)
 	}))
 
-	t.Run("test LDY", clearAndTest(func(t *testing.T) {
+	t.Run("test LDY", newCPUAndTest(func(cpu *cpu.CPU, t *testing.T) {
 		// Should set negative flag, no zero flag
 		var addr uint16 = 0x000A
 		cpu.Write(addr, 0xAA)
@@ -239,7 +239,7 @@ func TestInstructions(t *testing.T) {
 		assertRegister(0x00, cpu.Y, t)
 	}))
 
-	t.Run("test NOP", clearAndTest(func(t *testing.T) {
+	t.Run("test NOP", newCPUAndTest(func(cpu *cpu.CPU, t *testing.T) {
 		cpu.Status.C = true
 		cpu.X = 0xAA
 
@@ -249,7 +249,7 @@ func TestInstructions(t *testing.T) {
 		assertRegister(0xAA, cpu.X, t)
 	}))
 
-	t.Run("test LSRA", clearAndTest(func(t *testing.T) {
+	t.Run("test LSRA", newCPUAndTest(func(cpu *cpu.CPU, t *testing.T) {
 		// Should set carry flag, zero flag
 		// Accumulator should result in having data 0x00
 		cpu.A = 0x01
@@ -272,7 +272,7 @@ func TestInstructions(t *testing.T) {
 		assertRegister(0x01, cpu.A, t)
 	}))
 
-	t.Run("test LSRM", clearAndTest(func(t *testing.T) {
+	t.Run("test LSRM", newCPUAndTest(func(cpu *cpu.CPU, t *testing.T) {
 		// Should set carry flag, zero flag
 		// Memory at 0x000A should result in having data 0x00
 		var addr uint16 = 0x000A
@@ -296,7 +296,7 @@ func TestInstructions(t *testing.T) {
 		assertMemory(0x01, addr, cpu.MemoryMap, t)
 	}))
 
-	t.Run("test ORA", clearAndTest(func(t *testing.T) {
+	t.Run("test ORA", newCPUAndTest(func(cpu *cpu.CPU, t *testing.T) {
 		// Should set negative flag, no zero flag
 		// Assert that 0x46 | 0xAA = 0xEE
 		var addr uint16 = 0x000A
@@ -315,7 +315,7 @@ func TestInstructions(t *testing.T) {
 		assertRegister(0x00, cpu.A, t)
 	}))
 
-	t.Run("test ASLA", clearAndTest(func(t *testing.T) {
+	t.Run("test ASLA", newCPUAndTest(func(cpu *cpu.CPU, t *testing.T) {
 		// Should set carry flag, unset zero flag
 		// Accumulator should result in having data 0xFE
 		cpu.A = 0xFF
@@ -337,7 +337,7 @@ func TestInstructions(t *testing.T) {
 		assertRegister(0x00, cpu.A, t)
 	}))
 
-	t.Run("test ASLM", clearAndTest(func(t *testing.T) {
+	t.Run("test ASLM", newCPUAndTest(func(cpu *cpu.CPU, t *testing.T) {
 		// Should set carry flag, unset zero flag
 		// Memory at addr should result in having data 0xFE
 		var addr uint16 = 0x000A
@@ -358,17 +358,5 @@ func TestInstructions(t *testing.T) {
 		cpu.ASLM(addr)
 		assertStatus("00X00011", cpu.Status, t)
 		assertMemory(0x00, addr, cpu.MemoryMap, t)
-	}))
-
-	t.Run("test ROLA", clearAndTest(func(t *testing.T) {
-	}))
-
-	t.Run("test ROLM", clearAndTest(func(t *testing.T) {
-	}))
-
-	t.Run("test RORA", clearAndTest(func(t *testing.T) {
-	}))
-
-	t.Run("test RORM", clearAndTest(func(t *testing.T) {
 	}))
 }
