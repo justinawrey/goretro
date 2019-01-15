@@ -316,9 +316,48 @@ func TestInstructions(t *testing.T) {
 	}))
 
 	t.Run("test ASLA", clearAndTest(func(t *testing.T) {
+		// Should set carry flag, unset zero flag
+		// Accumulator should result in having data 0xFE
+		cpu.A = 0xFF
+		cpu.ASLA(0x00)
+		assertStatus("00X00001", cpu.Status, t)
+		assertRegister(0xFE, cpu.A, t)
+
+		// Should unset carry flag, zero flag
+		// Accumulator should result in having data 0x02
+		cpu.A = 0x01
+		cpu.ASLA(0x00)
+		assertStatus("00X00000", cpu.Status, t)
+		assertRegister(0x02, cpu.A, t)
+
+		// Should set carry flag, zero flag
+		cpu.A = 0x80
+		cpu.ASLA(0x00)
+		assertStatus("00X00011", cpu.Status, t)
+		assertRegister(0x00, cpu.A, t)
 	}))
 
 	t.Run("test ASLM", clearAndTest(func(t *testing.T) {
+		// Should set carry flag, unset zero flag
+		// Memory at addr should result in having data 0xFE
+		var addr uint16 = 0x000A
+		cpu.Write(addr, 0xFF)
+		cpu.ASLM(addr)
+		assertStatus("00X00001", cpu.Status, t)
+		assertMemory(0xFE, addr, cpu.MemoryMap, t)
+
+		// Should unset carry flag, zero flag
+		// Accumulator should result in having data 0x02
+		cpu.Write(addr, 0x01)
+		cpu.ASLM(addr)
+		assertStatus("00X00000", cpu.Status, t)
+		assertMemory(0x02, addr, cpu.MemoryMap, t)
+
+		// Should set carry flag, zero flag
+		cpu.Write(addr, 0x80)
+		cpu.ASLM(addr)
+		assertStatus("00X00011", cpu.Status, t)
+		assertMemory(0x00, addr, cpu.MemoryMap, t)
 	}))
 
 	t.Run("test ROLA", clearAndTest(func(t *testing.T) {
