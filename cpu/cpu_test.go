@@ -105,11 +105,16 @@ func assertMemory(expected byte, loc uint16, mem *cpu.MemoryMap, t *testing.T) {
 
 func TestInstructions(t *testing.T) {
 	newCPUAndTest := func(inner func(c *cpu.CPU, t *testing.T)) func(*testing.T) {
-		// pre computation closure
+		// Pre-computation closure
 		return func(t *testing.T) {
+			// All tests should be ran with a new CPU, in parallel
 			t.Parallel()
 			cpu := cpu.NewCPU()
+
+			// Ignore any start-up state for these CPU tests
 			cpu.ClearAll()
+
+			// Run the actual test
 			inner(cpu, t)
 		}
 	}
@@ -358,5 +363,17 @@ func TestInstructions(t *testing.T) {
 		cpu.ASLM(addr)
 		assertStatus("00X00011", cpu.Status, t)
 		assertMemory(0x00, addr, cpu.MemoryMap, t)
+	}))
+
+	t.Run("test ROLA", newCPUAndTest(func(cpu *cpu.CPU, t *testing.T) {
+	}))
+
+	t.Run("test ROLM", newCPUAndTest(func(cpu *cpu.CPU, t *testing.T) {
+	}))
+
+	t.Run("test RORA", newCPUAndTest(func(cpu *cpu.CPU, t *testing.T) {
+	}))
+
+	t.Run("test RORM", newCPUAndTest(func(cpu *cpu.CPU, t *testing.T) {
 	}))
 }
