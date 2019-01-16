@@ -82,7 +82,7 @@ func (r *Registers) String() (repr string) {
 }
 
 const (
-	memSize = 0xFFFF // 6502 has a 64kB memory map
+	memSize = 0x10000 // 6502 has a 64kB memory map
 
 	// See table below for more details
 	zeroPageEnd  = 0x00FF
@@ -127,9 +127,9 @@ func (m *MemoryMap) Read(from uint16) (b byte) {
 	return m[from]
 }
 
-// Clear sets all memory to 0x00.
+// Clear sets all memory from 0x0000 to 0xFFFF to 0x00.
 func (m *MemoryMap) Clear() {
-	for i := 0; i <= memSize; i++ {
+	for i := 0; i < memSize; i++ {
 		m[i] = 0x00
 	}
 }
