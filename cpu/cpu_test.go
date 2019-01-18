@@ -366,14 +366,100 @@ func TestInstructions(t *testing.T) {
 	}))
 
 	t.Run("test ROLA", newCPUAndTest(func(cpu *cpu.CPU, t *testing.T) {
+		// Should set carry flag, unset zero flag
+		// Accumulator should result in having data 0xFE
+		cpu.A = 0xFF
+		cpu.ROLA(0x00)
+		assertStatus("00X00001", cpu.Status, t)
+		assertRegister(0xFE, cpu.A, t)
+
+		// Should unset carry flag, zero flag
+		// Accumulator should result in having data 0x02
+		cpu.A = 0x01
+		cpu.ROLA(0x00)
+		assertStatus("00X00000", cpu.Status, t)
+		assertRegister(0x02, cpu.A, t)
+
+		// Should set carry flag, unset zero flag, contents of old carry
+		// should rotate left into bit 0 of accumulator value
+		cpu.Status.C = true
+		cpu.A = 0x80
+		cpu.ROLA(0x00)
+		assertStatus("00X00001", cpu.Status, t)
+		assertRegister(0x01, cpu.A, t)
 	}))
 
 	t.Run("test ROLM", newCPUAndTest(func(cpu *cpu.CPU, t *testing.T) {
+		// Should set carry flag, unset zero flag
+		// Memory should result in having data 0xFE
+		var addr uint16 = 0x000A
+		cpu.Write(addr, 0xFF)
+		cpu.ROLM(addr)
+		assertStatus("00X00001", cpu.Status, t)
+		assertMemory(0xFE, addr, cpu.MemoryMap, t)
+
+		// Should unset carry flag, zero flag
+		// Memory should result in having data 0x02
+		cpu.Write(addr, 0x01)
+		cpu.ROLM(addr)
+		assertStatus("00X00000", cpu.Status, t)
+		assertMemory(0x02, addr, cpu.MemoryMap, t)
+
+		// Should set carry flag, unset zero flag, contents of old carry
+		// should rotate left into bit 0 of memory value
+		cpu.Status.C = true
+		cpu.Write(addr, 0x80)
+		cpu.ROLM(addr)
+		assertStatus("00X00001", cpu.Status, t)
+		assertMemory(0x01, addr, cpu.MemoryMap, t)
 	}))
 
 	t.Run("test RORA", newCPUAndTest(func(cpu *cpu.CPU, t *testing.T) {
+		// Should set carry flag, unset zero flag
+		// Accumulator should result in having data 0x7F
+		cpu.A = 0xFF
+		cpu.RORA(0x00)
+		assertStatus("00X00001", cpu.Status, t)
+		assertRegister(0x7F, cpu.A, t)
+
+		// Should unset carry flag, zero flag
+		// Accumulator should result in having data 0x01
+		cpu.A = 0x02
+		cpu.RORA(0x00)
+		assertStatus("00X00000", cpu.Status, t)
+		assertRegister(0x01, cpu.A, t)
+
+		// Should set carry flag, unset zero flag, contents of old carry
+		// should rotate right into bit 7 of accumulator value
+		cpu.Status.C = true
+		cpu.A = 0x01
+		cpu.RORA(0x00)
+		assertStatus("00X00001", cpu.Status, t)
+		assertRegister(0x80, cpu.A, t)
 	}))
 
 	t.Run("test RORM", newCPUAndTest(func(cpu *cpu.CPU, t *testing.T) {
+		// Should set carry flag, unset zero flag
+		// Memory should result in having data 0x7F
+		var addr uint16 = 0x000A
+		cpu.Write(addr, 0xFF)
+		cpu.RORM(addr)
+		assertStatus("00X00001", cpu.Status, t)
+		assertMemory(0x7F, addr, cpu.MemoryMap, t)
+
+		// Should unset carry flag, zero flag
+		// Memory should result in having data 0x01
+		cpu.Write(addr, 0x02)
+		cpu.RORM(addr)
+		assertStatus("00X00000", cpu.Status, t)
+		assertMemory(0x01, addr, cpu.MemoryMap, t)
+
+		// Should set carry flag, unset zero flag, contents of old carry
+		// should rotate right into bit 7 of memory value
+		cpu.Status.C = true
+		cpu.Write(addr, 0x01)
+		cpu.RORM(addr)
+		assertStatus("00X00001", cpu.Status, t)
+		assertMemory(0x80, addr, cpu.MemoryMap, t)
 	}))
 }
