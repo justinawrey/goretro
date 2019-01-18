@@ -462,4 +462,46 @@ func TestInstructions(t *testing.T) {
 		assertStatus("00X00001", cpu.Status, t)
 		assertMemory(0x80, addr, cpu.MemoryMap, t)
 	}))
+
+	t.Run("test STA", newCPUAndTest(func(cpu *cpu.CPU, t *testing.T) {
+		cpu.Status.C = true
+		cpu.Status.Z = true
+		cpu.Status.N = true
+		var addr uint16 = 0x000A
+
+		// Status flags should be left unchanged, memory at addr
+		// should have contents of accumulator
+		cpu.A = 0xAA
+		cpu.STA(addr)
+		assertStatus("10X00011", cpu.Status, t)
+		assertMemory(0xAA, addr, cpu.MemoryMap, t)
+	}))
+
+	t.Run("test STX", newCPUAndTest(func(cpu *cpu.CPU, t *testing.T) {
+		cpu.Status.C = true
+		cpu.Status.Z = true
+		cpu.Status.N = true
+		var addr uint16 = 0x000A
+
+		// Status flags should be left unchanged, memory at addr
+		// should have contents of X register
+		cpu.X = 0xBB
+		cpu.STX(addr)
+		assertStatus("10X00011", cpu.Status, t)
+		assertMemory(0xBB, addr, cpu.MemoryMap, t)
+	}))
+
+	t.Run("test STY", newCPUAndTest(func(cpu *cpu.CPU, t *testing.T) {
+		cpu.Status.C = true
+		cpu.Status.Z = true
+		cpu.Status.N = true
+		var addr uint16 = 0x000A
+
+		// Status flags should be left unchanged, memory at addr
+		// should have contents of Y register
+		cpu.Y = 0xCC
+		cpu.STY(addr)
+		assertStatus("10X00011", cpu.Status, t)
+		assertMemory(0xCC, addr, cpu.MemoryMap, t)
+	}))
 }
