@@ -504,4 +504,88 @@ func TestInstructions(t *testing.T) {
 		assertStatus("10X00011", cpu.Status, t)
 		assertMemory(0xCC, addr, cpu.MemoryMap, t)
 	}))
+
+	t.Run("test TAX", newCPUAndTest(func(cpu *cpu.CPU, t *testing.T) {
+		// Zero flag should be set
+		cpu.A = 0x00
+		cpu.TAX(0x00)
+		assertStatus("00X00010", cpu.Status, t)
+		assertRegister(0x00, cpu.X, t)
+
+		// Zero flag should be unset, negative flag set
+		cpu.A = 0xF0
+		cpu.TAX(0x00)
+		assertStatus("10X00000", cpu.Status, t)
+		assertRegister(0xF0, cpu.X, t)
+	}))
+
+	t.Run("test TAY", newCPUAndTest(func(cpu *cpu.CPU, t *testing.T) {
+		// Zero flag should be set
+		cpu.A = 0x00
+		cpu.TAY(0x00)
+		assertStatus("00X00010", cpu.Status, t)
+		assertRegister(0x00, cpu.Y, t)
+
+		// Zero flag should be unset, negative flag set
+		cpu.A = 0xF0
+		cpu.TAY(0x00)
+		assertStatus("10X00000", cpu.Status, t)
+		assertRegister(0xF0, cpu.Y, t)
+	}))
+
+	t.Run("test TSX", newCPUAndTest(func(cpu *cpu.CPU, t *testing.T) {
+		// Zero flag should be set
+		cpu.SP = 0x00
+		cpu.TSX(0x00)
+		assertStatus("00X00010", cpu.Status, t)
+		assertRegister(0x00, cpu.X, t)
+
+		// Zero flag should be unset, negative flag set
+		cpu.SP = 0xF0
+		cpu.TSX(0x00)
+		assertStatus("10X00000", cpu.Status, t)
+		assertRegister(0xF0, cpu.X, t)
+	}))
+
+	t.Run("test TXA", newCPUAndTest(func(cpu *cpu.CPU, t *testing.T) {
+		// Zero flag should be set
+		cpu.X = 0x00
+		cpu.TXA(0x00)
+		assertStatus("00X00010", cpu.Status, t)
+		assertRegister(0x00, cpu.A, t)
+
+		// Zero flag should be unset, negative flag set
+		cpu.X = 0xF0
+		cpu.TXA(0x00)
+		assertStatus("10X00000", cpu.Status, t)
+		assertRegister(0xF0, cpu.A, t)
+	}))
+
+	t.Run("test TXS", newCPUAndTest(func(cpu *cpu.CPU, t *testing.T) {
+		// Zero flag should be set
+		cpu.X = 0x00
+		cpu.TXS(0x00)
+		assertStatus("00X00010", cpu.Status, t)
+		assertRegister(0x00, cpu.SP, t)
+
+		// Zero flag should be unset, negative flag set
+		cpu.X = 0xF0
+		cpu.TXS(0x00)
+		assertStatus("10X00000", cpu.Status, t)
+		assertRegister(0xF0, cpu.SP, t)
+	}))
+
+	t.Run("test TYA", newCPUAndTest(func(cpu *cpu.CPU, t *testing.T) {
+		// Zero flag should be set
+		cpu.Y = 0x00
+		cpu.TYA(0x00)
+		assertStatus("00X00010", cpu.Status, t)
+		assertRegister(0x00, cpu.A, t)
+
+		// Zero flag should be unset, negative flag set
+		cpu.Y = 0xF0
+		cpu.TYA(0x00)
+		assertStatus("10X00000", cpu.Status, t)
+		assertRegister(0xF0, cpu.A, t)
+	}))
 }
