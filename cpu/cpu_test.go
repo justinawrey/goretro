@@ -588,4 +588,116 @@ func TestInstructions(t *testing.T) {
 		assertStatus("10X00000", cpu.Status, t)
 		assertRegister(0xF0, cpu.A, t)
 	}))
+
+	t.Run("test ADC", newCPUAndTest(func(cpu *cpu.CPU, t *testing.T) {
+
+	}))
+
+	t.Run("test AND", newCPUAndTest(func(cpu *cpu.CPU, t *testing.T) {
+
+	}))
+
+	t.Run("test BCC", newCPUAndTest(func(cpu *cpu.CPU, t *testing.T) {
+
+	}))
+
+	t.Run("test BCS", newCPUAndTest(func(cpu *cpu.CPU, t *testing.T) {
+
+	}))
+
+	t.Run("test BEQ", newCPUAndTest(func(cpu *cpu.CPU, t *testing.T) {
+
+	}))
+
+	t.Run("test BIT", newCPUAndTest(func(cpu *cpu.CPU, t *testing.T) {
+
+	}))
+
+	t.Run("test BMI", newCPUAndTest(func(cpu *cpu.CPU, t *testing.T) {
+
+	}))
+
+	t.Run("test BNE", newCPUAndTest(func(cpu *cpu.CPU, t *testing.T) {
+
+	}))
+
+	t.Run("test BPL", newCPUAndTest(func(cpu *cpu.CPU, t *testing.T) {
+
+	}))
+
+	t.Run("test BRK", newCPUAndTest(func(cpu *cpu.CPU, t *testing.T) {
+
+	}))
+
+	t.Run("test BVC", newCPUAndTest(func(cpu *cpu.CPU, t *testing.T) {
+
+	}))
+
+	t.Run("test BVS", newCPUAndTest(func(cpu *cpu.CPU, t *testing.T) {
+
+	}))
+
+	t.Run("test CMP", newCPUAndTest(func(cpu *cpu.CPU, t *testing.T) {
+
+	}))
+
+	t.Run("test CPX", newCPUAndTest(func(cpu *cpu.CPU, t *testing.T) {
+
+	}))
+
+	t.Run("test CPY", newCPUAndTest(func(cpu *cpu.CPU, t *testing.T) {
+
+	}))
+
+	t.Run("test DEC", newCPUAndTest(func(cpu *cpu.CPU, t *testing.T) {
+
+	}))
+
+	t.Run("test DEX", newCPUAndTest(func(cpu *cpu.CPU, t *testing.T) {
+
+	}))
+
+	t.Run("test DEY", newCPUAndTest(func(cpu *cpu.CPU, t *testing.T) {
+
+	}))
+
+	t.Run("test EOR", newCPUAndTest(func(cpu *cpu.CPU, t *testing.T) {
+
+	}))
+
+	t.Run("test JMP", newCPUAndTest(func(cpu *cpu.CPU, t *testing.T) {
+
+	}))
+
+	t.Run("test JSR", newCPUAndTest(func(cpu *cpu.CPU, t *testing.T) {
+
+	}))
+
+	t.Run("test PHA", newCPUAndTest(func(cpu *cpu.CPU, t *testing.T) {
+
+	}))
+
+	t.Run("test PHP", newCPUAndTest(func(cpu *cpu.CPU, t *testing.T) {
+
+	}))
+
+	t.Run("test PLA", newCPUAndTest(func(cpu *cpu.CPU, t *testing.T) {
+
+	}))
+
+	t.Run("test PLP", newCPUAndTest(func(cpu *cpu.CPU, t *testing.T) {
+
+	}))
+
+	t.Run("test RTI", newCPUAndTest(func(cpu *cpu.CPU, t *testing.T) {
+
+	}))
+
+	t.Run("test RTS", newCPUAndTest(func(cpu *cpu.CPU, t *testing.T) {
+
+	}))
+
+	t.Run("test SBC", newCPUAndTest(func(cpu *cpu.CPU, t *testing.T) {
+
+	}))
 }
