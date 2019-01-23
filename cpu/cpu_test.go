@@ -701,3 +701,6 @@ func TestInstructions(t *testing.T) {
 
 	}))
 }
+
+func TestAddressingModes(t *testing.T) {
+}
