@@ -90,7 +90,7 @@ func assertRegister(expected, reg byte, t *testing.T) {
 	}
 }
 
-func assertPC(expected, reg uint16, t *testing.T) {
+func assertRegister16(expected, reg uint16, t *testing.T) {
 	if reg != expected {
 		t.Errorf("want: %v, got %v\n", expected, reg)
 	}
@@ -594,11 +594,43 @@ func TestInstructions(t *testing.T) {
 	}))
 
 	t.Run("test AND", newCPUAndTest(func(cpu *cpu.CPU, t *testing.T) {
+		// Should set zero flag, unset negative flag
+		// Accumulator should result in having data 0x00 because 0xAA & 0x55 == 0x00
+		var addr uint16 = 0x0A
+		cpu.A = 0xAA
+		cpu.Write(addr, 0x55)
+		assertStatus("00X00010", cpu.Status, t)
+		assertRegister(0x00, cpu.A, t)
 
+		// Should unset zero flag, set negative flag
+		// Accumulator should result in having data
+		cpu.A = 0x88
+		cpu.Write(addr, 0xFF)
+		assertStatus("10X00000", cpu.Status, t)
+		assertRegister(0x88, cpu.A, t)
 	}))
 
 	t.Run("test BCC", newCPUAndTest(func(cpu *cpu.CPU, t *testing.T) {
+		// flags should not change throughout
+		cpu.Status.N = true
+		cpu.Status.C = true
+		var start uint16 = 0x01
+		var dest uint16 = 0x02
 
+		// If carry set, don't branch
+		// Should not affect status register
+		cpu.PC = start
+		cpu.BCC(dest)
+		assertStatus("10X00001", cpu.Status, t)
+		assertRegister16(start, cpu.PC, t)
+
+		// Otherwise, branch
+		// Should not affect status register
+		cpu.Status.C = false
+		cpu.PC = start
+		cpu.BCC(dest)
+		assertStatus("10X00000", cpu.Status, t)
+		assertRegister16(dest, cpu.PC, t)
 	}))
 
 	t.Run("test BCS", newCPUAndTest(func(cpu *cpu.CPU, t *testing.T) {
