@@ -634,11 +634,49 @@ func TestInstructions(t *testing.T) {
 	}))
 
 	t.Run("test BCS", newCPUAndTest(func(cpu *cpu.CPU, t *testing.T) {
+		// flags should not change throughout
+		cpu.Status.N = true
+		cpu.Status.C = true
+		var start uint16 = 0x01
+		var dest uint16 = 0x02
 
+		// If carry set, branch
+		// Should not affect status register
+		cpu.PC = start
+		cpu.BCS(dest)
+		assertStatus("10X00001", cpu.Status, t)
+		assertRegister16(dest, cpu.PC, t)
+
+		// Otherwise, don't branch
+		// Should not affect status register
+		cpu.Status.C = false
+		cpu.PC = start
+		cpu.BCS(dest)
+		assertStatus("10X00000", cpu.Status, t)
+		assertRegister16(start, cpu.PC, t)
 	}))
 
 	t.Run("test BEQ", newCPUAndTest(func(cpu *cpu.CPU, t *testing.T) {
+		// flags should not change throughout
+		cpu.Status.N = true
+		cpu.Status.Z = true
+		var start uint16 = 0x01
+		var dest uint16 = 0x02
 
+		// If zero flag set, branch
+		// Should not affect status register
+		cpu.PC = start
+		cpu.BEQ(dest)
+		assertStatus("10X00010", cpu.Status, t)
+		assertRegister16(dest, cpu.PC, t)
+
+		// Otherwise, don't branch
+		// Should not affect status register
+		cpu.Status.Z = false
+		cpu.PC = start
+		cpu.BEQ(dest)
+		assertStatus("10X00000", cpu.Status, t)
+		assertRegister16(start, cpu.PC, t)
 	}))
 
 	t.Run("test BIT", newCPUAndTest(func(cpu *cpu.CPU, t *testing.T) {
@@ -646,11 +684,49 @@ func TestInstructions(t *testing.T) {
 	}))
 
 	t.Run("test BMI", newCPUAndTest(func(cpu *cpu.CPU, t *testing.T) {
+		// flags should not change throughout
+		cpu.Status.N = true
+		cpu.Status.Z = true
+		var start uint16 = 0x01
+		var dest uint16 = 0x02
 
+		// If negative flag set, branch
+		// Should not affect status register
+		cpu.PC = start
+		cpu.BMI(dest)
+		assertStatus("10X00010", cpu.Status, t)
+		assertRegister16(dest, cpu.PC, t)
+
+		// Otherwise, don't branch
+		// Should not affect status register
+		cpu.Status.N = false
+		cpu.PC = start
+		cpu.BMI(dest)
+		assertStatus("00X00010", cpu.Status, t)
+		assertRegister16(start, cpu.PC, t)
 	}))
 
 	t.Run("test BNE", newCPUAndTest(func(cpu *cpu.CPU, t *testing.T) {
+		// flags should not change throughout
+		cpu.Status.N = true
+		cpu.Status.Z = true
+		var start uint16 = 0x01
+		var dest uint16 = 0x02
 
+		// If zero flag set, don't branch
+		// Should not affect status register
+		cpu.PC = start
+		cpu.BNE(dest)
+		assertStatus("10X00010", cpu.Status, t)
+		assertRegister16(start, cpu.PC, t)
+
+		// Otherwise, branch
+		// Should not affect status register
+		cpu.Status.Z = false
+		cpu.PC = start
+		cpu.BNE(dest)
+		assertStatus("10X00000", cpu.Status, t)
+		assertRegister16(dest, cpu.PC, t)
 	}))
 
 	t.Run("test BPL", newCPUAndTest(func(cpu *cpu.CPU, t *testing.T) {
