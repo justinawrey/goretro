@@ -81,6 +81,15 @@ func (r *Registers) String() (repr string) {
 	)
 }
 
+// Clear sets every register in r (including PC and SP) to 0x00.
+func (r *Registers) Clear() {
+	r.PC = 0
+	r.SP = 0
+	r.A = 0
+	r.X = 0
+	r.Y = 0
+}
+
 const (
 	memSize = 0x10000 // 6502 has a 64kB memory map
 
@@ -165,20 +174,11 @@ func NewCPU() (c *CPU) {
 	return cpu
 }
 
-// ClearAllRegisters sets every register in c (including PC, SP, and status) to 0x00.
-func (c *CPU) ClearAllRegisters() {
-	c.Status.Clear()
-	c.PC = 0
-	c.SP = 0
-	c.A = 0
-	c.X = 0
-	c.Y = 0
-}
-
 // ClearAll sets every register in c (including PC, SP, and status) to 0x00, as well
 // as sets all memory to 0.
 func (c *CPU) ClearAll() {
-	c.ClearAllRegisters()
+	c.Status.Clear()
+	c.Registers.Clear()
 	c.MemoryMap.Clear()
 }
 
