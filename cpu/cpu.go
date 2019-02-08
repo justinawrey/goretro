@@ -174,9 +174,9 @@ func NewCPU() (c *CPU) {
 	return cpu
 }
 
-// ClearAll sets every register in c (including PC, SP, and status) to 0x00, as well
+// Clear sets every register in c (including PC, SP, and status) to 0x00, as well
 // as sets all memory to 0.
-func (c *CPU) ClearAll() {
+func (c *CPU) Clear() {
 	c.Status.Clear()
 	c.Registers.Clear()
 	c.MemoryMap.Clear()

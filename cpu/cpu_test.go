@@ -112,7 +112,7 @@ func TestInstructions(t *testing.T) {
 			cpu := cpu.NewCPU()
 
 			// Ignore any start-up state for these CPU tests
-			cpu.ClearAll()
+			cpu.Clear()
 
 			// Run the actual test
 			inner(cpu, t)
