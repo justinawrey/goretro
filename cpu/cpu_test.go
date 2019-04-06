@@ -325,7 +325,7 @@ func TestInstructions(t *testing.T) {
 		// Accumulator should result in having data 0xFE
 		cpu.A = 0xFF
 		cpu.ASLA(0x00)
-		assertStatus("00X00001", cpu.Status, t)
+		assertStatus("10X00001", cpu.Status, t)
 		assertRegister(0xFE, cpu.A, t)
 
 		// Should unset carry flag, zero flag
@@ -348,7 +348,7 @@ func TestInstructions(t *testing.T) {
 		var addr uint16 = 0x000A
 		cpu.Write(addr, 0xFF)
 		cpu.ASLM(addr)
-		assertStatus("00X00001", cpu.Status, t)
+		assertStatus("10X00001", cpu.Status, t)
 		assertMemory(0xFE, addr, cpu.MemoryMap, t)
 
 		// Should unset carry flag, zero flag

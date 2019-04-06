@@ -1287,11 +1287,19 @@ func (c *CPU) AND(address uint16) {
 // modeAccumulator, and the other is called when ASL is
 // called in any other addressing mode.
 func (c *CPU) ASLA(address uint16) {
+	c.Status.C = c.A&0x80 != 0x00
+	c.A <<= 1
+	c.Status.setZN(c.A)
 }
 
 // ASLM Arithmetic Shift Left, acting on Memory.
 // See explanation for ASLA
 func (c *CPU) ASLM(address uint16) {
+	val := c.Read(address)
+	c.Status.C = val&0x80 != 0x00
+	val <<= 1
+	c.Write(address, val)
+	c.Status.setZN(val)
 }
 
 // BCC Branch if Carry Clear
