@@ -1454,6 +1454,8 @@ func (c *CPU) NOP(address uint16) {
 
 // ORA Logical Inclusive OR
 func (c *CPU) ORA(address uint16) {
+	c.A |= c.Read(address)
+	c.Status.setZN(c.A)
 }
 
 // PHA Push Accumulator
