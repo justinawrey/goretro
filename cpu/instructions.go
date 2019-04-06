@@ -31,7 +31,7 @@ type instruction struct {
 // Only official opcodes are supported.
 type ErrInvalidOpcode byte
 
-// Error() implements error
+// Error() implements error.
 func (e ErrInvalidOpcode) Error() (repr string) {
 	return fmt.Sprintf("invalid opcode: %v", byte(e))
 }
@@ -1281,7 +1281,7 @@ func (c *CPU) ADC(address uint16) {
 func (c *CPU) AND(address uint16) {
 }
 
-// ASLA Arithmetic Shift Left, acting on Accumulator
+// ASLA Arithmetic Shift Left, acting on Accumulator.
 // ASL is separated into two functions here for implementation
 // reasons; one function which is called when ASL is called in
 // modeAccumulator, and the other is called when ASL is
@@ -1289,7 +1289,7 @@ func (c *CPU) AND(address uint16) {
 func (c *CPU) ASLA(address uint16) {
 }
 
-// ASLM Arithmetic Shift Left, acting on Memory
+// ASLM Arithmetic Shift Left, acting on Memory.
 // See explanation for ASLA
 func (c *CPU) ASLM(address uint16) {
 }
@@ -1384,14 +1384,21 @@ func (c *CPU) EOR(address uint16) {
 
 // INC Increment Register
 func (c *CPU) INC(address uint16) {
+	newVal := c.Read(address) + 0x01
+	c.Write(address, newVal)
+	c.Status.setZN(newVal)
 }
 
 // INX Increment X Register
 func (c *CPU) INX(address uint16) {
+	c.X += 0x01
+	c.Status.setZN(c.X)
 }
 
 // INY Increment Y Register
 func (c *CPU) INY(address uint16) {
+	c.Y += 0x01
+	c.Status.setZN(c.Y)
 }
 
 // JMP Jump
