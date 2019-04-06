@@ -86,20 +86,20 @@ func assertStatus(status string, sr *cpu.Status, t *testing.T) {
 
 func assertRegister(expected, reg byte, t *testing.T) {
 	if reg != expected {
-		t.Errorf("want: %v, got %v\n", expected, reg)
+		t.Errorf("register: want: 0x%x, got 0x%x\n", expected, reg)
 	}
 }
 
 func assertRegister16(expected, reg uint16, t *testing.T) {
 	if reg != expected {
-		t.Errorf("want: %v, got %v\n", expected, reg)
+		t.Errorf("register: want: 0x%x, got 0x%x\n", expected, reg)
 	}
 }
 
 func assertMemory(expected byte, loc uint16, mem *cpu.MemoryMap, t *testing.T) {
 	got := mem[loc]
 	if got != expected {
-		t.Errorf("want: %v, got %v\n", expected, got)
+		t.Errorf("memory: want: %v, got %v\n", expected, got)
 	}
 }
 
@@ -370,11 +370,12 @@ func TestInstructions(t *testing.T) {
 		// Accumulator should result in having data 0xFE
 		cpu.A = 0xFF
 		cpu.ROLA(0x00)
-		assertStatus("00X00001", cpu.Status, t)
+		assertStatus("10X00001", cpu.Status, t)
 		assertRegister(0xFE, cpu.A, t)
 
 		// Should unset carry flag, zero flag
 		// Accumulator should result in having data 0x02
+		cpu.Status.C = false
 		cpu.A = 0x01
 		cpu.ROLA(0x00)
 		assertStatus("00X00000", cpu.Status, t)
@@ -395,11 +396,12 @@ func TestInstructions(t *testing.T) {
 		var addr uint16 = 0x000A
 		cpu.Write(addr, 0xFF)
 		cpu.ROLM(addr)
-		assertStatus("00X00001", cpu.Status, t)
+		assertStatus("10X00001", cpu.Status, t)
 		assertMemory(0xFE, addr, cpu.MemoryMap, t)
 
 		// Should unset carry flag, zero flag
 		// Memory should result in having data 0x02
+		cpu.Status.C = false
 		cpu.Write(addr, 0x01)
 		cpu.ROLM(addr)
 		assertStatus("00X00000", cpu.Status, t)
@@ -424,6 +426,7 @@ func TestInstructions(t *testing.T) {
 
 		// Should unset carry flag, zero flag
 		// Accumulator should result in having data 0x01
+		cpu.Status.C = false
 		cpu.A = 0x02
 		cpu.RORA(0x00)
 		assertStatus("00X00000", cpu.Status, t)
@@ -434,7 +437,7 @@ func TestInstructions(t *testing.T) {
 		cpu.Status.C = true
 		cpu.A = 0x01
 		cpu.RORA(0x00)
-		assertStatus("00X00001", cpu.Status, t)
+		assertStatus("10X00001", cpu.Status, t)
 		assertRegister(0x80, cpu.A, t)
 	}))
 
@@ -449,6 +452,7 @@ func TestInstructions(t *testing.T) {
 
 		// Should unset carry flag, zero flag
 		// Memory should result in having data 0x01
+		cpu.Status.C = false
 		cpu.Write(addr, 0x02)
 		cpu.RORM(addr)
 		assertStatus("00X00000", cpu.Status, t)
@@ -459,7 +463,7 @@ func TestInstructions(t *testing.T) {
 		cpu.Status.C = true
 		cpu.Write(addr, 0x01)
 		cpu.RORM(addr)
-		assertStatus("00X00001", cpu.Status, t)
+		assertStatus("10X00001", cpu.Status, t)
 		assertMemory(0x80, addr, cpu.MemoryMap, t)
 	}))
 

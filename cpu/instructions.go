@@ -1482,30 +1482,70 @@ func (c *CPU) PLA(address uint16) {
 func (c *CPU) PLP(address uint16) {
 }
 
-// ROLA Rotate Left, acting on Accumulator
+// ROLA Rotate Left, acting on Accumulator.
 // ROL is separated into two functions here for implementation
 // reasons; one function which is called when ROL is called in
 // modeAccumulator, and the other is called when ROL is
 // called in any other addressing mode.
 func (c *CPU) ROLA(address uint16) {
+	carry := c.A&0x80 != 0x00
+	c.A <<= 1
+	if c.Status.C {
+		c.A |= 0x01
+	} else {
+		c.A &= 0xFE
+	}
+	c.Status.C = carry
+	c.Status.setZN(c.A)
 }
 
-// ROLM Rotate Left, acting on Memory
-// See explanation for ROLA
+// ROLM Rotate Left, acting on Memory.
+// See explanation for ROLA.
 func (c *CPU) ROLM(address uint16) {
+	val := c.Read(address)
+	carry := val&0x80 != 0x00
+	val <<= 1
+	if c.Status.C {
+		val |= 0x01
+	} else {
+		val &= 0xFE
+	}
+	c.Status.C = carry
+	c.Write(address, val)
+	c.Status.setZN(val)
 }
 
-// RORA Rotate Right, acting on Accumulator
+// RORA Rotate Right, acting on Accumulator.
 // ROR is separated into two functions here for implementation
 // reasons; one function which is called when ROR is called in
 // modeAccumulator, and the other is called when ROR is
 // called in any other addressing mode.
 func (c *CPU) RORA(address uint16) {
+	carry := c.A&0x01 == 0x01
+	c.A >>= 1
+	if c.Status.C {
+		c.A |= 0x80
+	} else {
+		c.A &= 0x7F
+	}
+	c.Status.C = carry
+	c.Status.setZN(c.A)
 }
 
 // RORM Rotate Right, acting on Memory
 // See explanation for RORA
 func (c *CPU) RORM(address uint16) {
+	val := c.Read(address)
+	carry := val&0x01 == 0x01
+	val >>= 1
+	if c.Status.C {
+		val |= 0x80
+	} else {
+		val &= 0x7F
+	}
+	c.Status.C = carry
+	c.Write(address, val)
+	c.Status.setZN(val)
 }
 
 // RTI Return from Interrupt
