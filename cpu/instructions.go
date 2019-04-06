@@ -1411,14 +1411,20 @@ func (c *CPU) JSR(address uint16) {
 
 // LDA Load Accumulator
 func (c *CPU) LDA(address uint16) {
+	c.A = c.Read(address)
+	c.Status.setZN(c.A)
 }
 
 // LDX Load X Register
 func (c *CPU) LDX(address uint16) {
+	c.X = c.Read(address)
+	c.Status.setZN(c.X)
 }
 
 // LDY Load Y Register
 func (c *CPU) LDY(address uint16) {
+	c.Y = c.Read(address)
+	c.Status.setZN(c.Y)
 }
 
 // LSRA Logical Shift Right, acting on Accumulator
