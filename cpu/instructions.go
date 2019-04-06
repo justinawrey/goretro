@@ -1577,22 +1577,29 @@ func (c *CPU) SEI(address uint16) {
 
 // STA Store Accumulator
 func (c *CPU) STA(address uint16) {
+	c.Write(address, c.A)
 }
 
 // STX Store X Register
 func (c *CPU) STX(address uint16) {
+	c.Write(address, c.X)
 }
 
 // STY Store Y Register
 func (c *CPU) STY(address uint16) {
+	c.Write(address, c.Y)
 }
 
 // TAX Transfer Accumulator to X
 func (c *CPU) TAX(address uint16) {
+	c.X = c.A
+	c.Status.setZN(c.X)
 }
 
 // TAY Transfer Accumulator to Y
 func (c *CPU) TAY(address uint16) {
+	c.Y = c.A
+	c.Status.setZN(c.Y)
 }
 
 // TSX Transfer Stack Pointer to X
