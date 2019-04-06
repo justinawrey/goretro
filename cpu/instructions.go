@@ -1427,17 +1427,25 @@ func (c *CPU) LDY(address uint16) {
 	c.Status.setZN(c.Y)
 }
 
-// LSRA Logical Shift Right, acting on Accumulator
+// LSRA Logical Shift Right, acting on Accumulator.
 // LSR is separated into two functions here for implementation
 // reasons; one function which is called when LSR is called in
 // modeAccumulator, and the other is called when LSR is
 // called in any other addressing mode.
 func (c *CPU) LSRA(address uint16) {
+	c.Status.C = c.A&0x01 == 0x01
+	c.A >>= 1
+	c.Status.setZN(c.A)
 }
 
-// LSRM Logical Shift Right, acting on Memory
-// See explanation for LSRA
+// LSRM Logical Shift Right, acting on Memory.
+// See explanation for LSRA.
 func (c *CPU) LSRM(address uint16) {
+	val := c.Read(address)
+	c.Status.C = val&0x01 == 0x01
+	val >>= 1
+	c.Write(address, val)
+	c.Status.setZN(val)
 }
 
 // NOP No Operation
