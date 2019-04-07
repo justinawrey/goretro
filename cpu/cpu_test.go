@@ -593,6 +593,7 @@ func TestInstructions(t *testing.T) {
 		assertRegister(0xF0, cpu.A, t)
 	}))
 
+	// TODO:
 	t.Run("test ADC", newCPUAndTest(func(cpu *cpu.CPU, t *testing.T) {
 		t.SkipNow()
 	}))
@@ -683,6 +684,7 @@ func TestInstructions(t *testing.T) {
 		assertRegister16(start, cpu.PC, t)
 	}))
 
+	// TODO:
 	t.Run("test BIT", newCPUAndTest(func(cpu *cpu.CPU, t *testing.T) {
 		t.SkipNow()
 	}))
@@ -733,87 +735,108 @@ func TestInstructions(t *testing.T) {
 		assertRegister16(dest, cpu.PC, t)
 	}))
 
+	// TODO:
 	t.Run("test BPL", newCPUAndTest(func(cpu *cpu.CPU, t *testing.T) {
 		t.SkipNow()
 	}))
 
+	// TODO:
 	t.Run("test BRK", newCPUAndTest(func(cpu *cpu.CPU, t *testing.T) {
 		t.SkipNow()
 	}))
 
+	// TODO:
 	t.Run("test BVC", newCPUAndTest(func(cpu *cpu.CPU, t *testing.T) {
 		t.SkipNow()
 	}))
 
+	// TODO:
 	t.Run("test BVS", newCPUAndTest(func(cpu *cpu.CPU, t *testing.T) {
 		t.SkipNow()
 	}))
 
+	// TODO:
 	t.Run("test CMP", newCPUAndTest(func(cpu *cpu.CPU, t *testing.T) {
 		t.SkipNow()
 	}))
 
+	// TODO:
 	t.Run("test CPX", newCPUAndTest(func(cpu *cpu.CPU, t *testing.T) {
 		t.SkipNow()
 	}))
 
+	// TODO:
 	t.Run("test CPY", newCPUAndTest(func(cpu *cpu.CPU, t *testing.T) {
 
 	}))
 
+	// TODO:
 	t.Run("test DEC", newCPUAndTest(func(cpu *cpu.CPU, t *testing.T) {
 		t.SkipNow()
 	}))
 
+	// TODO:
 	t.Run("test DEX", newCPUAndTest(func(cpu *cpu.CPU, t *testing.T) {
 		t.SkipNow()
 	}))
 
+	// TODO:
 	t.Run("test DEY", newCPUAndTest(func(cpu *cpu.CPU, t *testing.T) {
 		t.SkipNow()
 	}))
 
+	// TODO:
 	t.Run("test EOR", newCPUAndTest(func(cpu *cpu.CPU, t *testing.T) {
 		t.SkipNow()
 	}))
 
+	// TODO:
 	t.Run("test JMP", newCPUAndTest(func(cpu *cpu.CPU, t *testing.T) {
 		t.SkipNow()
 	}))
 
+	// TODO:
 	t.Run("test JSR", newCPUAndTest(func(cpu *cpu.CPU, t *testing.T) {
 		t.SkipNow()
 	}))
 
+	// TODO:
 	t.Run("test PHA", newCPUAndTest(func(cpu *cpu.CPU, t *testing.T) {
 		t.SkipNow()
 	}))
 
+	// TODO:
 	t.Run("test PHP", newCPUAndTest(func(cpu *cpu.CPU, t *testing.T) {
 		t.SkipNow()
 	}))
 
+	// TODO:
 	t.Run("test PLA", newCPUAndTest(func(cpu *cpu.CPU, t *testing.T) {
 		t.SkipNow()
 	}))
 
+	// TODO:
 	t.Run("test PLP", newCPUAndTest(func(cpu *cpu.CPU, t *testing.T) {
 		t.SkipNow()
 	}))
 
+	// TODO:
 	t.Run("test RTI", newCPUAndTest(func(cpu *cpu.CPU, t *testing.T) {
 		t.SkipNow()
 	}))
 
+	// TODO:
 	t.Run("test RTS", newCPUAndTest(func(cpu *cpu.CPU, t *testing.T) {
 		t.SkipNow()
 	}))
 
+	// TODO:
 	t.Run("test SBC", newCPUAndTest(func(cpu *cpu.CPU, t *testing.T) {
 		t.SkipNow()
 	}))
 }
 
+// TODO:
 func TestAddressingModes(t *testing.T) {
 	t.SkipNow()
 }

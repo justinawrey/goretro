@@ -3,6 +3,8 @@ package cpu
 import (
 	"fmt"
 	"log"
+
+	"github.com/justinawrey/nes/memory"
 )
 
 // Status holds data for each status flag
@@ -116,15 +118,21 @@ func (r *Registers) Clear() {
 }
 
 const (
-	memSize = 0x10000 // 6502 has a 64kB memory map
+	// 6502 has a 64kB memory map
+	memStart = 0x00
+	memSize  = 0x10000
 
 	// See table below for more details
-	zeroPageEnd  = 0x00FF
-	ramEnd       = 0x1FFF
-	ppuEnd       = 0x3FFF
-	apuIoEnd     = 0x4017
-	testModeEnd  = 0x401F
-	cartridgeEnd = 0xFFFF
+	ramMirrorSize = 0x2000
+	ramMirrorFreq = 0x0800
+	ioMirrorSize  = 0x2000
+	ioMirrorFreq  = 0x0008
+	zeroPageEnd   = 0x00FF
+	ramEnd        = 0x1FFF
+	ppuEnd        = 0x3FFF
+	apuIoEnd      = 0x4017
+	testModeEnd   = 0x401F
+	cartridgeEnd  = 0xFFFF
 )
 
 // MemoryMap is the 64kB memory map contained within the CPU.
@@ -141,39 +149,82 @@ const (
 // $4000-$4017	$0018	NES APU and I/O registers
 // $4018-$401F	$0008	APU and I/O functionality that is normally disabled. See CPU Test Mode.
 // $4020-$FFFF	$BFE0	Cartridge space: PRG ROM, PRG RAM, and mapper registers (See Note)
-type MemoryMap [memSize]byte
-
-// String implements Stringer
-// TODO: complete memory dump
-func (m *MemoryMap) String() (repr string) {
-	return ""
+type MemoryMap struct {
+	ramMirror *memory.MirroredMemory // Mirrored memory from $0000 - $1FFF
+	ioMirror  *memory.MirroredMemory // Mirrored memory from $2000 - $3FFF
+	rest      *memory.BaseMemory     // Unmirrored; rest of cpu memory
 }
 
-// Write writes to the memory map.
-// TODO: make robust
-func (m *MemoryMap) Write(to uint16, data byte) {
-	m[to] = data
-}
+// NewMemoryMap creates a new CPU memory map.
+func NewMemoryMap() (mm *MemoryMap) {
+	restSize := memSize - (ramMirrorSize + ioMirrorSize)
+	ram := memory.NewMirroredMemory(ramMirrorFreq)
+	io := memory.NewMirroredMemory(ioMirrorFreq)
+	rest := memory.NewBaseMemory(restSize)
 
-// Read reads from the memory map.
-// TODO: make robust
-func (m *MemoryMap) Read(from uint16) (b byte) {
-	return m[from]
-}
-
-// Clear sets all memory from 0x0000 to 0xFFFF to 0x00.
-func (m *MemoryMap) Clear() {
-	for i := 0; i < memSize; i++ {
-		m[i] = 0x00
+	return &MemoryMap{
+		ramMirror: &ram,
+		ioMirror:  &io,
+		rest:      &rest,
 	}
+}
+
+// normalizeAddress normalizes groups of addresses so they are relative to zero.
+// For example, addresses in the range 0x2000 - 0x3FFF will be normalized
+// to the range 0x0000 - 0x1FFF.  This ensures that memory composed of smaller
+// chunks (i.e. mirrored memory as in MemoryMap) remains addressable.
+func normalizeAddress(address uint16) (normalized uint16) {
+	switch {
+	case address <= ramEnd:
+		return address
+	case address <= ppuEnd:
+		return address - ramMirrorSize
+	default:
+		return address - (ramMirrorSize + ioMirrorSize)
+	}
+}
+
+// Read reads a byte of data from the memory map at address.
+func (mm *MemoryMap) Read(address uint16) (data byte) {
+	normalizedAddress := normalizeAddress(address)
+
+	switch {
+	case address <= ramEnd:
+		return mm.ramMirror.Read(normalizedAddress)
+	case address <= ppuEnd:
+		return mm.ioMirror.Read(normalizedAddress)
+	default:
+		return mm.rest.Read(normalizedAddress)
+	}
+}
+
+// Write writes a byte of data to the memory map at address.
+func (mm *MemoryMap) Write(address uint16, data byte) {
+	normalizedAddress := normalizeAddress(address)
+
+	switch {
+	case address <= ramEnd:
+		mm.ramMirror.Write(normalizedAddress, data)
+	case address <= ppuEnd:
+		mm.ioMirror.Write(normalizedAddress, data)
+	default:
+		mm.rest.Write(normalizedAddress, data)
+	}
+}
+
+// Clear sets all data in the memory map to 0x00.
+func (mm *MemoryMap) Clear() {
+	mm.ramMirror.Clear()
+	mm.ioMirror.Clear()
+	mm.rest.Clear()
 }
 
 // Read16 reads two bytes, in little endian order, starting
 // at memory location from.  The bytes are concatenated
 // into a two byte word and returned.
-func (m *MemoryMap) Read16(from uint16) (word uint16) {
-	lo := uint16(m.Read(from))
-	hi := uint16(m.Read(from + 1))
+func (mm *MemoryMap) Read16(from uint16) (word uint16) {
+	lo := uint16(mm.Read(from))
+	hi := uint16(mm.Read(from + 1))
 	return hi<<8 | lo
 }
 
@@ -190,7 +241,7 @@ type CPU struct {
 // initialized to zero.
 func NewCPU() (c *CPU) {
 	cpu := &CPU{
-		MemoryMap: &MemoryMap{},
+		MemoryMap: NewMemoryMap(),
 		Registers: &Registers{
 			Status: &Status{},
 		},
