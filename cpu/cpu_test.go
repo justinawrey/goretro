@@ -96,7 +96,7 @@ func assertRegister16(expected, reg uint16, t *testing.T) {
 	}
 }
 
-func assertMemory(expected byte, loc uint16, mem *cpu.MemoryMap, t *testing.T) {
+func assertMemory(expected byte, loc uint16, mem *cpu.Memory, t *testing.T) {
 	got := mem[loc]
 	if got != expected {
 		t.Errorf("memory: want: %v, got %v\n", expected, got)
@@ -190,13 +190,13 @@ func TestInstructions(t *testing.T) {
 		cpu.Write(addr, 127)
 		cpu.INC(addr)
 		assertStatus("10X00000", cpu.Status, t)
-		assertMemory(128, addr, cpu.MemoryMap, t)
+		assertMemory(128, addr, cpu.Memory, t)
 
 		// Should set zero flag, no negative flag
 		cpu.Write(addr, 255)
 		cpu.INC(addr)
 		assertStatus("00X00010", cpu.Status, t)
-		assertMemory(0, addr, cpu.MemoryMap, t)
+		assertMemory(0, addr, cpu.Memory, t)
 	}))
 
 	t.Run("test LDA", newCPUAndTest(func(cpu *cpu.CPU, t *testing.T) {
@@ -284,21 +284,21 @@ func TestInstructions(t *testing.T) {
 		cpu.Write(addr, 0x01)
 		cpu.LSRM(addr)
 		assertStatus("00X00011", cpu.Status, t)
-		assertMemory(0x00, addr, cpu.MemoryMap, t)
+		assertMemory(0x00, addr, cpu.Memory, t)
 
 		// Should unset carry flag, zero flag
 		// Memory at 0x000A should result in having data 0x01
 		cpu.Write(addr, 0x02)
 		cpu.LSRM(addr)
 		assertStatus("00X00000", cpu.Status, t)
-		assertMemory(0x01, addr, cpu.MemoryMap, t)
+		assertMemory(0x01, addr, cpu.Memory, t)
 
 		// Carry flag should NOT rotate into bit 7 of memory
 		cpu.Status.C = true
 		cpu.Write(addr, 0x02)
 		cpu.LSRM(addr)
 		assertStatus("00X00000", cpu.Status, t)
-		assertMemory(0x01, addr, cpu.MemoryMap, t)
+		assertMemory(0x01, addr, cpu.Memory, t)
 	}))
 
 	t.Run("test ORA", newCPUAndTest(func(cpu *cpu.CPU, t *testing.T) {
@@ -349,20 +349,20 @@ func TestInstructions(t *testing.T) {
 		cpu.Write(addr, 0xFF)
 		cpu.ASLM(addr)
 		assertStatus("10X00001", cpu.Status, t)
-		assertMemory(0xFE, addr, cpu.MemoryMap, t)
+		assertMemory(0xFE, addr, cpu.Memory, t)
 
 		// Should unset carry flag, zero flag
 		// Accumulator should result in having data 0x02
 		cpu.Write(addr, 0x01)
 		cpu.ASLM(addr)
 		assertStatus("00X00000", cpu.Status, t)
-		assertMemory(0x02, addr, cpu.MemoryMap, t)
+		assertMemory(0x02, addr, cpu.Memory, t)
 
 		// Should set carry flag, zero flag
 		cpu.Write(addr, 0x80)
 		cpu.ASLM(addr)
 		assertStatus("00X00011", cpu.Status, t)
-		assertMemory(0x00, addr, cpu.MemoryMap, t)
+		assertMemory(0x00, addr, cpu.Memory, t)
 	}))
 
 	t.Run("test ROLA", newCPUAndTest(func(cpu *cpu.CPU, t *testing.T) {
@@ -397,7 +397,7 @@ func TestInstructions(t *testing.T) {
 		cpu.Write(addr, 0xFF)
 		cpu.ROLM(addr)
 		assertStatus("10X00001", cpu.Status, t)
-		assertMemory(0xFE, addr, cpu.MemoryMap, t)
+		assertMemory(0xFE, addr, cpu.Memory, t)
 
 		// Should unset carry flag, zero flag
 		// Memory should result in having data 0x02
@@ -405,7 +405,7 @@ func TestInstructions(t *testing.T) {
 		cpu.Write(addr, 0x01)
 		cpu.ROLM(addr)
 		assertStatus("00X00000", cpu.Status, t)
-		assertMemory(0x02, addr, cpu.MemoryMap, t)
+		assertMemory(0x02, addr, cpu.Memory, t)
 
 		// Should set carry flag, unset zero flag, contents of old carry
 		// should rotate left into bit 0 of memory value
@@ -413,7 +413,7 @@ func TestInstructions(t *testing.T) {
 		cpu.Write(addr, 0x80)
 		cpu.ROLM(addr)
 		assertStatus("00X00001", cpu.Status, t)
-		assertMemory(0x01, addr, cpu.MemoryMap, t)
+		assertMemory(0x01, addr, cpu.Memory, t)
 	}))
 
 	t.Run("test RORA", newCPUAndTest(func(cpu *cpu.CPU, t *testing.T) {
@@ -448,7 +448,7 @@ func TestInstructions(t *testing.T) {
 		cpu.Write(addr, 0xFF)
 		cpu.RORM(addr)
 		assertStatus("00X00001", cpu.Status, t)
-		assertMemory(0x7F, addr, cpu.MemoryMap, t)
+		assertMemory(0x7F, addr, cpu.Memory, t)
 
 		// Should unset carry flag, zero flag
 		// Memory should result in having data 0x01
@@ -456,7 +456,7 @@ func TestInstructions(t *testing.T) {
 		cpu.Write(addr, 0x02)
 		cpu.RORM(addr)
 		assertStatus("00X00000", cpu.Status, t)
-		assertMemory(0x01, addr, cpu.MemoryMap, t)
+		assertMemory(0x01, addr, cpu.Memory, t)
 
 		// Should set carry flag, unset zero flag, contents of old carry
 		// should rotate right into bit 7 of memory value
@@ -464,7 +464,7 @@ func TestInstructions(t *testing.T) {
 		cpu.Write(addr, 0x01)
 		cpu.RORM(addr)
 		assertStatus("10X00001", cpu.Status, t)
-		assertMemory(0x80, addr, cpu.MemoryMap, t)
+		assertMemory(0x80, addr, cpu.Memory, t)
 	}))
 
 	t.Run("test STA", newCPUAndTest(func(cpu *cpu.CPU, t *testing.T) {
@@ -478,7 +478,7 @@ func TestInstructions(t *testing.T) {
 		cpu.A = 0xAA
 		cpu.STA(addr)
 		assertStatus("10X00011", cpu.Status, t)
-		assertMemory(0xAA, addr, cpu.MemoryMap, t)
+		assertMemory(0xAA, addr, cpu.Memory, t)
 	}))
 
 	t.Run("test STX", newCPUAndTest(func(cpu *cpu.CPU, t *testing.T) {
@@ -492,7 +492,7 @@ func TestInstructions(t *testing.T) {
 		cpu.X = 0xBB
 		cpu.STX(addr)
 		assertStatus("10X00011", cpu.Status, t)
-		assertMemory(0xBB, addr, cpu.MemoryMap, t)
+		assertMemory(0xBB, addr, cpu.Memory, t)
 	}))
 
 	t.Run("test STY", newCPUAndTest(func(cpu *cpu.CPU, t *testing.T) {
@@ -506,7 +506,7 @@ func TestInstructions(t *testing.T) {
 		cpu.Y = 0xCC
 		cpu.STY(addr)
 		assertStatus("10X00011", cpu.Status, t)
-		assertMemory(0xCC, addr, cpu.MemoryMap, t)
+		assertMemory(0xCC, addr, cpu.Memory, t)
 	}))
 
 	t.Run("test TAX", newCPUAndTest(func(cpu *cpu.CPU, t *testing.T) {
@@ -838,5 +838,10 @@ func TestInstructions(t *testing.T) {
 
 // TODO:
 func TestAddressingModes(t *testing.T) {
+	t.SkipNow()
+}
+
+// TODO:
+func TestMemory(t *testing.T) {
 	t.SkipNow()
 }
