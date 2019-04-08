@@ -171,7 +171,7 @@ func (m *Memory) Write(address uint16, data byte) {
 		m[address%ramMirrorFreq] = data
 	case address <= ppuEnd:
 		// Mirrored memory at a frequency of 0x0008
-		m[(address&ioMirrorFreq)+ioMirrorStart] = data
+		m[(address%ioMirrorFreq)+ioMirrorStart] = data
 	default:
 		m[address] = data
 	}
