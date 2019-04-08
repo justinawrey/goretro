@@ -128,15 +128,21 @@ type CPU struct {
 
 // NewCPU initializes a new 6502 CPU with all status bits, register, and memory
 // initialized to zero. Memory is the shared memory that the CPU will access.
-func NewCPU(m *memory.Memory) (c *CPU) {
+func New() (c *CPU) {
 	cpu := &CPU{
-		Memory: m,
 		Registers: &Registers{
 			Status: &Status{},
 		},
 	}
-	cpu.initInstructions()
 	return cpu
+}
+
+func (c *CPU) UseMemory(m *memory.Memory) {
+	c.Memory = m
+}
+
+func (c *CPU) Initialize() {
+	c.initInstructions()
 }
 
 // Clear sets every register in c (including PC, SP, and status) to 0x00, as well
@@ -144,7 +150,6 @@ func NewCPU(m *memory.Memory) (c *CPU) {
 func (c *CPU) Clear() {
 	c.Status.Clear()
 	c.Registers.Clear()
-	c.Memory.Clear()
 }
 
 // Decode decodes opcode opcode and returns relevant information.

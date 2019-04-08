@@ -7,18 +7,27 @@ import (
 )
 
 type nes struct {
-	cpu       *cpu.CPU
-	ppu       *ppu.PPU
-	sharedMem *memory.Memory
+	cpu    *cpu.CPU
+	ppu    *ppu.PPU
+	memory *memory.Memory
 }
 
 func main() {
-	sharedMem := new(memory.Memory)
-	cpu := cpu.NewCPU(sharedMem)
-	ppu := ppu.NewPPU(sharedMem)
+	// Create all modules
+	cpu := cpu.New()
+	ppu := ppu.New()
+	mem := memory.New()
 
-	nes := &nes{cpu, ppu, sharedMem}
+	// Set up memory links
+	cpu.UseMemory(mem)
+	mem.AssignMemoryMappedIO(ppu)
 
-	// TODO: go further
+	// Get all modules to correct start up state
+	cpu.Init()
+	ppu.Init()
+
+	nes := &nes{cpu, ppu, mem}
+
+	// // TODO: go further
 	_ = nes
 }
