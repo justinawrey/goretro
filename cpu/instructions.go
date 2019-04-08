@@ -1399,13 +1399,13 @@ func (c *CPU) INC(address uint16) {
 
 // INX Increment X Register
 func (c *CPU) INX(address uint16) {
-	c.X += 0x01
+	c.X++
 	c.Status.setZN(c.X)
 }
 
 // INY Increment Y Register
 func (c *CPU) INY(address uint16) {
-	c.Y += 0x01
+	c.Y++
 	c.Status.setZN(c.Y)
 }
 

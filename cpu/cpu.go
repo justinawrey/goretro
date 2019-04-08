@@ -178,7 +178,7 @@ func (m *Memory) Write(address uint16, data byte) {
 }
 
 // Clear sets all data in the memory map to 0x00.
-func (m *Memory) Clear() {
+
 	for i := range m {
 		m[i] = 0x00
 	}
