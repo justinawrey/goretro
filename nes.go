@@ -12,6 +12,23 @@ type nes struct {
 	memory *memory.Memory
 }
 
+type module interface {
+	Init()
+	Clear()
+}
+
+func initAll(modules ...module) {
+	for _, m := range modules {
+		m.Init()
+	}
+}
+
+func clearAll(modules ...module) {
+	for _, m := range modules {
+		m.Clear()
+	}
+}
+
 func main() {
 	// Create all modules
 	cpu := cpu.New()
@@ -23,8 +40,7 @@ func main() {
 	mem.AssignMemoryMappedIO(ppu)
 
 	// Get all modules to correct start up state
-	cpu.Init()
-	ppu.Init()
+	initAll(cpu, ppu)
 
 	nes := &nes{cpu, ppu, mem}
 

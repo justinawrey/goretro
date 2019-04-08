@@ -141,7 +141,7 @@ func (c *CPU) UseMemory(m *memory.Memory) {
 	c.Memory = m
 }
 
-func (c *CPU) Initialize() {
+func (c *CPU) Init() {
 	c.initInstructions()
 }
 

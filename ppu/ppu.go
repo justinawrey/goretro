@@ -21,7 +21,7 @@ func (p *PPU) WriteRegister(reg uint16, data byte) {
 
 }
 
-func (p *PPU) Initialize() {
+func (p *PPU) Init() {
 
 }
 
