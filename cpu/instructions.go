@@ -1604,16 +1604,23 @@ func (c *CPU) TAY(address uint16) {
 
 // TSX Transfer Stack Pointer to X
 func (c *CPU) TSX(address uint16) {
+	c.X = c.SP
+	c.Status.setZN(c.X)
 }
 
 // TXA Transfer X to Accumulator
 func (c *CPU) TXA(address uint16) {
+	c.A = c.X
+	c.Status.setZN(c.A)
 }
 
 // TXS Transfer X to Stack Pointer
 func (c *CPU) TXS(address uint16) {
+	c.SP = c.X
 }
 
 // TYA Transfer Y to Accumulator
 func (c *CPU) TYA(address uint16) {
+	c.A = c.Y
+	c.Status.setZN(c.A)
 }

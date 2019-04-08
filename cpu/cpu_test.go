@@ -566,16 +566,18 @@ func TestInstructions(t *testing.T) {
 	}))
 
 	t.Run("test TXS", newCPUAndTest(func(cpu *cpu.CPU, t *testing.T) {
-		// Zero flag should be set
+		// Transferring to stack pointer does not change status register
 		cpu.X = 0x00
 		cpu.TXS(0x00)
-		assertStatus("00X00010", cpu.Status, t)
+		assertStatus("00X00000", cpu.Status, t)
 		assertRegister(0x00, cpu.SP, t)
 
-		// Zero flag should be unset, negative flag set
+		// Transferring to stack pointer does not change status register
+		cpu.Status.N = true
+		cpu.Status.C = true
 		cpu.X = 0xF0
 		cpu.TXS(0x00)
-		assertStatus("10X00000", cpu.Status, t)
+		assertStatus("10X00001", cpu.Status, t)
 		assertRegister(0xF0, cpu.SP, t)
 	}))
 
