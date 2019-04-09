@@ -19,6 +19,15 @@ const (
 	cartridgeEnd   = 0xFFFF
 )
 
+// memoryMap specifies a module which can be read from / written to via memory mapped io.
+// Rather than directly exposing the entire ppu / apu / joystick objects to memory,
+// we instead only expose their read / write methods.
+// See Memory for main usage.
+type memoryMap interface {
+	WriteRegister(uint16, byte)
+	ReadRegister(uint16) byte
+}
+
 // Memory is the 64kB memory map contained within the CPU.
 // The memory is organized as follows (https://wiki.nesdev.com/w/index.php/CPU_memory_map):
 //
@@ -34,16 +43,19 @@ const (
 // $4018-$401F	$0008	APU and I/O functionality that is normally disabled. See CPU Test Mode.
 // $4020-$FFFF	$BFE0	Cartridge space: PRG ROM, PRG RAM, and mapper registers (See Note)
 type Memory struct {
-	internal [internalRAMSize]byte
-	ppu      *ppu.PPU
+	internal     [internalRAMSize]byte
+	ppuMemoryMap memoryMap
 }
 
+// New constructs a new Memory.
 func New() (m *Memory) {
 	return &Memory{}
 }
 
+// AssignMemoryMappedIO sets up writing to / reading from memory to be memory mapped
+// with the specified argument modules.
 func (m *Memory) AssignMemoryMappedIO(ppu *ppu.PPU) {
-	m.ppu = ppu
+	m.ppuMemoryMap = ppu
 }
 
 // Read reads a byte of data from the memory map at address.
@@ -58,7 +70,7 @@ func (m *Memory) Read(address uint16) (data byte) {
 		// Memory mapped IO for PPU.  Mirrored memory at a frequency of 0x0008.
 		// Same modulus trick as above.
 		register := (address % ppuMirrorFreq) + ppuMirrorStart
-		return m.ppu.ReadRegister(register)
+		return m.ppuMemoryMap.ReadRegister(register)
 	default:
 		// TODO: handle the rest
 		return 0x00
@@ -72,7 +84,7 @@ func (m *Memory) Write(address uint16, data byte) {
 		m.internal[address%ramMirrorFreq] = data
 	case address <= ppuEnd:
 		register := (address % ppuMirrorFreq) + ppuMirrorStart
-		m.ppu.WriteRegister(register, data)
+		m.ppuMemoryMap.WriteRegister(register, data)
 	default:
 		// TODO: handle the rest
 	}
