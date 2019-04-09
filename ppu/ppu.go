@@ -131,42 +131,71 @@ func (s *status) read() (data byte) {
 	return data
 }
 
-type PPU struct {
-	ctrl1
-	ctrl2
-	status
-	sprRAMAddr byte
-
-	// TODO: work this out?
-	scrollAddr1 byte
-	scrollAddr2 byte
-	vRAMAddr1   byte
-	vRAMAddr2   byte
-	//TODO: actual vRam
-	//TODO: actual sprRam
-	//TODO: DMA
+type doubleWriter struct {
+	toggle bool
+	data1  byte
+	data2  byte
 }
 
-func New() (p *PPU) {
-	return &PPU{}
+func (dw *doubleWriter) write(data byte) {
+	if !dw.toggle {
+		dw.data1 = data
+	} else {
+		dw.data2 = data
+	}
+	dw.toggle = !dw.toggle
+}
+
+func (dw *doubleWriter) read16() (word uint16) {
+	lo := uint16(dw.data2)
+	hi := uint16(dw.data1)
+	return hi<<8 | lo
 }
 
 const (
+	// Memory
+	sprRAMSize = 0x100
+	vRAMSize   = 0x10000
+
+	// IO registers
 	ctrlReg1      = 0x2000
 	ctrlReg2      = 0x2001
 	statusReg     = 0x2002
 	sprRAMAddrReg = 0x2003
 	sprRAMDataReg = 0x2004
-	vRAMAddrReg1  = 0x2005
-	vRAMAddrReg2  = 0x2006
+	scrollAddrReg = 0x2005
+	vRAMAddrReg   = 0x2006
 	vRAMDataReg   = 0x2007
 	sprDMAReg     = 0x4014
 )
+
+type PPU struct {
+	ctrl1
+	ctrl2
+	status
+	sprRAMAddr byte
+	scrollAddr *doubleWriter
+	vRAMAddr   *doubleWriter
+	sprRAM     [sprRAMSize]byte //TODO: flesh out memories
+	vRAM       [vRAMSize]byte   //TODO: flesh out memories
+
+	//TODO: DMA
+}
+
+func New() (p *PPU) {
+	return &PPU{
+		scrollAddr: &doubleWriter{},
+		vRAMAddr:   &doubleWriter{},
+	}
+}
 
 func (p *PPU) ReadRegister(reg uint16) (data byte) {
 	switch reg {
 	case statusReg:
 		return p.status.read()
+	case sprRAMAddrReg:
+		// TODO: read data from sprRam
+		fallthrough
 	case vRAMDataReg:
 		// TODO: read data from vram
 		fallthrough
@@ -184,13 +213,14 @@ func (p *PPU) WriteRegister(reg uint16, data byte) {
 	case sprRAMAddrReg:
 		p.sprRAMAddr = data
 	case sprRAMDataReg:
-		//TODO: write data to sprRam
-	case vRAMAddrReg1:
-		p.vRAMAddr1 = data
-	case vRAMAddrReg2:
-		p.vRAMAddr2 = data
+		p.sprRAM[p.sprRAMAddr] = data
+	case scrollAddrReg:
+		p.scrollAddr.write(data)
+	case vRAMAddrReg:
+		p.vRAMAddr.write(data)
 	case vRAMDataReg:
-		//TODO: write data to vram
+		address := p.vRAMAddr.read16()
+		p.vRAM[address] = data
 	case sprDMAReg:
 		//TODO: perform DMA
 	default:
@@ -198,9 +228,17 @@ func (p *PPU) WriteRegister(reg uint16, data byte) {
 }
 
 func (p *PPU) Init() {
-
+	// TODO:
 }
 
 func (p *PPU) Clear() {
+	*p = PPU{
+		scrollAddr: &doubleWriter{},
+		vRAMAddr:   &doubleWriter{},
+	}
+}
 
+func (p *PPU) Reset() {
+	p.Clear()
+	p.Init()
 }

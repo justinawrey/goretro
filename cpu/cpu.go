@@ -39,18 +39,6 @@ func (sr *Status) String() (repr string) {
 	)
 }
 
-// Clear clears all bits of the status register,
-// i.e. will set all flags to '0'.
-func (sr *Status) Clear() {
-	sr.C = false
-	sr.Z = false
-	sr.I = false
-	sr.D = false
-	sr.B = false
-	sr.V = false
-	sr.N = false
-}
-
 // setZ sets the zero flag of sr according to the contents of reg.
 func (sr *Status) setZ(reg byte) {
 	if reg == 0x00 {
@@ -108,15 +96,6 @@ func (r *Registers) String() (repr string) {
 	)
 }
 
-// Clear sets every register in r (including PC and SP) to 0x00.
-func (r *Registers) Clear() {
-	r.PC = 0
-	r.SP = 0
-	r.A = 0
-	r.X = 0
-	r.Y = 0
-}
-
 // CPU represents to 6502 and its associated registers and memory map.
 // This should be declared and used as a singleton during emulator execution.
 type CPU struct {
@@ -126,7 +105,7 @@ type CPU struct {
 	instructions map[byte]instruction
 }
 
-// NewCPU initializes a new 6502 CPU with all status bits, register, and memory
+// New initializes a new 6502 CPU with all status bits, register, and memory
 // initialized to zero. Memory is the shared memory that the CPU will access.
 func New() (c *CPU) {
 	cpu := &CPU{
@@ -137,19 +116,28 @@ func New() (c *CPU) {
 	return cpu
 }
 
+// TODO: comment
 func (c *CPU) UseMemory(m *memory.Memory) {
 	c.Memory = m
 }
 
+// TODO: comment
 func (c *CPU) Init() {
 	c.initInstructions()
+	// TODO: start up state
 }
 
-// Clear sets every register in c (including PC, SP, and status) to 0x00, as well
-// as sets all memory to 0.
+// Clear sets every register in c (including PC, SP, and status) to 0x00.
+// Retains memory linked through UseMemory.
 func (c *CPU) Clear() {
-	c.Status.Clear()
-	c.Registers.Clear()
+	*c.Registers = Registers{
+		Status: &Status{},
+	}
+}
+
+func (c *CPU) Reset() {
+	c.Clear()
+	c.Init()
 }
 
 // Decode decodes opcode opcode and returns relevant information.
