@@ -1,5 +1,0 @@
-package disassembler
-
-func main() {
-
-}
