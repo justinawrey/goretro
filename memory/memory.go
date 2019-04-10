@@ -1,6 +1,9 @@
 package memory
 
-import "github.com/justinawrey/nes/ppu"
+import (
+	"github.com/justinawrey/nes/cartridge"
+	"github.com/justinawrey/nes/ppu"
+)
 
 const (
 	// 6502 has a 64kB memory map
@@ -23,7 +26,7 @@ const (
 // Rather than directly exposing the entire ppu / apu / joystick objects to memory,
 // we instead only expose their read / write methods.
 // See Memory for main usage.
-type memoryMappedIO interface {
+type MemoryMappedIO interface {
 	WriteRegister(uint16, byte)
 	ReadRegister(uint16) byte
 }
@@ -44,7 +47,8 @@ type memoryMappedIO interface {
 // $4020-$FFFF	$BFE0	Cartridge space: PRG ROM, PRG RAM, and mapper registers (See Note)
 type Memory struct {
 	internal [internalRAMSize]byte
-	ppuIO    memoryMappedIO
+	ppuIO    MemoryMappedIO
+	cartIO   MemoryMappedIO
 }
 
 // New constructs a new Memory.
@@ -54,8 +58,16 @@ func New() (m *Memory) {
 
 // AssignMemoryMappedIO sets up writing to / reading from memory to be memory mapped
 // with the specified argument modules.
-func (m *Memory) AssignMemoryMappedIO(ppu *ppu.PPU) {
-	m.ppuIO = ppu
+func (m *Memory) AssignMemoryMappedIO(mmios ...MemoryMappedIO) {
+	for _, mmio := range mmios {
+		switch io := mmio.(type) {
+		case *ppu.PPU:
+			m.ppuIO = io
+		case *cartridge.Cartridge:
+			m.cartIO = io
+		default:
+		}
+	}
 }
 
 func (m *Memory) ReadRegister(address uint16) (data byte) {
@@ -77,8 +89,8 @@ func (m *Memory) Read(address uint16) (data byte) {
 	case address <= ppuEnd:
 		// Memory mapped IO for PPU.  Mirrored memory at a frequency of 0x0008.
 		// Same modulus trick as above.
-		register := (address % ppuMirrorFreq) + ppuMirrorStart
-		return m.ppuIO.ReadRegister(register)
+		address = (address % ppuMirrorFreq) + ppuMirrorStart
+		return m.ppuIO.ReadRegister(address)
 	default:
 		// TODO: handle the rest
 		return 0x00
@@ -91,8 +103,8 @@ func (m *Memory) Write(address uint16, data byte) {
 	case address <= ramEnd:
 		m.WriteRegister(address, data)
 	case address <= ppuEnd:
-		register := (address % ppuMirrorFreq) + ppuMirrorStart
-		m.ppuIO.WriteRegister(register, data)
+		address = (address % ppuMirrorFreq) + ppuMirrorStart
+		m.ppuIO.WriteRegister(address, data)
 	default:
 		// TODO: handle the rest
 	}

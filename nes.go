@@ -1,6 +1,7 @@
 package nes
 
 import (
+	"github.com/justinawrey/nes/cartridge"
 	"github.com/justinawrey/nes/cpu"
 	"github.com/justinawrey/nes/memory"
 	"github.com/justinawrey/nes/ppu"
@@ -35,9 +36,13 @@ func main() {
 	ppu := ppu.New()
 	mem := memory.New()
 
+	// Load a .nes file
+	cart := cartridge.New()
+	cart.Load("donkeykong.nes")
+
 	// Set up memory links
 	cpu.UseMemory(mem)
-	mem.AssignMemoryMappedIO(ppu)
+	mem.AssignMemoryMappedIO(ppu, cart)
 
 	// Get all modules to correct start up state
 	initAll(cpu, ppu)
