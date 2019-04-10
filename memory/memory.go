@@ -23,7 +23,7 @@ const (
 // Rather than directly exposing the entire ppu / apu / joystick objects to memory,
 // we instead only expose their read / write methods.
 // See Memory for main usage.
-type memoryMap interface {
+type memoryMappedIO interface {
 	WriteRegister(uint16, byte)
 	ReadRegister(uint16) byte
 }
@@ -43,8 +43,8 @@ type memoryMap interface {
 // $4018-$401F	$0008	APU and I/O functionality that is normally disabled. See CPU Test Mode.
 // $4020-$FFFF	$BFE0	Cartridge space: PRG ROM, PRG RAM, and mapper registers (See Note)
 type Memory struct {
-	internal     [internalRAMSize]byte
-	ppuMemoryMap memoryMap
+	internal [internalRAMSize]byte
+	ppuIO    memoryMappedIO
 }
 
 // New constructs a new Memory.
@@ -55,7 +55,15 @@ func New() (m *Memory) {
 // AssignMemoryMappedIO sets up writing to / reading from memory to be memory mapped
 // with the specified argument modules.
 func (m *Memory) AssignMemoryMappedIO(ppu *ppu.PPU) {
-	m.ppuMemoryMap = ppu
+	m.ppuIO = ppu
+}
+
+func (m *Memory) ReadRegister(address uint16) (data byte) {
+	return m.internal[address%ramMirrorFreq]
+}
+
+func (m *Memory) WriteRegister(address uint16, data byte) {
+	m.internal[address%ramMirrorFreq] = data
 }
 
 // Read reads a byte of data from the memory map at address.
@@ -65,12 +73,12 @@ func (m *Memory) Read(address uint16) (data byte) {
 		// Internal CPU RAM.  Mirrored memory at a frequency of 0x0800.
 		// We can make a small shortcut by only writing
 		// to a single 'chunk' of mirrored memory using a modulus.
-		return m.internal[address%ramMirrorFreq]
+		return m.ReadRegister(address)
 	case address <= ppuEnd:
 		// Memory mapped IO for PPU.  Mirrored memory at a frequency of 0x0008.
 		// Same modulus trick as above.
 		register := (address % ppuMirrorFreq) + ppuMirrorStart
-		return m.ppuMemoryMap.ReadRegister(register)
+		return m.ppuIO.ReadRegister(register)
 	default:
 		// TODO: handle the rest
 		return 0x00
@@ -81,10 +89,10 @@ func (m *Memory) Read(address uint16) (data byte) {
 func (m *Memory) Write(address uint16, data byte) {
 	switch {
 	case address <= ramEnd:
-		m.internal[address%ramMirrorFreq] = data
+		m.WriteRegister(address, data)
 	case address <= ppuEnd:
 		register := (address % ppuMirrorFreq) + ppuMirrorStart
-		m.ppuMemoryMap.WriteRegister(register, data)
+		m.ppuIO.WriteRegister(register, data)
 	default:
 		// TODO: handle the rest
 	}
