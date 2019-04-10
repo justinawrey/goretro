@@ -1,5 +1,9 @@
 package ppu
 
+import (
+	"github.com/justinawrey/nes/display"
+)
+
 const (
 	mask0 = 1 << iota
 	mask1
@@ -170,16 +174,21 @@ const (
 )
 
 type PPU struct {
+	// internal registers
 	ctrl1
 	ctrl2
 	status
 	sprRAMAddr byte
 	scrollAddr *doubleWriter
 	vRAMAddr   *doubleWriter
-	sprRAM     [sprRAMSize]byte //TODO: flesh out memories
-	vRAM       [vRAMSize]byte   //TODO: flesh out memories
-
 	//TODO: DMA
+
+	// internal RAM
+	sprRAM [sprRAMSize]byte //TODO: flesh out memories
+	vRAM   [vRAMSize]byte   //TODO: flesh out memories
+
+	// display driver
+	*display.Display
 }
 
 func New() (p *PPU) {
@@ -187,6 +196,10 @@ func New() (p *PPU) {
 		scrollAddr: &doubleWriter{},
 		vRAMAddr:   &doubleWriter{},
 	}
+}
+
+func (p *PPU) UseDisplay(d *display.Display) {
+	p.Display = d
 }
 
 func (p *PPU) ReadRegister(reg uint16) (data byte) {

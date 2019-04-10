@@ -1,6 +1,7 @@
 package memory
 
 import (
+	"github.com/justinawrey/nes/apu"
 	"github.com/justinawrey/nes/cartridge"
 	"github.com/justinawrey/nes/ppu"
 )
@@ -49,6 +50,7 @@ type Memory struct {
 	internal [internalRAMSize]byte
 	ppuIO    MemoryMappedIO
 	cartIO   MemoryMappedIO
+	apuIO    MemoryMappedIO
 }
 
 // New constructs a new Memory.
@@ -65,6 +67,8 @@ func (m *Memory) AssignMemoryMappedIO(mmios ...MemoryMappedIO) {
 			m.ppuIO = io
 		case *cartridge.Cartridge:
 			m.cartIO = io
+		case *apu.APU:
+			m.apuIO = io
 		default:
 		}
 	}
