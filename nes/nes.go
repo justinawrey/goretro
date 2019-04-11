@@ -26,6 +26,13 @@ func clearAll(modules ...module) {
 	}
 }
 
+func resetAll(modules ...module) {
+	for _, m := range modules {
+		m.Clear()
+		m.Init()
+	}
+}
+
 type NES struct {
 	cpu *cpu.CPU
 	ppu *ppu.PPU
@@ -59,4 +66,12 @@ func (nes *NES) Load(name string) {
 	cart := cartridge.New()
 	cart.Load(name)
 	nes.mem.AssignMemoryMappedIO(cart)
+}
+
+func (nes *NES) Start() {
+	// TODO:
+}
+
+func (nes *NES) Reset() {
+	resetAll(nes.cpu, nes.ppu, nes.apu, nes.dis, nes.mem)
 }

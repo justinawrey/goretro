@@ -114,6 +114,8 @@ func (m *Memory) Write(address uint16, data byte) {
 	}
 }
 
+func (m *Memory) Init() {}
+
 // Clear sets all data in the memory map to 0x00.
 func (m *Memory) Clear() {
 	for i := range m.internal {
