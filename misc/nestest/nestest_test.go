@@ -3,7 +3,7 @@ package nestest
 import (
 	"testing"
 
-	"github.com/justinawrey/nes"
+	"github.com/justinawrey/nes/nes"
 )
 
 func TestNestest(t *testing.T) {
