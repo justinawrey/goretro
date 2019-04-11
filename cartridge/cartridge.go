@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"log"
+	"strings"
 
 	"github.com/justinawrey/nes/mappers"
 )
@@ -80,7 +81,7 @@ func (c *Cartridge) decodeHeader(header []byte) (err error) {
 
 func (c *Cartridge) Load(name string) {
 	// Only use iNES format
-	if string(name[len(name)-4:]) != ".nes" {
+	if !strings.HasSuffix(name, ".nes") {
 		log.Fatalln("only .nes format is supported")
 	}
 
