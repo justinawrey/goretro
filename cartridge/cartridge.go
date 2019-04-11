@@ -7,7 +7,11 @@ import (
 	"log"
 	"strings"
 
-	"github.com/justinawrey/nes/mappers"
+	"github.com/justinawrey/nes/mmio"
+)
+
+const (
+	mapperNROM = iota
 )
 
 const (
@@ -18,10 +22,12 @@ const (
 )
 
 const (
-	headerLen  = 0x10
-	trainerLen = 0x200
-	prgROMLen  = 0x4000
-	chrROMLen  = 0x2000
+	headerLen     = 0x10
+	trainerLen    = 0x200
+	prgROMBankLen = 0x4000
+	chrROMBankLen = 0x2000
+
+	prgROMStart = 0x8000
 )
 
 type invalidHeaderErr string
@@ -34,17 +40,25 @@ func (err invalidHeaderErr) Error() (message string) {
 	return fmt.Sprintf("invalid header: %s", string(err))
 }
 
+type Mapper interface {
+	mmio.MemoryMappedIO
+	Load([]byte)
+}
+
 type Cartridge struct {
-	mappers.Mapper
+	Mapper
 
-	mapperNum  int
-	prgROMSize int
-	chrROMSize int
+	prgROM []byte
+	chrROM []byte
 
-	hasSRAM         bool
-	hasTrainer      bool
-	vertMirroring   bool
-	ignoreMirrorBit bool
+	mapperNum   int
+	prgROMBanks int
+	chrROMBanks int
+
+	hasSRAM             bool
+	hasTrainer          bool
+	vertMirroring       bool
+	fourScreenMirroring bool
 }
 
 func New() (c *Cartridge) {
@@ -62,15 +76,15 @@ func (c *Cartridge) decodeHeader(header []byte) (err error) {
 		return newInvalidHeaderErr("invalid constant")
 	}
 
-	c.prgROMSize = int(header[4])
-	c.chrROMSize = int(header[5])
+	c.prgROMBanks = int(header[4])
+	c.chrROMBanks = int(header[5])
 
 	// 6th byte specifies flags, see https://wiki.nesdev.com/w/index.php/INES
 	flags6 := header[6]
 	c.vertMirroring = flags6&mask0 != 0
 	c.hasSRAM = flags6&mask1 != 0
 	c.hasTrainer = flags6&mask2 != 0
-	c.ignoreMirrorBit = flags6&mask3 != 0
+	c.fourScreenMirroring = flags6&mask3 != 0
 
 	// 7th byte also specifies flags, see link
 	flags7 := header[7]
@@ -97,5 +111,8 @@ func (c *Cartridge) Load(name string) {
 	}
 
 	// Use correct mapper as according to file header
-	c.Mapper = mappers.New(c.mapperNum)
+	c.Mapper = NewMapper(c)
+
+	// Load data into prgRom and chrRom
+	c.Mapper.Load(bytes)
 }

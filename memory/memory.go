@@ -3,6 +3,7 @@ package memory
 import (
 	"github.com/justinawrey/nes/apu"
 	"github.com/justinawrey/nes/cartridge"
+	"github.com/justinawrey/nes/mmio"
 	"github.com/justinawrey/nes/ppu"
 )
 
@@ -23,15 +24,6 @@ const (
 	cartridgeEnd   = 0xFFFF
 )
 
-// memoryMap specifies a module which can be read from / written to via memory mapped io.
-// Rather than directly exposing the entire ppu / apu / joystick objects to memory,
-// we instead only expose their read / write methods.
-// See Memory for main usage.
-type MemoryMappedIO interface {
-	WriteRegister(uint16, byte)
-	ReadRegister(uint16) byte
-}
-
 // Memory is the 64kB memory map contained within the CPU.
 // The memory is organized as follows (https://wiki.nesdev.com/w/index.php/CPU_memory_map):
 //
@@ -48,9 +40,9 @@ type MemoryMappedIO interface {
 // $4020-$FFFF	$BFE0	Cartridge space: PRG ROM, PRG RAM, and mapper registers (See Note)
 type Memory struct {
 	internal [internalRAMSize]byte
-	ppuIO    MemoryMappedIO
-	cartIO   MemoryMappedIO
-	apuIO    MemoryMappedIO
+	ppuIO    mmio.MemoryMappedIO
+	cartIO   mmio.MemoryMappedIO
+	apuIO    mmio.MemoryMappedIO
 }
 
 // New constructs a new Memory.
@@ -60,7 +52,7 @@ func New() (m *Memory) {
 
 // AssignMemoryMappedIO sets up writing to / reading from memory to be memory mapped
 // with the specified argument modules.
-func (m *Memory) AssignMemoryMappedIO(mmios ...MemoryMappedIO) {
+func (m *Memory) AssignMemoryMappedIO(mmios ...mmio.MemoryMappedIO) {
 	for _, mmio := range mmios {
 		switch io := mmio.(type) {
 		case *ppu.PPU:
