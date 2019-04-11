@@ -21,6 +21,7 @@ const (
 	ppuEnd         = 0x3FFF
 	apuIoEnd       = 0x4017
 	testModeEnd    = 0x401F
+	prgROMStart    = 0x8000
 	cartridgeEnd   = 0xFFFF
 )
 
@@ -87,6 +88,8 @@ func (m *Memory) Read(address uint16) (data byte) {
 		// Same modulus trick as above.
 		address = (address % ppuMirrorFreq) + ppuMirrorStart
 		return m.ppuIO.ReadRegister(address)
+	case address >= prgROMStart:
+		return m.cartIO.ReadRegister(address)
 	default:
 		// TODO: handle the rest
 		return 0x00

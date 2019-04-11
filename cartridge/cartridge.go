@@ -55,6 +55,9 @@ type Cartridge struct {
 	prgROMBanks int
 	chrROMBanks int
 
+	ROMStart int
+	CHRStart int
+
 	hasSRAM             bool
 	hasTrainer          bool
 	vertMirroring       bool
@@ -63,6 +66,46 @@ type Cartridge struct {
 
 func New() (c *Cartridge) {
 	return &Cartridge{}
+}
+
+// Base mapper write
+func (c *Cartridge) writePrg(address uint16, data byte) {
+	c.prgROM[address-prgROMStart] = data
+}
+
+// Base mapper read
+func (c *Cartridge) readPrg(address uint16) (data byte) {
+	return c.prgROM[address-prgROMStart]
+}
+
+// Base mapper load prg
+func (c *Cartridge) loadPrg(bytes []byte) {
+	c.prgROM = make([]byte, prgROMBankLen*2)
+
+	// Fill prgROM
+	if c.prgROMBanks == 1 {
+		// If there is only one bank, it gets mirrored at 0x8000 and 0xC000
+		for i := c.ROMStart; i < c.ROMStart+prgROMBankLen; i++ {
+			c.prgROM[i-c.ROMStart] = bytes[i]
+			c.prgROM[(i-c.ROMStart)+prgROMBankLen] = bytes[i]
+		}
+	} else if c.prgROMBanks == 2 {
+		// If there are two banks, fill 0x8000 - 0xFFFF
+		for i := c.ROMStart; i < c.ROMStart+prgROMBankLen*2; i++ {
+			c.prgROM[i-c.ROMStart] = bytes[i]
+		}
+	}
+
+}
+
+// Base mapper load chr
+func (c *Cartridge) loadChr(bytes []byte) {
+	c.chrROM = make([]byte, chrROMBankLen)
+
+	// Fill chrROM
+	for i := c.CHRStart; i < c.CHRStart+chrROMBankLen; i++ {
+		c.chrROM[i-c.CHRStart] = bytes[i]
+	}
 }
 
 func (c *Cartridge) decodeHeader(header []byte) (err error) {
@@ -89,6 +132,14 @@ func (c *Cartridge) decodeHeader(header []byte) (err error) {
 	// 7th byte also specifies flags, see link
 	flags7 := header[7]
 	c.mapperNum = int(byte(flags6&0xF0>>4) | byte(flags7&0xF0))
+
+	// Compute prg and chr start bytes
+	c.ROMStart = headerLen
+	c.CHRStart = headerLen + (chrROMBankLen * c.chrROMBanks)
+	if c.hasTrainer {
+		c.ROMStart += trainerLen
+		c.CHRStart += trainerLen
+	}
 
 	return nil
 }
