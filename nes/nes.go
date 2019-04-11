@@ -9,14 +9,6 @@ import (
 	"github.com/justinawrey/nes/ppu"
 )
 
-type nes struct {
-	cpu *cpu.CPU
-	ppu *ppu.PPU
-	apu *apu.APU
-	mem *memory.Memory
-	dis *display.Display
-}
-
 type module interface {
 	Init()
 	Clear()
@@ -34,7 +26,15 @@ func clearAll(modules ...module) {
 	}
 }
 
-func main() {
+type NES struct {
+	cpu *cpu.CPU
+	ppu *ppu.PPU
+	apu *apu.APU
+	mem *memory.Memory
+	dis *display.Display
+}
+
+func New() (nes *NES) {
 	// Create all modules
 	cpu := cpu.New()
 	ppu := ppu.New()
@@ -42,13 +42,9 @@ func main() {
 	mem := memory.New()
 	dis := display.New()
 
-	// Load a .nes file
-	cart := cartridge.New()
-	cart.Load("donkeykong.nes")
-
 	// Set up memory mapped IO
 	cpu.UseMemory(mem)
-	mem.AssignMemoryMappedIO(ppu, cart, apu)
+	mem.AssignMemoryMappedIO(ppu, apu)
 
 	// Use correct display
 	ppu.UseDisplay(dis)
@@ -56,7 +52,11 @@ func main() {
 	// Get all modules to correct start up state
 	initAll(cpu, ppu, apu, dis)
 
-	// TODO: go further
-	nes := &nes{cpu, ppu, apu, mem, dis}
-	_ = nes
+	return &NES{cpu, ppu, apu, mem, dis}
+}
+
+func (nes *NES) Load(name string) {
+	cart := cartridge.New()
+	cart.Load(name)
+	nes.mem.AssignMemoryMappedIO(cart)
 }
