@@ -1,5 +1,0 @@
-package nestest
-
-func main() {
-
-}
