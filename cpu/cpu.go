@@ -8,6 +8,11 @@ import (
 	"github.com/justinawrey/nes/memory"
 )
 
+// end of zero page in memory
+const (
+	zeroPageEnd = 0x00FF
+)
+
 // Status holds data for each status flag
 // in the 6502 status register.
 type Status struct {
@@ -192,11 +197,11 @@ func (c *CPU) GetAddressWithMode(addressingMode int) (addr uint16) {
 
 	case modeZeroPageX:
 		// Same as modeZeroPage, but with zero page address being added to X register with wraparound
-		return uint16(c.Read(c.PC+1)+c.X) & memory.ZeroPageEnd
+		return uint16(c.Read(c.PC+1)+c.X) & zeroPageEnd
 
 	case modeZeroPageY:
 		// Same as modeZeroPage, but with zero page address being added to Y register with wraparound
-		return uint16(c.Read(c.PC+1)+c.Y) & memory.ZeroPageEnd
+		return uint16(c.Read(c.PC+1)+c.Y) & zeroPageEnd
 
 	case modeAbsolute:
 		// Instructions with modeAbsolute take 3 bytes:
