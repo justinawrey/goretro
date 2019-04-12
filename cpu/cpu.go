@@ -1,3 +1,4 @@
+// Package cpu provides functionality related to the nes 6502 CPU.
 package cpu
 
 import (
@@ -19,7 +20,7 @@ type Status struct {
 	N bool // Zero result
 }
 
-// String implements Stringer
+// String implements Stringer.
 func (sr *Status) String() (repr string) {
 	convert := func(bit bool) string {
 		if bit {
@@ -78,7 +79,7 @@ type Registers struct {
 	Y byte // Index register Y
 }
 
-// String implements Stringer
+// String implements Stringer.
 func (r *Registers) String() (repr string) {
 	return fmt.Sprintf("%6s | %v\n%6s | %v\n%6s | %v\n%6s | %v\n%6s | %v\n%6s | %v\n",
 		"Status",
@@ -116,28 +117,24 @@ func New() (c *CPU) {
 	return cpu
 }
 
-// TODO: comment
+// UseMemory associates the CPU c with main memory m.
 func (c *CPU) UseMemory(m *memory.Memory) {
 	c.Memory = m
 }
 
-// TODO: comment
+// Init implements nes.Module.
 func (c *CPU) Init() {
 	c.initInstructions()
 	// TODO: start up state
 }
 
+// Clear implements nes.Module.
 // Clear sets every register in c (including PC, SP, and status) to 0x00.
 // Retains memory linked through UseMemory.
 func (c *CPU) Clear() {
 	*c.Registers = Registers{
 		Status: &Status{},
 	}
-}
-
-func (c *CPU) Reset() {
-	c.Clear()
-	c.Init()
 }
 
 // Decode decodes opcode opcode and returns relevant information.

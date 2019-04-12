@@ -1,7 +1,9 @@
+// Package cpu provides functionality related to the nes 6502 CPU.
 package cpu
 
 import "fmt"
 
+// CPU addressing modes
 const (
 	modeImplied = iota
 	modeRelative
@@ -18,13 +20,15 @@ const (
 	modeIndirectY
 )
 
+// instruction is a 6502 instruction.  It has a specific
+// name, addressing mode, cycle cost, page cross cost, and byte cost.
 type instruction struct {
 	name           string
 	addressingMode int
 	cycleCost      int
 	pageCrossCost  int
 	byteCost       int
-	execute        func(uint16)
+	execute        func(uint16) // contains instruction logic
 }
 
 // ErrInvalidOpcode is an invalid opcode error.
