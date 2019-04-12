@@ -1,3 +1,5 @@
+// Package memory provides functionality related to emulator main memory.
+// It is a central point for dispatching all memory mapped IO events.
 package memory
 
 import (
@@ -16,13 +18,9 @@ const (
 	ramMirrorFreq  = 0x0800
 	ppuMirrorFreq  = 0x0008
 	ppuMirrorStart = 0x2000
-	ZeroPageEnd    = 0x00FF
 	ramEnd         = 0x1FFF
 	ppuEnd         = 0x3FFF
-	apuIoEnd       = 0x4017
-	testModeEnd    = 0x401F
 	prgROMStart    = 0x8000
-	cartridgeEnd   = 0xFFFF
 )
 
 // Memory is the 64kB memory map contained within the CPU.
@@ -67,11 +65,13 @@ func (m *Memory) AssignMemoryMappedIO(mmios ...mmio.MemoryMappedIO) {
 	}
 }
 
-func (m *Memory) ReadRegister(address uint16) (data byte) {
+// readMemory reads data from address in cpu main memory.
+func (m *Memory) readMemory(address uint16) (data byte) {
 	return m.internal[address%ramMirrorFreq]
 }
 
-func (m *Memory) WriteRegister(address uint16, data byte) {
+// writeMemory writes data to address in cpu main memory.
+func (m *Memory) writeMemory(address uint16, data byte) {
 	m.internal[address%ramMirrorFreq] = data
 }
 
@@ -82,13 +82,15 @@ func (m *Memory) Read(address uint16) (data byte) {
 		// Internal CPU RAM.  Mirrored memory at a frequency of 0x0800.
 		// We can make a small shortcut by only writing
 		// to a single 'chunk' of mirrored memory using a modulus.
-		return m.ReadRegister(address)
+		return m.readMemory(address)
 	case address <= ppuEnd:
 		// Memory mapped IO for PPU.  Mirrored memory at a frequency of 0x0008.
 		// Same modulus trick as above.
 		address = (address % ppuMirrorFreq) + ppuMirrorStart
 		return m.ppuIO.ReadRegister(address)
 	case address >= prgROMStart:
+		// Even though most mappers only have a couple of registers for IO purposes,
+		// we treat all of prgROM as memory mapped IO.  This simplifies code structure.
 		return m.cartIO.ReadRegister(address)
 	default:
 		// TODO: handle the rest
@@ -100,7 +102,7 @@ func (m *Memory) Read(address uint16) (data byte) {
 func (m *Memory) Write(address uint16, data byte) {
 	switch {
 	case address <= ramEnd:
-		m.WriteRegister(address, data)
+		m.writeMemory(address, data)
 	case address <= ppuEnd:
 		address = (address % ppuMirrorFreq) + ppuMirrorStart
 		m.ppuIO.WriteRegister(address, data)
@@ -109,9 +111,12 @@ func (m *Memory) Write(address uint16, data byte) {
 	}
 }
 
+// Init implements nes.Module.
+// Gets Memory m to a valid startup state.
 func (m *Memory) Init() {}
 
-// Clear sets all data in the memory map to 0x00.
+// Clear implements nes.Module.
+// Clear sets all cpu RAM (0x0000 to 0x1FFF) to 0x00.
 func (m *Memory) Clear() {
 	for i := range m.internal {
 		m.internal[i] = 0x00
