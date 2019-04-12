@@ -1,6 +1,8 @@
 package nes
 
 import (
+	"log"
+
 	"github.com/justinawrey/nes/apu"
 	"github.com/justinawrey/nes/cartridge"
 	"github.com/justinawrey/nes/cpu"
@@ -9,24 +11,24 @@ import (
 	"github.com/justinawrey/nes/ppu"
 )
 
-type module interface {
+type Module interface {
 	Init()
 	Clear()
 }
 
-func initAll(modules ...module) {
+func initAll(modules ...Module) {
 	for _, m := range modules {
 		m.Init()
 	}
 }
 
-func clearAll(modules ...module) {
+func clearAll(modules ...Module) {
 	for _, m := range modules {
 		m.Clear()
 	}
 }
 
-func resetAll(modules ...module) {
+func resetAll(modules ...Module) {
 	for _, m := range modules {
 		m.Clear()
 		m.Init()
@@ -34,11 +36,12 @@ func resetAll(modules ...module) {
 }
 
 type NES struct {
-	cpu *cpu.CPU
-	ppu *ppu.PPU
-	apu *apu.APU
-	mem *memory.Memory
-	dis *display.Display
+	cpu  *cpu.CPU
+	ppu  *ppu.PPU
+	apu  *apu.APU
+	mem  *memory.Memory
+	disp *display.Display
+	cart *cartridge.Cartridge
 }
 
 func New() (nes *NES) {
@@ -47,25 +50,29 @@ func New() (nes *NES) {
 	ppu := ppu.New()
 	apu := apu.New()
 	mem := memory.New()
-	dis := display.New()
+	disp := display.New()
 
 	// Set up memory mapped IO
 	cpu.UseMemory(mem)
 	mem.AssignMemoryMappedIO(ppu, apu)
 
 	// Use correct display
-	ppu.UseDisplay(dis)
+	ppu.UseDisplay(disp)
 
 	// Get all modules to correct start up state
-	initAll(cpu, ppu, apu, dis)
+	initAll(cpu, ppu, apu, disp)
 
-	return &NES{cpu, ppu, apu, mem, dis}
+	return &NES{cpu: cpu, ppu: ppu, apu: apu, mem: mem, disp: disp}
 }
 
 func (nes *NES) Load(name string) {
 	cart := cartridge.New()
 	cart.Load(name)
 	nes.mem.AssignMemoryMappedIO(cart)
+	nes.cart = cart
+
+	log.Println("loaded: ", name)
+	log.Println("mapper: ", nes.cart.MapperNum)
 }
 
 func (nes *NES) Start() {
@@ -73,5 +80,5 @@ func (nes *NES) Start() {
 }
 
 func (nes *NES) Reset() {
-	resetAll(nes.cpu, nes.ppu, nes.apu, nes.dis, nes.mem)
+	resetAll(nes.cpu, nes.ppu, nes.apu, nes.disp, nes.mem)
 }
