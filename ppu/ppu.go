@@ -1,9 +1,11 @@
+// Package ppu provides functionality related to the nes PPU.
 package ppu
 
 import (
 	"github.com/justinawrey/nes/display"
 )
 
+// common bit masks
 const (
 	mask0 = 1 << iota
 	mask1
@@ -13,19 +15,22 @@ const (
 	mask5
 	mask6
 	mask7
-	mask01 = 3
-	mask57 = 224
+	mask01 = 3   // mask bits 0, 1
+	mask57 = 224 // mask bits 5, 6, 7
 )
 
+// ctrl1 is the first ppu control register.
+// See https://wiki.nesdev.com/w/index.php/PPU_registers.
 type ctrl1 struct {
-	ntAddr    uint16
-	addrInc   uint16
-	sprPtable uint16
-	bgPtable  uint16
-	sprSize   int
-	nmi       bool
+	ntAddr    uint16 // Base nametable address
+	addrInc   uint16 // Vram address increment per cpu read/write of ppudata
+	sprPtable uint16 // Sprite pattern table address ($0000 or $1000)
+	bgPtable  uint16 // Background pattern table address ($0000 or $1000)
+	sprSize   int    // Sprite size (8x8 pixels or 8x16 pixels)
+	nmi       bool   // Whether or not to generate an NMI at start of vertical blanking interval
 }
 
+// write writes to the first ppu control register with a byte of data.
 func (c *ctrl1) write(data byte) {
 	b01 := data & mask01
 	b2 := data&mask2 != 0
@@ -41,6 +46,8 @@ func (c *ctrl1) write(data byte) {
 	c.sprSize = 8
 	c.nmi = false
 
+	// See https://wiki.nesdev.com/w/index.php/PPU_registers for
+	// detailed information on values below.
 	switch b01 {
 	case 1:
 		c.ntAddr = 0x2400
@@ -68,22 +75,29 @@ func (c *ctrl1) write(data byte) {
 	}
 }
 
+// ctrl2 is the first ppu control register.
+// See https://wiki.nesdev.com/w/index.php/PPU_registers.
 type ctrl2 struct {
-	monochrome       bool
-	showBgPixels     bool
-	showSpritePixels bool
-	showBg           bool
-	showSprites      bool
-	color            byte
+	monochrome       bool // Whether or not display should be monochrome
+	showBgPixels     bool // Show background in leftmost 8 pixels of screen
+	showSpritePixels bool // Show sprites in leftmost 8 pixels of screen
+	showBg           bool // Show background
+	showSprites      bool // Show sprites
+	emphasizeRed     bool // Emphasize red on display
+	emphasizeGreen   bool // Emphasize green on display
+	emphasizeBlue    bool // Emphasize blue on display
 }
 
+// write writes to the second ppu control register with a byte of data.
 func (c *ctrl2) write(data byte) {
 	b0 := data&mask0 != 0
 	b1 := data&mask1 != 0
 	b2 := data&mask2 != 0
 	b3 := data&mask3 != 0
 	b4 := data&mask4 != 0
-	b57 := (data & mask57) >> 5
+	b5 := data&mask5 != 0
+	b6 := data&mask6 != 0
+	b7 := data&mask7 != 0
 
 	// Defaults (data == 0x00)
 	c.monochrome = false
@@ -91,8 +105,12 @@ func (c *ctrl2) write(data byte) {
 	c.showSpritePixels = false
 	c.showBg = false
 	c.showSprites = false
-	c.color = b57
+	c.emphasizeRed = false
+	c.emphasizeGreen = false
+	c.emphasizeBlue = false
 
+	// See https://wiki.nesdev.com/w/index.php/PPU_registers for
+	// detailed information on values below.
 	if b0 {
 		c.monochrome = true
 	}
@@ -108,15 +126,27 @@ func (c *ctrl2) write(data byte) {
 	if b4 {
 		c.showSprites = true
 	}
+	if b5 {
+		c.emphasizeRed = true
+	}
+	if b6 {
+		c.emphasizeGreen = true
+	}
+	if b7 {
+		c.emphasizeBlue = true
+	}
 }
 
+// status is the ppu status register.
+// See https://wiki.nesdev.com/w/index.php/PPU_registers for more info.
 type status struct {
-	vramWriteIgnore     bool
-	highScanlineSprites bool
-	spriteHit           bool
-	vBlank              bool
+	vramWriteIgnore     bool // Whether or not to ignore vram writes
+	highScanlineSprites bool // Sprite overflow
+	spriteHit           bool // Sprite 0 hit (nonzero pixel of sprite 0 overlaps a nonzero bg pixel)
+	vBlank              bool // Whether or not vblank has started
 }
 
+// read reads data from the ppu status register and returns data as a byte.
 func (s *status) read() (data byte) {
 	data = 0x00
 
@@ -135,12 +165,15 @@ func (s *status) read() (data byte) {
 	return data
 }
 
+// doubleWriter is a register which has different functionality based on
+// whether or not it has been written to an even or odd number of times.
 type doubleWriter struct {
 	toggle bool
 	data1  byte
 	data2  byte
 }
 
+// write writes to dw with a byte of data.
 func (dw *doubleWriter) write(data byte) {
 	if !dw.toggle {
 		dw.data1 = data
@@ -150,18 +183,21 @@ func (dw *doubleWriter) write(data byte) {
 	dw.toggle = !dw.toggle
 }
 
+// read16 reads a word of data from dw.
 func (dw *doubleWriter) read16() (word uint16) {
 	lo := uint16(dw.data2)
 	hi := uint16(dw.data1)
 	return hi<<8 | lo
 }
 
+// Memory sizes
 const (
-	// Memory
 	sprRAMSize = 0x100
-	vRAMSize   = 0x10000
+	vRAMSize   = 0x1000
+)
 
-	// IO registers
+// IO registers
+const (
 	ctrlReg1      = 0x2000
 	ctrlReg2      = 0x2001
 	statusReg     = 0x2002
@@ -173,24 +209,23 @@ const (
 	sprDMAReg     = 0x4014
 )
 
+// PPU represents the picture processing unit of the nes.
 type PPU struct {
-	// internal registers
-	ctrl1
-	ctrl2
-	status
-	sprRAMAddr byte
-	scrollAddr *doubleWriter
-	vRAMAddr   *doubleWriter
+	ctrl1                    // PPU control reg 1
+	ctrl2                    // PPU control reg 2
+	status                   // PPU status reg
+	sprRAMAddr byte          // SPR-RAM read/write address
+	scrollAddr *doubleWriter // Fine scroll position (two writes: X scroll, Y scroll)
+	vRAMAddr   *doubleWriter // PPU read/write address (two writes: hi byte, lo byte)
 	//TODO: DMA
 
-	// internal RAM
-	sprRAM [sprRAMSize]byte //TODO: flesh out memories
-	vRAM   [vRAMSize]byte   //TODO: flesh out memories
+	sprRAM [sprRAMSize]byte // PPU SPR-RAM
+	vRAM   [vRAMSize]byte   // PPU VRAM
 
-	// display driver
-	*display.Display
+	*display.Display // Output display driver
 }
 
+// New creates a new PPU.
 func New() (p *PPU) {
 	return &PPU{
 		scrollAddr: &doubleWriter{},
@@ -198,10 +233,13 @@ func New() (p *PPU) {
 	}
 }
 
+// UseDisplay sets the ppu p to display picture information using the
+// display driver d.
 func (p *PPU) UseDisplay(d *display.Display) {
 	p.Display = d
 }
 
+// ReadRegister implements mmio.MemoryMappedIO.
 func (p *PPU) ReadRegister(reg uint16) (data byte) {
 	switch reg {
 	case statusReg:
@@ -217,6 +255,7 @@ func (p *PPU) ReadRegister(reg uint16) (data byte) {
 	}
 }
 
+// WriteRegister implements mmio.MemoryMappedIO.
 func (p *PPU) WriteRegister(reg uint16, data byte) {
 	switch reg {
 	case ctrlReg1:
@@ -240,18 +279,15 @@ func (p *PPU) WriteRegister(reg uint16, data byte) {
 	}
 }
 
+// Init implements nes.Module.
 func (p *PPU) Init() {
-	// TODO:
+	// TODO: PPU start up state.
 }
 
+// Clear implements nes.Module.
 func (p *PPU) Clear() {
 	*p = PPU{
 		scrollAddr: &doubleWriter{},
 		vRAMAddr:   &doubleWriter{},
 	}
-}
-
-func (p *PPU) Reset() {
-	p.Clear()
-	p.Init()
 }
