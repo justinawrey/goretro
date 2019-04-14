@@ -11,23 +11,30 @@ import (
 	"github.com/justinawrey/nes/ppu"
 )
 
+// Module describes a module of the nes which can be determanistically initialized and cleared.
 type Module interface {
+	// Init initializes the module to its correct start up state.
 	Init()
+
+	// Clear clears the module to its correct power down state.
 	Clear()
 }
 
+// initAll initializes all provided modules to the correct start up state.
 func initAll(modules ...Module) {
 	for _, m := range modules {
 		m.Init()
 	}
 }
 
+// clearAll clears all provided modules.
 func clearAll(modules ...Module) {
 	for _, m := range modules {
 		m.Clear()
 	}
 }
 
+// resetAll resets all provided modules.
 func resetAll(modules ...Module) {
 	for _, m := range modules {
 		m.Clear()
@@ -35,6 +42,9 @@ func resetAll(modules ...Module) {
 	}
 }
 
+// NES represents an entire nes system.  It contains a collection of modules
+// which work together to power the entire system.
+// NES is meant be used primarily as a high-level emulation API.
 type NES struct {
 	cpu  *cpu.CPU
 	ppu  *ppu.PPU
@@ -44,6 +54,7 @@ type NES struct {
 	cart *cartridge.Cartridge
 }
 
+// New creates a new NES.
 func New() (nes *NES) {
 	// Create all modules
 	cpu := cpu.New()
@@ -65,6 +76,7 @@ func New() (nes *NES) {
 	return &NES{cpu: cpu, ppu: ppu, apu: apu, mem: mem, disp: disp}
 }
 
+// Load loads a cartridge with name name into the nes.
 func (nes *NES) Load(name string) {
 	cart := cartridge.New()
 	cart.Load(name)
@@ -75,10 +87,12 @@ func (nes *NES) Load(name string) {
 	log.Println("mapper: ", nes.cart.MapperNum)
 }
 
+// Start begins executing the loaded cartridge.
 func (nes *NES) Start() {
 	// TODO:
 }
 
+// Reset resets the nes to its initial power up state.
 func (nes *NES) Reset() {
 	resetAll(nes.cpu, nes.ppu, nes.apu, nes.disp, nes.mem)
 }

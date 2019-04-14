@@ -63,9 +63,9 @@ type Mapper interface {
 	Load([]byte)
 }
 
-// NewMapper creates a new Mapper from the provided iNES mapper id.
+// newMapper creates a new Mapper from the provided iNES mapper id.
 // The Cartridge to which the Mapper is associated to must also be provided.
-func NewMapper(id int, c *Cartridge) (m Mapper) {
+func newMapper(id int, c *Cartridge) (m Mapper) {
 	switch id {
 	default:
 		fallthrough
@@ -101,18 +101,6 @@ func New() (c *Cartridge) {
 	return &Cartridge{}
 }
 
-// writePrg writes to prgROM at address, with data.
-// ROM is not meant to be written to (as the name implies),
-// but this is here for completeness.
-func (c *Cartridge) writePrg(address uint16, data byte) {
-	c.prgROM[address-prgROMStart] = data
-}
-
-// readPrg reads from prgROM at address and returns a byte of data.
-func (c *Cartridge) readPrg(address uint16) (data byte) {
-	return c.prgROM[address-prgROMStart]
-}
-
 // Load loads a .nes file with name name into the Cartridge c.
 func (c *Cartridge) Load(name string) {
 	// Only use iNES format
@@ -132,10 +120,22 @@ func (c *Cartridge) Load(name string) {
 	}
 
 	// Use correct mapper as according to file header
-	c.Mapper = NewMapper(c.MapperNum, c)
+	c.Mapper = newMapper(c.MapperNum, c)
 
 	// Load data into prgRom and chrRom
 	c.Mapper.Load(bytes)
+}
+
+// writePrg writes to prgROM at address, with data.
+// ROM is not meant to be written to (as the name implies),
+// but this is here for completeness.
+func (c *Cartridge) writePrg(address uint16, data byte) {
+	c.prgROM[address-prgROMStart] = data
+}
+
+// readPrg reads from prgROM at address and returns a byte of data.
+func (c *Cartridge) readPrg(address uint16) (data byte) {
+	return c.prgROM[address-prgROMStart]
 }
 
 // loadPrg loads data into prgROM.  It performs the default action of loading either:

@@ -142,8 +142,8 @@ func (c *CPU) Clear() {
 	}
 }
 
-// Decode decodes opcode opcode and returns relevant information.
-func (c *CPU) Decode(opcode byte) (name string, addressingMode, cycleCost, pageCrossCost, byteCost int, execute func(uint16), err error) {
+// decode decodes opcode opcode and returns relevant information.
+func (c *CPU) decode(opcode byte) (name string, addressingMode, cycleCost, pageCrossCost, byteCost int, execute func(uint16), err error) {
 	if instruction, ok := c.instructions[opcode]; ok {
 		return instruction.name,
 			instruction.addressingMode,
@@ -160,7 +160,7 @@ func (c *CPU) Decode(opcode byte) (name string, addressingMode, cycleCost, pageC
 // an address on which any instruction can execute.
 // Must be used when c.PC is on an opcode address, otherwise
 // the following addresses will be interpreted incorrectly.
-func (c *CPU) GetAddressWithMode(addressingMode int) (addr uint16) {
+func (c *CPU) getAddressWithMode(addressingMode int) (addr uint16) {
 	switch addressingMode {
 	case modeImplied:
 		// Address will be unused for following two addressing modes; return 0
@@ -257,18 +257,18 @@ func (c *CPU) GetAddressWithMode(addressingMode int) (addr uint16) {
 // 3. Incrementing the program counter by the correct amount.
 // 4. Performing the instruction.
 // TODO: flesh out
-func (c *CPU) Step() {
+func (c *CPU) step() {
 	// 1. Retrieve opcode at current PC
 	opcode := c.Read(c.PC)
 
 	// 2. Decode opcode
-	name, addressingMode, cycleCost, pageCrossCost, byteCost, execute, err := c.Decode(opcode)
+	name, addressingMode, cycleCost, pageCrossCost, byteCost, execute, err := c.decode(opcode)
 	if IsInvalidOpcodeErr(err) {
 		// If the opcode is invalid, continue to the next instruction.
 		log.Println(err)
 		return
 	}
-	instructionAddress := c.GetAddressWithMode(addressingMode)
+	instructionAddress := c.getAddressWithMode(addressingMode)
 
 	// 3. Increment program counter
 	c.PC += uint16(byteCost)
