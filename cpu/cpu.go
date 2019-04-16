@@ -301,7 +301,7 @@ func (c *CPU) Step() {
 		}
 
 		// Form a trace (a line of logs for this single instruction including status state, cycles, all registers, etc.)
-		trace := fmt.Sprintf("%-6X% -10X%-4s%-28s%-26s%-12sCYC:%d\n", c.PC, nextBytes, name, "", c.Registers, "", c.cycles)
+		trace := fmt.Sprintf("%-6X% -10X%-7s%s CYC:%d\n", c.PC, nextBytes, name, c.Registers, c.cycles)
 		io.WriteString(c.logger, trace)
 	}
 
