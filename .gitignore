@@ -16,4 +16,4 @@
 
 # logs
 *.log
-!*ideal.log
+!*ideal*.log
