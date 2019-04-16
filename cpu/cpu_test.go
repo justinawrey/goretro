@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	"github.com/justinawrey/nes/cpu"
+	"github.com/justinawrey/nes/memory"
 )
 
 const statusBitLen = 8
@@ -96,8 +97,8 @@ func assertRegister16(expected, reg uint16, t *testing.T) {
 	}
 }
 
-func assertMemory(expected byte, loc uint16, mem *cpu.Memory, t *testing.T) {
-	got := mem[loc]
+func assertMemory(expected byte, loc uint16, mem *memory.Memory, t *testing.T) {
+	got := mem.Read(loc)
 	if got != expected {
 		t.Errorf("memory: want: %v, got %v\n", expected, got)
 	}
@@ -109,10 +110,13 @@ func TestInstructions(t *testing.T) {
 		return func(t *testing.T) {
 			// All tests should be ran with a new CPU, in parallel
 			t.Parallel()
-			cpu := cpu.NewCPU()
+			cpu := cpu.New()
+			mem := memory.New()
+			cpu.UseMemory(mem)
 
 			// Ignore any start-up state for these CPU tests
 			cpu.Clear()
+			mem.Clear()
 
 			// Run the actual test
 			inner(cpu, t)
@@ -597,7 +601,7 @@ func TestInstructions(t *testing.T) {
 
 	// TODO:
 	t.Run("test ADC", newCPUAndTest(func(cpu *cpu.CPU, t *testing.T) {
-		t.SkipNow()
+		t.FailNow()
 	}))
 
 	t.Run("test AND", newCPUAndTest(func(cpu *cpu.CPU, t *testing.T) {
@@ -688,7 +692,7 @@ func TestInstructions(t *testing.T) {
 
 	// TODO:
 	t.Run("test BIT", newCPUAndTest(func(cpu *cpu.CPU, t *testing.T) {
-		t.SkipNow()
+		t.FailNow()
 	}))
 
 	t.Run("test BMI", newCPUAndTest(func(cpu *cpu.CPU, t *testing.T) {
@@ -739,67 +743,67 @@ func TestInstructions(t *testing.T) {
 
 	// TODO:
 	t.Run("test BPL", newCPUAndTest(func(cpu *cpu.CPU, t *testing.T) {
-		t.SkipNow()
+		t.FailNow()
 	}))
 
 	// TODO:
 	t.Run("test BRK", newCPUAndTest(func(cpu *cpu.CPU, t *testing.T) {
-		t.SkipNow()
+		t.FailNow()
 	}))
 
 	// TODO:
 	t.Run("test BVC", newCPUAndTest(func(cpu *cpu.CPU, t *testing.T) {
-		t.SkipNow()
+		t.FailNow()
 	}))
 
 	// TODO:
 	t.Run("test BVS", newCPUAndTest(func(cpu *cpu.CPU, t *testing.T) {
-		t.SkipNow()
+		t.FailNow()
 	}))
 
 	// TODO:
 	t.Run("test CMP", newCPUAndTest(func(cpu *cpu.CPU, t *testing.T) {
-		t.SkipNow()
+		t.FailNow()
 	}))
 
 	// TODO:
 	t.Run("test CPX", newCPUAndTest(func(cpu *cpu.CPU, t *testing.T) {
-		t.SkipNow()
+		t.FailNow()
 	}))
 
 	// TODO:
 	t.Run("test CPY", newCPUAndTest(func(cpu *cpu.CPU, t *testing.T) {
-
+		t.FailNow()
 	}))
 
 	// TODO:
 	t.Run("test DEC", newCPUAndTest(func(cpu *cpu.CPU, t *testing.T) {
-		t.SkipNow()
+		t.FailNow()
 	}))
 
 	// TODO:
 	t.Run("test DEX", newCPUAndTest(func(cpu *cpu.CPU, t *testing.T) {
-		t.SkipNow()
+		t.FailNow()
 	}))
 
 	// TODO:
 	t.Run("test DEY", newCPUAndTest(func(cpu *cpu.CPU, t *testing.T) {
-		t.SkipNow()
+		t.FailNow()
 	}))
 
 	// TODO:
 	t.Run("test EOR", newCPUAndTest(func(cpu *cpu.CPU, t *testing.T) {
-		t.SkipNow()
+		t.FailNow()
 	}))
 
 	// TODO:
 	t.Run("test JMP", newCPUAndTest(func(cpu *cpu.CPU, t *testing.T) {
-		t.SkipNow()
+		t.FailNow()
 	}))
 
 	// TODO:
 	t.Run("test JSR", newCPUAndTest(func(cpu *cpu.CPU, t *testing.T) {
-		t.SkipNow()
+		t.FailNow()
 	}))
 
 	// TODO:
@@ -809,41 +813,31 @@ func TestInstructions(t *testing.T) {
 
 	// TODO:
 	t.Run("test PHP", newCPUAndTest(func(cpu *cpu.CPU, t *testing.T) {
-		t.SkipNow()
+		t.FailNow()
 	}))
 
 	// TODO:
 	t.Run("test PLA", newCPUAndTest(func(cpu *cpu.CPU, t *testing.T) {
-		t.SkipNow()
+		t.FailNow()
 	}))
 
 	// TODO:
 	t.Run("test PLP", newCPUAndTest(func(cpu *cpu.CPU, t *testing.T) {
-		t.SkipNow()
+		t.FailNow()
 	}))
 
 	// TODO:
 	t.Run("test RTI", newCPUAndTest(func(cpu *cpu.CPU, t *testing.T) {
-		t.SkipNow()
+		t.FailNow()
 	}))
 
 	// TODO:
 	t.Run("test RTS", newCPUAndTest(func(cpu *cpu.CPU, t *testing.T) {
-		t.SkipNow()
+		t.FailNow()
 	}))
 
 	// TODO:
 	t.Run("test SBC", newCPUAndTest(func(cpu *cpu.CPU, t *testing.T) {
-		t.SkipNow()
+		t.FailNow()
 	}))
-}
-
-// TODO:
-func TestAddressingModes(t *testing.T) {
-	t.SkipNow()
-}
-
-// TODO:
-func TestMemory(t *testing.T) {
-	t.SkipNow()
 }
