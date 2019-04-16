@@ -14,6 +14,11 @@ const (
 	zeroPageEnd = 0x00FF
 )
 
+// extra cycle costs
+const (
+	branchSuccCost = 1
+)
+
 // Status holds data for each status flag
 // in the 6502 status register.
 type Status struct {
@@ -97,11 +102,14 @@ type CPU struct {
 	*memory.Memory // Pointer to main memory
 	*Registers     // Set of registers
 
-	instructions map[byte]instruction // Instructions available to CPU
+	instructions    map[byte]instruction // Instructions available to CPU
+	cycles          int                  // Number of cpu cycles
+	pageCrossed     bool                 // Whether or not the most recently executed instruction crossed a page
+	branchSucceeded bool                 // Whether or not the most recently executed branch instruction succeeded
 
-	// For logging
-	debug  bool // Whether or not to output logs
-	logger io.Writer
+	// For logging only
+	debug  bool      // Whether or not to output logs
+	logger io.Writer // Writer through which to output logs
 }
 
 // New initializes a new 6502 CPU with all status bits, register, and memory
@@ -142,13 +150,13 @@ func (c *CPU) Clear() {
 }
 
 // decode decodes opcode opcode and returns relevant information.
-func (c *CPU) decode(opcode byte) (name string, addressingMode, cycleCost, pageCrossCost, byteCost int, execute func(uint16), err error) {
+func (c *CPU) decode(opcode byte) (name string, addressingMode, byteCost, cycleCost, pageCrossCost int, execute func(uint16), err error) {
 	if instruction, ok := c.instructions[opcode]; ok {
 		return instruction.name,
 			instruction.addressingMode,
+			instruction.byteCost,
 			instruction.cycleCost,
 			instruction.pageCrossCost,
-			instruction.byteCost,
 			instruction.execute,
 			nil
 	}
@@ -254,14 +262,19 @@ func (c *CPU) getAddressWithMode(addressingMode int) (addr uint16) {
 // 1. Retrieving the opcode at current PC.
 // 2. Decoding the opcode.
 // 3. Incrementing the program counter by the correct amount.
-// 4. Performing the instruction.
-// TODO: flesh out
+// 4. Performing the instruction. This is done after (3) because
+// Jump instructions may directly change the PC.
+// 5. Add cpu cycles based on instruction execution.
 func (c *CPU) Step() {
+	// Reset instruction-wise flags
+	c.pageCrossed = false
+	c.branchSucceeded = false
+
 	// 1. Retrieve opcode at current PC
 	opcode := c.Read(c.PC)
 
 	// 2. Decode opcode
-	name, addressingMode, cycleCost, pageCrossCost, byteCost, execute, err := c.decode(opcode)
+	name, addressingMode, byteCost, cycleCost, pageCrossCost, execute, err := c.decode(opcode)
 	if IsInvalidOpcodeErr(err) {
 		// If the opcode is invalid, continue to the next instruction.
 		log.Println(err)
@@ -272,7 +285,7 @@ func (c *CPU) Step() {
 	// 2.5. Log cpu execution if necessary
 	// Format according to ideal nestest log
 	if c.debug {
-		trace := fmt.Sprintf("%-6X%-10s%-4s%-28s%-26s%-12sCYC:%d\n", c.PC, "", name, "", c.Registers, "", 0)
+		trace := fmt.Sprintf("%-6X%-10s%-4s%-28s%-26s%-12sCYC:%d\n", c.PC, "", name, "", c.Registers, "", c.cycles)
 		io.WriteString(c.logger, trace)
 	}
 
@@ -282,8 +295,13 @@ func (c *CPU) Step() {
 	// 4. Perform instruction
 	execute(instructionAddress)
 
-	// TODO: use these vars later
-	_ = name
-	_ = cycleCost
-	_ = pageCrossCost
+	// 5. Add cpu cycles based on instruction execution.
+	// CPU cycles are used to keep the CPU in sync with other modules (like the PPU).
+	c.cycles += cycleCost
+	if c.branchSucceeded {
+		c.cycles += branchSuccCost
+	}
+	if c.pageCrossed {
+		c.cycles += pageCrossCost
+	}
 }

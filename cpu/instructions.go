@@ -25,9 +25,9 @@ const (
 type instruction struct {
 	name           string
 	addressingMode int
+	byteCost       int
 	cycleCost      int
 	pageCrossCost  int
-	byteCost       int
 	execute        func(uint16) // contains instruction logic
 }
 
@@ -224,31 +224,28 @@ func (c *CPU) initInstructions() {
 			0,
 			c.ASLM,
 		},
-		// TODO: special case
 		0x90: {
 			"BCC",
 			modeRelative,
 			2,
 			2,
-			0,
+			1,
 			c.BCC,
 		},
-		// TODO: special case
 		0xB0: {
 			"BCS",
 			modeRelative,
 			2,
 			2,
-			0,
+			1,
 			c.BCS,
 		},
-		// TODO: special case
 		0xF0: {
 			"BEQ",
 			modeRelative,
 			2,
 			2,
-			0,
+			1,
 			c.BEQ,
 		},
 		0x24: {
@@ -267,31 +264,28 @@ func (c *CPU) initInstructions() {
 			0,
 			c.BIT,
 		},
-		// TODO: special case
 		0x30: {
 			"BMI",
 			modeRelative,
 			2,
 			2,
-			0,
+			1,
 			c.BMI,
 		},
-		// TODO: special case
 		0xD0: {
 			"BNE",
 			modeRelative,
 			2,
 			2,
-			0,
+			1,
 			c.BNE,
 		},
-		// TODO: special case
 		0x10: {
 			"BPL",
 			modeRelative,
 			2,
 			2,
-			0,
+			1,
 			c.BPL,
 		},
 		0x00: {
@@ -302,22 +296,20 @@ func (c *CPU) initInstructions() {
 			0,
 			c.BRK,
 		},
-		// TODO: special case
 		0x50: {
 			"BVC",
 			modeRelative,
 			2,
 			2,
-			0,
+			1,
 			c.BVC,
 		},
-		// TODO: special case
 		0x70: {
 			"BVS",
 			modeRelative,
 			2,
 			2,
-			0,
+			1,
 			c.BVS,
 		},
 		0x18: {
@@ -1278,10 +1270,12 @@ func (c *CPU) initInstructions() {
 }
 
 // ADC Add with Carry
+// TODO: account for page cross
 func (c *CPU) ADC(address uint16) {
 }
 
 // AND Logical AND
+// TODO: account for page cross
 func (c *CPU) AND(address uint16) {
 }
 
@@ -1307,14 +1301,20 @@ func (c *CPU) ASLM(address uint16) {
 }
 
 // BCC Branch if Carry Clear
+// TODO: account for page cross
+// TODO: account for branch success
 func (c *CPU) BCC(address uint16) {
 }
 
 // BCS Branch if Carry Set
+// TODO: account for page cross
+// TODO: account for branch success
 func (c *CPU) BCS(address uint16) {
 }
 
 // BEQ Branch if Equal
+// TODO: account for page cross
+// TODO: account for branch success
 func (c *CPU) BEQ(address uint16) {
 }
 
@@ -1323,14 +1323,20 @@ func (c *CPU) BIT(address uint16) {
 }
 
 // BMI Branch if Minus
+// TODO: account for page cross
+// TODO: account for branch success
 func (c *CPU) BMI(address uint16) {
 }
 
 // BNE Branch if Not Equal
+// TODO: account for page cross
+// TODO: account for branch success
 func (c *CPU) BNE(address uint16) {
 }
 
 // BPL Branch if Positive
+// TODO: account for page cross
+// TODO: account for branch success
 func (c *CPU) BPL(address uint16) {
 }
 
@@ -1339,10 +1345,14 @@ func (c *CPU) BRK(address uint16) {
 }
 
 // BVC Branch if Overflow Clear
+// TODO: account for page cross
+// TODO: account for branch succes
 func (c *CPU) BVC(address uint16) {
 }
 
 // BVS Branch if Overflow Set
+// TODO: account for page cross
+// TODO: account for branch succes
 func (c *CPU) BVS(address uint16) {
 }
 
@@ -1367,6 +1377,7 @@ func (c *CPU) CLV(address uint16) {
 }
 
 // CMP Compare
+// TODO: account for page cross
 func (c *CPU) CMP(address uint16) {
 }
 
@@ -1391,6 +1402,7 @@ func (c *CPU) DEY(address uint16) {
 }
 
 // EOR Exclusive OR
+// TODO: account for page cross
 func (c *CPU) EOR(address uint16) {
 }
 
@@ -1422,18 +1434,21 @@ func (c *CPU) JSR(address uint16) {
 }
 
 // LDA Load Accumulator
+// TODO: account for page cross
 func (c *CPU) LDA(address uint16) {
 	c.A = c.Read(address)
 	c.Status.setZN(c.A)
 }
 
 // LDX Load X Register
+// TODO: account for page cross
 func (c *CPU) LDX(address uint16) {
 	c.X = c.Read(address)
 	c.Status.setZN(c.X)
 }
 
 // LDY Load Y Register
+// TODO: account for page cross
 func (c *CPU) LDY(address uint16) {
 	c.Y = c.Read(address)
 	c.Status.setZN(c.Y)
@@ -1465,6 +1480,7 @@ func (c *CPU) NOP(address uint16) {
 }
 
 // ORA Logical Inclusive OR
+// TODO: account for page cross
 func (c *CPU) ORA(address uint16) {
 	c.A |= c.Read(address)
 	c.Status.setZN(c.A)
@@ -1561,6 +1577,7 @@ func (c *CPU) RTS(address uint16) {
 }
 
 // SBC Subtract with Carry
+// TODO: account for page cross
 func (c *CPU) SBC(address uint16) {
 }
 
