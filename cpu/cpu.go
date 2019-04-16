@@ -3,6 +3,7 @@ package cpu
 
 import (
 	"fmt"
+	"io"
 	"log"
 
 	"github.com/justinawrey/nes/memory"
@@ -27,22 +28,23 @@ type Status struct {
 
 // String implements Stringer.
 func (sr *Status) String() (repr string) {
-	convert := func(bit bool) string {
+	convert := func(bit bool) byte {
 		if bit {
-			return "1"
+			return 1
 		}
-		return "0"
+		return 0
 	}
 
-	return fmt.Sprintf("%s%s0%s%s%s%s%s",
-		convert(sr.N),
-		convert(sr.V),
-		convert(sr.B),
-		convert(sr.D),
-		convert(sr.I),
-		convert(sr.Z),
-		convert(sr.C),
-	)
+	var status byte = 0x00
+	status |= convert(sr.C)
+	status |= convert(sr.Z) << 1
+	status |= convert(sr.I) << 2
+	status |= convert(sr.D) << 3
+	status |= convert(sr.B) << 4
+	status |= convert(sr.V) << 6
+	status |= convert(sr.N) << 7
+
+	return fmt.Sprintf("P:%x", status)
 }
 
 // setZ sets the zero flag of sr according to the contents of reg.
@@ -86,29 +88,20 @@ type Registers struct {
 
 // String implements Stringer.
 func (r *Registers) String() (repr string) {
-	return fmt.Sprintf("%6s | %v\n%6s | %v\n%6s | %v\n%6s | %v\n%6s | %v\n%6s | %v\n",
-		"Status",
-		r.Status,
-		"PC",
-		r.PC,
-		"SP",
-		r.SP,
-		"A",
-		r.A,
-		"X",
-		r.X,
-		"Y",
-		r.Y,
-	)
+	return fmt.Sprintf("A:%x X:%x Y:%x %s SP:%x", r.A, r.X, r.Y, r.Status, r.SP)
 }
 
 // CPU represents to 6502 and its associated registers and memory map.
 // This should be declared and used as a singleton during emulator execution.
 type CPU struct {
-	*memory.Memory
-	*Registers
+	*memory.Memory // Pointer to main memory
+	*Registers     // Set of registers
 
-	instructions map[byte]instruction
+	instructions map[byte]instruction // Instructions available to CPU
+
+	// For logging
+	debug  bool // Whether or not to output logs
+	logger io.Writer
 }
 
 // New initializes a new 6502 CPU with all status bits, register, and memory
@@ -120,6 +113,12 @@ func New() (c *CPU) {
 		},
 	}
 	return cpu
+}
+
+// OutputTo sets the cpu to log its execution to io.Writer w.
+func (c *CPU) OutputTo(w io.Writer) {
+	c.debug = true
+	c.logger = w
 }
 
 // UseMemory associates the CPU c with main memory m.
@@ -257,7 +256,7 @@ func (c *CPU) getAddressWithMode(addressingMode int) (addr uint16) {
 // 3. Incrementing the program counter by the correct amount.
 // 4. Performing the instruction.
 // TODO: flesh out
-func (c *CPU) step() {
+func (c *CPU) Step() {
 	// 1. Retrieve opcode at current PC
 	opcode := c.Read(c.PC)
 
@@ -269,6 +268,13 @@ func (c *CPU) step() {
 		return
 	}
 	instructionAddress := c.getAddressWithMode(addressingMode)
+
+	// 2.5. Log cpu execution if necessary
+	// Format according to ideal nestest log
+	if c.debug {
+		trace := fmt.Sprintf("%-6X%-10s%-4s%-28s%-26s%-12sCYC:%d\n", c.PC, "", name, "", c.Registers, "", 0)
+		io.WriteString(c.logger, trace)
+	}
 
 	// 3. Increment program counter
 	c.PC += uint16(byteCost)

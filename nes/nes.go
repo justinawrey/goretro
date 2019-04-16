@@ -1,6 +1,7 @@
 package nes
 
 import (
+	"io"
 	"log"
 
 	"github.com/justinawrey/nes/apu"
@@ -87,9 +88,20 @@ func (nes *NES) Load(name string) {
 	log.Println("mapper: ", nes.cart.MapperNum)
 }
 
+// OutputTo sets the nes to log its execution to io.Writer w.
+func (nes *NES) OutputTo(w io.Writer) {
+	nes.cpu.OutputTo(w)
+}
+
 // Start begins executing the loaded cartridge.
+// For now, this is for nestest.
+// TODO: make this actually start
 func (nes *NES) Start() {
-	// TODO:
+	nes.cpu.PC = 0xC000
+	nes.cpu.Step()
+	nes.cpu.Step()
+	nes.cpu.Step()
+	nes.cpu.Step()
 }
 
 // Reset resets the nes to its initial power up state.
