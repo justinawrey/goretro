@@ -1,4 +1,4 @@
-C000            JMP                             A:0 X:0 Y:0 P:0 SP:0                  CYC:0
-C000            JMP                             A:0 X:0 Y:0 P:0 SP:0                  CYC:0
-C000            JMP                             A:0 X:0 Y:0 P:0 SP:0                  CYC:0
-C000            JMP                             A:0 X:0 Y:0 P:0 SP:0                  CYC:0
+C000            JMP                             A:0  X:0  Y:0  P:14SP:FD              CYC:0
+C003            LDA                             A:0  X:0  Y:0  P:14SP:FD              CYC:3
+C006            LDA                             A:EF X:0  Y:0  P:94SP:FD              CYC:7
+C009            CLD                             A:0  X:0  Y:0  P:16SP:FD              CYC:11

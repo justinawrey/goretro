@@ -49,7 +49,7 @@ func (sr *Status) String() (repr string) {
 	status |= convert(sr.V) << 6
 	status |= convert(sr.N) << 7
 
-	return fmt.Sprintf("P:%x", status)
+	return fmt.Sprintf("P:%X", status)
 }
 
 // setZ sets the zero flag of sr according to the contents of reg.
@@ -93,7 +93,7 @@ type Registers struct {
 
 // String implements Stringer.
 func (r *Registers) String() (repr string) {
-	return fmt.Sprintf("A:%x X:%x Y:%x %s SP:%x", r.A, r.X, r.Y, r.Status, r.SP)
+	return fmt.Sprintf("A:%-03XX:%-03XY:%-03X%-03sSP:%-03X", r.A, r.X, r.Y, r.Status, r.SP)
 }
 
 // CPU represents to 6502 and its associated registers and memory map.
@@ -135,14 +135,20 @@ func (c *CPU) UseMemory(m *memory.Memory) {
 }
 
 // Init implements nes.Module.
+// See https://wiki.nesdev.com/w/index.php/CPU_power_up_state#cite_note-1.
+// TODO: Make robust
 func (c *CPU) Init() {
 	c.initInstructions()
-	// TODO: start up state
+	c.Status.I = true
+	c.Status.B = true
+	c.SP = 0xFD
+	// TODO: APU start-up state
 }
 
 // Clear implements nes.Module.
 // Clear sets every register in c (including PC, SP, and status) to 0x00.
 // Retains memory linked through UseMemory.
+// TODO: Make robust
 func (c *CPU) Clear() {
 	*c.Registers = Registers{
 		Status: &Status{},
