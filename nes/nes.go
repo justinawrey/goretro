@@ -101,7 +101,6 @@ func (nes *NES) Start() {
 	nes.cpu.Step()
 	nes.cpu.Step()
 	nes.cpu.Step()
-	nes.cpu.Step()
 }
 
 // Reset resets the nes to its initial power up state.

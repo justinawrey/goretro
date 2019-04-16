@@ -27,6 +27,7 @@ type Status struct {
 	I bool // Interrupt disable
 	D bool // Decimal mode
 	B bool // Break command
+	U bool // Unused (here for better logging)
 	V bool // Overflow
 	N bool // Zero result
 }
@@ -46,10 +47,11 @@ func (sr *Status) String() (repr string) {
 	status |= convert(sr.I) << 2
 	status |= convert(sr.D) << 3
 	status |= convert(sr.B) << 4
+	status |= convert(sr.U) << 5
 	status |= convert(sr.V) << 6
 	status |= convert(sr.N) << 7
 
-	return fmt.Sprintf("P:%X", status)
+	return fmt.Sprintf("%X", status)
 }
 
 // setZ sets the zero flag of sr according to the contents of reg.
@@ -93,7 +95,7 @@ type Registers struct {
 
 // String implements Stringer.
 func (r *Registers) String() (repr string) {
-	return fmt.Sprintf("A:%-03XX:%-03XY:%-03X%-03sSP:%-03X", r.A, r.X, r.Y, r.Status, r.SP)
+	return fmt.Sprintf("A:%02X X:%02X Y:%02X P:%02s SP:%02X", r.A, r.X, r.Y, r.Status, r.SP)
 }
 
 // CPU represents to 6502 and its associated registers and memory map.
@@ -140,7 +142,7 @@ func (c *CPU) UseMemory(m *memory.Memory) {
 func (c *CPU) Init() {
 	c.initInstructions()
 	c.Status.I = true
-	c.Status.B = true
+	c.Status.U = true
 	c.SP = 0xFD
 	// TODO: APU start-up state
 }
@@ -271,6 +273,7 @@ func (c *CPU) getAddressWithMode(addressingMode int) (addr uint16) {
 // 4. Performing the instruction. This is done after (3) because
 // Jump instructions may directly change the PC.
 // 5. Add cpu cycles based on instruction execution.
+// TODO: add interrupt support
 func (c *CPU) Step() {
 	// Reset instruction-wise flags
 	c.pageCrossed = false
@@ -282,8 +285,8 @@ func (c *CPU) Step() {
 	// 2. Decode opcode
 	name, addressingMode, byteCost, cycleCost, pageCrossCost, execute, err := c.decode(opcode)
 	if IsInvalidOpcodeErr(err) {
-		// If the opcode is invalid, continue to the next instruction.
-		log.Println(err)
+		// If the opcode is invalid, shut down everything for now.
+		log.Fatalln(err)
 		return
 	}
 	instructionAddress := c.getAddressWithMode(addressingMode)
@@ -291,7 +294,14 @@ func (c *CPU) Step() {
 	// 2.5. Log cpu execution if necessary
 	// Format according to ideal nestest log
 	if c.debug {
-		trace := fmt.Sprintf("%-6X%-10s%-4s%-28s%-26s%-12sCYC:%d\n", c.PC, "", name, "", c.Registers, "", c.cycles)
+		// Retrieve the raw next bytes used for this instruction.  Used purely for logging.
+		var nextBytes []byte
+		for i := 0; i < byteCost; i++ {
+			nextBytes = append(nextBytes, c.Read(c.PC+uint16(i)))
+		}
+
+		// Form a trace (a line of logs for this single instruction including status state, cycles, all registers, etc.)
+		trace := fmt.Sprintf("%-6X% -10X%-4s%-28s%-26s%-12sCYC:%d\n", c.PC, nextBytes, name, "", c.Registers, "", c.cycles)
 		io.WriteString(c.logger, trace)
 	}
 
@@ -299,6 +309,7 @@ func (c *CPU) Step() {
 	c.PC += uint16(byteCost)
 
 	// 4. Perform instruction
+	// Done after (3) because some instructions (relative addressing) will directly change the PC.
 	execute(instructionAddress)
 
 	// 5. Add cpu cycles based on instruction execution.
