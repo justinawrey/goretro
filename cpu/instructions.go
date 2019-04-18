@@ -1393,7 +1393,7 @@ func (c *CPU) CMP(address uint16) {
 	val := c.Read(address)
 	c.Status.setZN(c.A - val)
 	c.Status.C = c.A >= val
-	c.setPageCrossed(c.PC, address)
+	c.setPageCrossed(address)
 }
 
 // CPX Compare X Register
@@ -1430,9 +1430,10 @@ func (c *CPU) DEY(address uint16) {
 }
 
 // EOR Exclusive OR
-// TODO: implement
-// TODO: account for page cross
 func (c *CPU) EOR(address uint16) {
+	c.A ^= c.Read(address)
+	c.Status.setZN(c.A)
+	c.setPageCrossed(address)
 }
 
 // INC Increment Register
@@ -1455,8 +1456,9 @@ func (c *CPU) INY(address uint16) {
 }
 
 // JMP Jump
-// TODO: implement
+// TODO: original 6502 bug?
 func (c *CPU) JMP(address uint16) {
+	c.PC = address
 }
 
 // JSR Jump to Subroutine
@@ -1465,24 +1467,24 @@ func (c *CPU) JSR(address uint16) {
 }
 
 // LDA Load Accumulator
-// TODO: account for page cross
 func (c *CPU) LDA(address uint16) {
 	c.A = c.Read(address)
 	c.Status.setZN(c.A)
+	c.setPageCrossed(address)
 }
 
 // LDX Load X Register
-// TODO: account for page cross
 func (c *CPU) LDX(address uint16) {
 	c.X = c.Read(address)
 	c.Status.setZN(c.X)
+	c.setPageCrossed(address)
 }
 
 // LDY Load Y Register
-// TODO: account for page cross
 func (c *CPU) LDY(address uint16) {
 	c.Y = c.Read(address)
 	c.Status.setZN(c.Y)
+	c.setPageCrossed(address)
 }
 
 // LSRA Logical Shift Right, acting on Accumulator.
@@ -1511,10 +1513,10 @@ func (c *CPU) NOP(address uint16) {
 }
 
 // ORA Logical Inclusive OR
-// TODO: account for page cross
 func (c *CPU) ORA(address uint16) {
 	c.A |= c.Read(address)
 	c.Status.setZN(c.A)
+	c.setPageCrossed(address)
 }
 
 // PHA Push Accumulator
