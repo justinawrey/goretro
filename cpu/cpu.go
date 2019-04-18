@@ -12,6 +12,7 @@ import (
 // end of zero page in memory
 const (
 	zeroPageEnd = 0x00FF
+	stackStart  = 0x0100
 )
 
 // extra cycle costs
@@ -170,6 +171,20 @@ func (c *CPU) branchTo(address uint16) {
 	c.setPageCrossed(address)
 	c.branchSucceeded = true
 	c.PC = address
+}
+
+// pushStack pushes a byte of data onto the stack.
+// The stack pointer always points to the next free location on the stack.
+func (c *CPU) pushStack(data byte) {
+	c.Write(stackStart+uint16(c.SP), data)
+	c.SP--
+}
+
+// pullStack pulls a byte of data from the stack.
+// The stack pointer always points to the next free location on the stack.
+func (c *CPU) pullStack() (data byte) {
+	c.SP++
+	return c.Read(stackStart + uint16(c.SP))
 }
 
 // decode decodes opcode opcode and returns relevant information.
