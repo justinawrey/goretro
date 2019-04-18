@@ -1301,21 +1301,24 @@ func (c *CPU) ASLM(address uint16) {
 }
 
 // BCC Branch if Carry Clear
-// TODO: account for page cross
-// TODO: account for branch success
 func (c *CPU) BCC(address uint16) {
+	if !c.Status.C {
+		c.branchTo(address)
+	}
 }
 
 // BCS Branch if Carry Set
-// TODO: account for page cross
-// TODO: account for branch success
 func (c *CPU) BCS(address uint16) {
+	if c.Status.C {
+		c.branchTo(address)
+	}
 }
 
 // BEQ Branch if Equal
-// TODO: account for page cross
-// TODO: account for branch success
 func (c *CPU) BEQ(address uint16) {
+	if c.Status.Z {
+		c.branchTo(address)
+	}
 }
 
 // BIT Bit Test
@@ -1323,21 +1326,24 @@ func (c *CPU) BIT(address uint16) {
 }
 
 // BMI Branch if Minus
-// TODO: account for page cross
-// TODO: account for branch success
 func (c *CPU) BMI(address uint16) {
+	if c.Status.N {
+		c.branchTo(address)
+	}
 }
 
 // BNE Branch if Not Equal
-// TODO: account for page cross
-// TODO: account for branch success
 func (c *CPU) BNE(address uint16) {
+	if !c.Status.Z {
+		c.branchTo(address)
+	}
 }
 
 // BPL Branch if Positive
-// TODO: account for page cross
-// TODO: account for branch success
 func (c *CPU) BPL(address uint16) {
+	if !c.Status.N {
+		c.branchTo(address)
+	}
 }
 
 // BRK Force Interrupt
@@ -1345,15 +1351,17 @@ func (c *CPU) BRK(address uint16) {
 }
 
 // BVC Branch if Overflow Clear
-// TODO: account for page cross
-// TODO: account for branch succes
 func (c *CPU) BVC(address uint16) {
+	if !c.Status.V {
+		c.branchTo(address)
+	}
 }
 
 // BVS Branch if Overflow Set
-// TODO: account for page cross
-// TODO: account for branch succes
 func (c *CPU) BVS(address uint16) {
+	if c.Status.V {
+		c.branchTo(address)
+	}
 }
 
 // CLC Clear Carry Flag

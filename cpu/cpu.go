@@ -157,6 +157,15 @@ func (c *CPU) Clear() {
 	}
 }
 
+// branchTo branches the cpu program counter to address.
+// This function counts cycles correctly.
+func (c *CPU) branchTo(address uint16) {
+	// TODO: implement page cross logic
+	c.pageCrossed = false
+	c.branchSucceeded = true
+	c.PC = address
+}
+
 // decode decodes opcode opcode and returns relevant information.
 func (c *CPU) decode(opcode byte) (name string, addressingMode, byteCost, cycleCost, pageCrossCost int, execute func(uint16), err error) {
 	if instruction, ok := c.instructions[opcode]; ok {
