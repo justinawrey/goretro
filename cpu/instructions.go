@@ -1288,7 +1288,7 @@ func (c *CPU) AND(address uint16) {
 // modeAccumulator, and the other is called when ASL is
 // called in any other addressing mode.
 func (c *CPU) ASLA(address uint16) {
-	c.Status.C = c.A&0x80 != 0x00
+	c.Status.C = c.A&mask7 != 0
 	c.A <<= 1
 	c.Status.setZN(c.A)
 }
@@ -1297,7 +1297,7 @@ func (c *CPU) ASLA(address uint16) {
 // See explanation for ASLA
 func (c *CPU) ASLM(address uint16) {
 	val := c.Read(address)
-	c.Status.C = val&0x80 != 0x00
+	c.Status.C = val&mask7 != 0
 	val <<= 1
 	c.Write(address, val)
 	c.Status.setZN(val)
@@ -1497,7 +1497,7 @@ func (c *CPU) LDY(address uint16) {
 // modeAccumulator, and the other is called when LSR is
 // called in any other addressing mode.
 func (c *CPU) LSRA(address uint16) {
-	c.Status.C = c.A&0x01 == 0x01
+	c.Status.C = c.A&mask0 == 1
 	c.A >>= 1
 	c.Status.setZN(c.A)
 }
@@ -1506,7 +1506,7 @@ func (c *CPU) LSRA(address uint16) {
 // See explanation for LSRA.
 func (c *CPU) LSRM(address uint16) {
 	val := c.Read(address)
-	c.Status.C = val&0x01 == 0x01
+	c.Status.C = val&mask0 == 1
 	val >>= 1
 	c.Write(address, val)
 	c.Status.setZN(val)
@@ -1550,7 +1550,7 @@ func (c *CPU) PLP(address uint16) {
 // modeAccumulator, and the other is called when ROL is
 // called in any other addressing mode.
 func (c *CPU) ROLA(address uint16) {
-	carry := c.A&0x80 != 0x00
+	carry := c.A&mask7 != 0
 	c.A <<= 1
 	if c.Status.C {
 		c.A |= 0x01
@@ -1565,7 +1565,7 @@ func (c *CPU) ROLA(address uint16) {
 // See explanation for ROLA.
 func (c *CPU) ROLM(address uint16) {
 	val := c.Read(address)
-	carry := val&0x80 != 0x00
+	carry := val&mask7 != 0
 	val <<= 1
 	if c.Status.C {
 		val |= 0x01
@@ -1583,7 +1583,7 @@ func (c *CPU) ROLM(address uint16) {
 // modeAccumulator, and the other is called when ROR is
 // called in any other addressing mode.
 func (c *CPU) RORA(address uint16) {
-	carry := c.A&0x01 == 0x01
+	carry := c.A&mask0 == 1
 	c.A >>= 1
 	if c.Status.C {
 		c.A |= 0x80
@@ -1598,7 +1598,7 @@ func (c *CPU) RORA(address uint16) {
 // See explanation for RORA
 func (c *CPU) RORM(address uint16) {
 	val := c.Read(address)
-	carry := val&0x01 == 0x01
+	carry := val&mask0 == 1
 	val >>= 1
 	if c.Status.C {
 		val |= 0x80
