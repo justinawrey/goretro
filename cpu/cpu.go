@@ -15,6 +15,17 @@ const (
 	stackStart  = 0x0100
 )
 
+const (
+	mask0 = 1 << iota
+	mask1
+	mask2
+	mask3
+	mask4
+	mask5
+	mask6
+	mask7
+)
+
 // extra cycle costs
 const (
 	branchSuccCost = 1
@@ -35,6 +46,12 @@ type Status struct {
 
 // String implements Stringer.
 func (sr *Status) String() (repr string) {
+	return fmt.Sprintf("%X", sr.asByte())
+}
+
+// asByte returns the status register in byte format.
+func (sr *Status) asByte() (data byte) {
+	// convert converts a boolean bit into its byte form.
 	convert := func(bit bool) byte {
 		if bit {
 			return 1
@@ -51,8 +68,19 @@ func (sr *Status) String() (repr string) {
 	status |= convert(sr.U) << 5
 	status |= convert(sr.V) << 6
 	status |= convert(sr.N) << 7
+	return status
+}
 
-	return fmt.Sprintf("%X", status)
+// fromByte sets the status register according to the contents of a byte of data.
+func (sr *Status) fromByte(data byte) {
+	sr.C = data&mask0 != 0
+	sr.Z = data&mask1 != 0
+	sr.I = data&mask2 != 0
+	sr.D = data&mask3 != 0
+	sr.B = data&mask4 != 0
+	sr.U = data&mask5 != 0
+	sr.V = data&mask6 != 0
+	sr.N = data&mask7 != 0
 }
 
 // setZ sets the zero flag of sr according to the contents of reg.

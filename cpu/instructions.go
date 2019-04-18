@@ -1520,23 +1520,24 @@ func (c *CPU) ORA(address uint16) {
 }
 
 // PHA Push Accumulator
-// TODO: implement
 func (c *CPU) PHA(address uint16) {
+	c.pushStack(c.A)
 }
 
 // PHP Push Processor Status
-// TODO: implement
 func (c *CPU) PHP(address uint16) {
+	c.pushStack(c.Status.asByte())
 }
 
 // PLA Pull Accumulator
-// TODO: implement
 func (c *CPU) PLA(address uint16) {
+	c.A = c.pullStack()
+	c.Status.setZN(c.A)
 }
 
 // PLP Pull Processor Status
-// TODO: implement
 func (c *CPU) PLP(address uint16) {
+	c.Status.fromByte(c.pullStack())
 }
 
 // ROLA Rotate Left, acting on Accumulator.
