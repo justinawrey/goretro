@@ -157,11 +157,17 @@ func (c *CPU) Clear() {
 	}
 }
 
+// setPageCrossed sets the cpu to whether or not a page has been crossed
+// according to the addresses prev and next.
+func (c *CPU) setPageCrossed(prev, next uint16) {
+	// TODO: implement page cross logic
+	c.pageCrossed = false
+}
+
 // branchTo branches the cpu program counter to address.
 // This function counts cycles correctly.
 func (c *CPU) branchTo(address uint16) {
-	// TODO: implement page cross logic
-	c.pageCrossed = false
+	c.setPageCrossed(c.PC, address)
 	c.branchSucceeded = true
 	c.PC = address
 }

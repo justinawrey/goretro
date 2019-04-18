@@ -1270,11 +1270,13 @@ func (c *CPU) initInstructions() {
 }
 
 // ADC Add with Carry
+// TODO: implement
 // TODO: account for page cross
 func (c *CPU) ADC(address uint16) {
 }
 
 // AND Logical AND
+// TODO: implement
 // TODO: account for page cross
 func (c *CPU) AND(address uint16) {
 }
@@ -1322,6 +1324,7 @@ func (c *CPU) BEQ(address uint16) {
 }
 
 // BIT Bit Test
+// TODO: implement
 func (c *CPU) BIT(address uint16) {
 }
 
@@ -1347,6 +1350,7 @@ func (c *CPU) BPL(address uint16) {
 }
 
 // BRK Force Interrupt
+// TODO: implement
 func (c *CPU) BRK(address uint16) {
 }
 
@@ -1385,31 +1389,42 @@ func (c *CPU) CLV(address uint16) {
 }
 
 // CMP Compare
+// TODO: implement
 // TODO: account for page cross
 func (c *CPU) CMP(address uint16) {
 }
 
 // CPX Compare X Register
+// TODO: implement
 func (c *CPU) CPX(address uint16) {
 }
 
 // CPY Compare Y Register
+// TODO: implement
 func (c *CPU) CPY(address uint16) {
 }
 
 // DEC Decrement Memory
 func (c *CPU) DEC(address uint16) {
+	val := c.Read(address) - 1
+	c.Write(address, val)
+	c.Status.setZN(val)
 }
 
 // DEX Decrement X Register
 func (c *CPU) DEX(address uint16) {
+	c.X--
+	c.Status.setZN(c.X)
 }
 
 // DEY Decrement Y Register
 func (c *CPU) DEY(address uint16) {
+	c.Y--
+	c.Status.setZN(c.Y)
 }
 
 // EOR Exclusive OR
+// TODO: implement
 // TODO: account for page cross
 func (c *CPU) EOR(address uint16) {
 }
@@ -1434,10 +1449,12 @@ func (c *CPU) INY(address uint16) {
 }
 
 // JMP Jump
+// TODO: implement
 func (c *CPU) JMP(address uint16) {
 }
 
 // JSR Jump to Subroutine
+// TODO: implement
 func (c *CPU) JSR(address uint16) {
 }
 
@@ -1495,18 +1512,22 @@ func (c *CPU) ORA(address uint16) {
 }
 
 // PHA Push Accumulator
+// TODO: implement
 func (c *CPU) PHA(address uint16) {
 }
 
 // PHP Push Processor Status
+// TODO: implement
 func (c *CPU) PHP(address uint16) {
 }
 
 // PLA Pull Accumulator
+// TODO: implement
 func (c *CPU) PLA(address uint16) {
 }
 
 // PLP Pull Processor Status
+// TODO: implement
 func (c *CPU) PLP(address uint16) {
 }
 
@@ -1577,14 +1598,17 @@ func (c *CPU) RORM(address uint16) {
 }
 
 // RTI Return from Interrupt
+// TODO: implement
 func (c *CPU) RTI(address uint16) {
 }
 
 // RTS Return from Subroutine
+// TODO: implement
 func (c *CPU) RTS(address uint16) {
 }
 
 // SBC Subtract with Carry
+// TODO: implement
 // TODO: account for page cross
 func (c *CPU) SBC(address uint16) {
 }
