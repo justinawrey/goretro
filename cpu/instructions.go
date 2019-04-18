@@ -1389,19 +1389,25 @@ func (c *CPU) CLV(address uint16) {
 }
 
 // CMP Compare
-// TODO: implement
-// TODO: account for page cross
 func (c *CPU) CMP(address uint16) {
+	val := c.Read(address)
+	c.Status.setZN(c.A - val)
+	c.Status.C = c.A >= val
+	c.setPageCrossed(c.PC, address)
 }
 
 // CPX Compare X Register
-// TODO: implement
 func (c *CPU) CPX(address uint16) {
+	val := c.Read(address)
+	c.Status.setZN(c.X - val)
+	c.Status.C = c.X >= val
 }
 
 // CPY Compare Y Register
-// TODO: implement
 func (c *CPU) CPY(address uint16) {
+	val := c.Read(address)
+	c.Status.setZN(c.Y - val)
+	c.Status.C = c.Y >= val
 }
 
 // DEC Decrement Memory
