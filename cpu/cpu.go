@@ -83,29 +83,11 @@ func (sr *Status) fromByte(data byte) {
 	sr.N = data&mask7 != 0
 }
 
-// setZ sets the zero flag of sr according to the contents of reg.
-func (sr *Status) setZ(reg byte) {
-	if reg == 0x00 {
-		sr.Z = true
-	} else {
-		sr.Z = false
-	}
-}
-
-// setN sets the negative flag of sr according to the contents of reg.
-func (sr *Status) setN(reg byte) {
-	if reg&0x80 != 0x00 {
-		sr.N = true
-	} else {
-		sr.N = false
-	}
-}
-
 // setZN sets both the zero flag and negative flag of sr
 // according to the contents of reg.
 func (sr *Status) setZN(reg byte) {
-	sr.setZ(reg)
-	sr.setN(reg)
+	sr.Z = reg == 0
+	sr.N = reg&mask7 != 0
 }
 
 // Registers holds data for each register

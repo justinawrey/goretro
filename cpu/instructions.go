@@ -1276,9 +1276,10 @@ func (c *CPU) ADC(address uint16) {
 }
 
 // AND Logical AND
-// TODO: implement
-// TODO: account for page cross
 func (c *CPU) AND(address uint16) {
+	c.A &= c.Read(address)
+	c.Status.setZN(c.A)
+	c.setPageCrossed(address)
 }
 
 // ASLA Arithmetic Shift Left, acting on Accumulator.
@@ -1324,8 +1325,11 @@ func (c *CPU) BEQ(address uint16) {
 }
 
 // BIT Bit Test
-// TODO: implement
 func (c *CPU) BIT(address uint16) {
+	val := c.Read(address)
+	c.Status.Z = c.A&val == 0
+	c.Status.V = val&mask6 != 0
+	c.Status.N = val&mask7 != 0
 }
 
 // BMI Branch if Minus
