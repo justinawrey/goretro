@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/justinawrey/nes/cpu"
-	"github.com/justinawrey/nes/memory"
+	"github.com/justinawrey/goretro/cpu"
+	"github.com/justinawrey/goretro/memory"
 )
 
 const statusBitLen = 8

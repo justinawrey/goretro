@@ -9,7 +9,7 @@ import (
 	"log"
 	"strings"
 
-	"github.com/justinawrey/nes/mmio"
+	"github.com/justinawrey/goretro/mmio"
 )
 
 // iNES mapper numbers for supported mappers

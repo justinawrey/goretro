@@ -3,10 +3,10 @@
 package memory
 
 import (
-	"github.com/justinawrey/nes/apu"
-	"github.com/justinawrey/nes/cartridge"
-	"github.com/justinawrey/nes/mmio"
-	"github.com/justinawrey/nes/ppu"
+	"github.com/justinawrey/goretro/apu"
+	"github.com/justinawrey/goretro/cartridge"
+	"github.com/justinawrey/goretro/mmio"
+	"github.com/justinawrey/goretro/ppu"
 )
 
 const (

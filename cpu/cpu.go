@@ -6,7 +6,7 @@ import (
 	"io"
 	"log"
 
-	"github.com/justinawrey/nes/memory"
+	"github.com/justinawrey/goretro/memory"
 )
 
 // end of zero page in memory

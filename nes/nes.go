@@ -4,12 +4,12 @@ import (
 	"io"
 	"log"
 
-	"github.com/justinawrey/nes/apu"
-	"github.com/justinawrey/nes/cartridge"
-	"github.com/justinawrey/nes/cpu"
-	"github.com/justinawrey/nes/display"
-	"github.com/justinawrey/nes/memory"
-	"github.com/justinawrey/nes/ppu"
+	"github.com/justinawrey/goretro/apu"
+	"github.com/justinawrey/goretro/cartridge"
+	"github.com/justinawrey/goretro/cpu"
+	"github.com/justinawrey/goretro/display"
+	"github.com/justinawrey/goretro/memory"
+	"github.com/justinawrey/goretro/ppu"
 )
 
 // Module describes a module of the nes which can be determanistically initialized and cleared.

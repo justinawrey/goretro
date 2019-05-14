@@ -4,7 +4,7 @@ import (
 	"os"
 	"testing"
 
-	"github.com/justinawrey/nes/nes"
+	"github.com/justinawrey/goretro/nes"
 )
 
 func TestNestest(t *testing.T) {

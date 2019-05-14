@@ -2,7 +2,7 @@
 package ppu
 
 import (
-	"github.com/justinawrey/nes/display"
+	"github.com/justinawrey/goretro/display"
 )
 
 // common bit masks
