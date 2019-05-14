@@ -17,3 +17,6 @@
 # logs
 *.log
 !*ideal*.log
+
+# OSX
+**/.DS_Store
