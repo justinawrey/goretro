@@ -1270,9 +1270,16 @@ func (c *CPU) initInstructions() {
 }
 
 // ADC Add with Carry
-// TODO: implement
-// TODO: account for page cross
+// Fairly complicated, see http://www.obelisk.me.uk/6502/reference.html#ADC.
 func (c *CPU) ADC(address uint16) {
+	val := c.Read(address)
+	carry := convert(c.Status.C)
+	temp := c.A + val + carry
+	c.Status.C = (int(val) + int(carry) + int(c.A)) > zeroPageEnd
+	c.Status.V = ((c.A ^ temp) & (val ^ temp) & mask7) != 0
+	c.A = temp
+	c.Status.setZN(c.A)
+	c.setPageCrossed(address)
 }
 
 // AND Logical AND

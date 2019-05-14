@@ -44,6 +44,14 @@ type Status struct {
 	N bool // Zero result
 }
 
+// convert converts a boolean bit into its byte form.
+func convert(bit bool) (num byte) {
+	if bit {
+		return 1
+	}
+	return 0
+}
+
 // String implements Stringer.
 func (sr *Status) String() (repr string) {
 	return fmt.Sprintf("%X", sr.asByte())
@@ -51,14 +59,6 @@ func (sr *Status) String() (repr string) {
 
 // asByte returns the status register in byte format.
 func (sr *Status) asByte() (data byte) {
-	// convert converts a boolean bit into its byte form.
-	convert := func(bit bool) byte {
-		if bit {
-			return 1
-		}
-		return 0
-	}
-
 	var status byte = 0x00
 	status |= convert(sr.C)
 	status |= convert(sr.Z) << 1
