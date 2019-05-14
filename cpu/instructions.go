@@ -1269,16 +1269,24 @@ func (c *CPU) initInstructions() {
 	}
 }
 
+// adcSbcHelper provides common logic for both ADC and SBC.
+// This works because sbc can be implemented by invoking adc with data bits inverted.
+// See http://forums.nesdev.com/viewtopic.php?p=19080#19080.
+func (c *CPU) adcSbcHelper(data byte) {
+	carry := convert(c.Status.C)
+	temp := c.A + data + carry
+	c.Status.C = (int(data) + int(carry) + int(c.A)) > zeroPageEnd
+	c.Status.V = ((c.A ^ temp) & (data ^ temp) & mask7) != 0
+	c.A = temp
+	c.Status.setZN(c.A)
+}
+
+/* Instructions Start */
+
 // ADC Add with Carry
 // Fairly complicated, see http://www.obelisk.me.uk/6502/reference.html#ADC.
 func (c *CPU) ADC(address uint16) {
-	val := c.Read(address)
-	carry := convert(c.Status.C)
-	temp := c.A + val + carry
-	c.Status.C = (int(val) + int(carry) + int(c.A)) > zeroPageEnd
-	c.Status.V = ((c.A ^ temp) & (val ^ temp) & mask7) != 0
-	c.A = temp
-	c.Status.setZN(c.A)
+	c.adcSbcHelper(c.Read(address))
 	c.setPageCrossed(address)
 }
 
@@ -1628,9 +1636,10 @@ func (c *CPU) RTS(address uint16) {
 }
 
 // SBC Subtract with Carry
-// TODO: implement
-// TODO: account for page cross
+// Fairly complicated, see http://www.obelisk.me.uk/6502/reference.html#SDC.
 func (c *CPU) SBC(address uint16) {
+	c.adcSbcHelper(c.Read(address) ^ zeroPageEnd)
+	c.setPageCrossed(address)
 }
 
 // SEC Set Carry Flag
