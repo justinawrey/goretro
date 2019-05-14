@@ -311,7 +311,7 @@ func (c *CPU) getAddressWithMode(addressingMode int) (addr uint16) {
 // 2. Decoding the opcode.
 // 3. Incrementing the program counter by the correct amount.
 // 4. Performing the instruction. This is done after (3) because
-// Jump instructions may directly change the PC.
+// 		Jump instructions may directly change the PC.
 // 5. Add cpu cycles based on instruction execution.
 // TODO: add interrupt support
 func (c *CPU) Step() {
