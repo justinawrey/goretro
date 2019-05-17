@@ -23,12 +23,12 @@ const (
 // instruction is a 6502 instruction.  It has a specific
 // name, addressing mode, cycle cost, page cross cost, and byte cost.
 type instruction struct {
-	name           string
-	addressingMode int
-	byteCost       int
-	cycleCost      int
-	pageCrossCost  int
-	execute        func(uint16) // contains instruction logic
+	name               string
+	addressingMode     int
+	byteCost           int
+	cycleCost          int
+	pageCrossCycleCost int
+	execute            func(uint16) // contains instruction logic
 }
 
 // ErrInvalidOpcode is an invalid opcode error.
@@ -57,12 +57,12 @@ func (c *CPU) initInstructions() {
 	c.instructions = map[byte]instruction{
 		// example
 		0x69: {
-			name:           "ADC",
-			addressingMode: modeImmediate,
-			byteCost:       2,
-			cycleCost:      2,
-			pageCrossCost:  0,
-			execute:        c.ADC,
+			name:               "ADC",
+			addressingMode:     modeImmediate,
+			byteCost:           2,
+			cycleCost:          2,
+			pageCrossCycleCost: 0,
+			execute:            c.ADC,
 		},
 		0x65: {
 			"ADC",
@@ -1369,8 +1369,9 @@ func (c *CPU) BPL(address uint16) {
 }
 
 // BRK Force Interrupt
-// TODO: implement
 func (c *CPU) BRK(address uint16) {
+	c.GenerateInterrupt(irq)
+	c.Status.B = true
 }
 
 // BVC Branch if Overflow Clear
@@ -1481,8 +1482,9 @@ func (c *CPU) JMP(address uint16) {
 }
 
 // JSR Jump to Subroutine
-// TODO: implement
 func (c *CPU) JSR(address uint16) {
+	c.push16(c.PC)
+	c.PC = address
 }
 
 // LDA Load Accumulator
@@ -1626,13 +1628,16 @@ func (c *CPU) RORM(address uint16) {
 }
 
 // RTI Return from Interrupt
-// TODO: implement
 func (c *CPU) RTI(address uint16) {
+	c.Status.fromByte(c.pullStack())
+	c.PC = c.pull16()
+	c.Status.B = false
+	c.Status.I = false
 }
 
 // RTS Return from Subroutine
-// TODO: implement
 func (c *CPU) RTS(address uint16) {
+	c.PC = c.pull16()
 }
 
 // SBC Subtract with Carry

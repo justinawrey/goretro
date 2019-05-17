@@ -9,12 +9,16 @@ import (
 	"github.com/justinawrey/goretro/memory"
 )
 
-// end of zero page in memory
+// key memory locations
 const (
 	zeroPageEnd = 0x00FF
 	stackStart  = 0x0100
+	nmiVector   = 0xFFFA
+	rstVector   = 0xFFFC
+	irqVector   = 0xFFFE
 )
 
+// common masks
 const (
 	mask0 = 1 << iota
 	mask1
@@ -26,9 +30,17 @@ const (
 	mask7
 )
 
+// interrupt types
+const (
+	nmi = iota
+	rst
+	irq
+)
+
 // extra cycle costs
 const (
-	branchSuccCost = 1
+	branchSuccCycleCost = 1
+	interruptCycleCost  = 7
 )
 
 // Status holds data for each status flag
@@ -42,6 +54,42 @@ type Status struct {
 	U bool // Unused (here for better logging)
 	V bool // Overflow
 	N bool // Zero result
+}
+
+// GenerateInterrupt causes cpu c to generate the interrupt
+// specified by interruptType.
+func (c *CPU) GenerateInterrupt(interruptType int) {
+	c.mustHandleInterrupt = true
+	c.interruptType = interruptType
+}
+
+// handleInterrupt causes cpu c to handle the interrupt specified by c.interruptType.
+// Briefly, this consists of:
+// 1. Push the program counter and status register on to the stack.
+// 2. Set the interrupt disable flag to prevent further interrupts.
+// 3. Load the address of the interrupt handling routine from the vector table into the program
+// counter.
+// See http://www.nesdev.com/NESDoc.pdf.
+func (c *CPU) handleInterrupt() {
+	c.mustHandleInterrupt = false
+
+	// 1. Push PC and SP onto stack
+	c.push16(c.PC)
+	c.pushStack(c.Status.asByte())
+
+	// 2. Set interrupt disable flag
+	c.Status.I = true
+
+	// 3. Load address of interrupt handling routine into PC from vector table
+	switch c.interruptType {
+	case nmi:
+		c.PC = c.Read16(nmiVector)
+	case irq:
+		c.PC = c.Read16(irqVector)
+	case rst:
+		c.PC = c.Read16(rstVector)
+	default:
+	}
 }
 
 // convert converts a boolean bit into its byte form.
@@ -115,10 +163,12 @@ type CPU struct {
 	*memory.Memory // Pointer to main memory
 	*Registers     // Set of registers
 
-	instructions    map[byte]instruction // Instructions available to CPU
-	cycles          int                  // Number of cpu cycles
-	pageCrossed     bool                 // Whether or not the most recently executed instruction crossed a page
-	branchSucceeded bool                 // Whether or not the most recently executed branch instruction succeeded
+	instructions        map[byte]instruction // Instructions available to CPU
+	cycles              int                  // Number of cpu cycles
+	pageCrossed         bool                 // Whether or not the most recently executed instruction crossed a page
+	branchSucceeded     bool                 // Whether or not the most recently executed branch instruction succeeded
+	mustHandleInterrupt bool                 // Whether or not the cpu must handle an interrupt on its next step
+	interruptType       int                  // The type of interrupt that must be handled (assuming cpu is interrupted)
 
 	// For logging only
 	debug  bool      // Whether or not to output logs
@@ -190,11 +240,26 @@ func (c *CPU) pushStack(data byte) {
 	c.SP--
 }
 
+// push16 pushes a 16 byte word onto the stack, low byte and then high byte.
+func (c *CPU) push16(word uint16) {
+	lo := byte(word & 0x00FF)
+	hi := byte(word & 0xFF00)
+	c.pushStack(lo)
+	c.pushStack(hi)
+}
+
 // pullStack pulls a byte of data from the stack.
 // The stack pointer always points to the next free location on the stack.
 func (c *CPU) pullStack() (data byte) {
 	c.SP++
 	return c.Read(stackStart + uint16(c.SP))
+}
+
+// pull16 pulls a 16 byte word from the stack, high byte and then low byte.
+func (c *CPU) pull16() (word uint16) {
+	hi := uint16(c.pullStack())
+	lo := uint16(c.pullStack())
+	return hi<<8 | lo
 }
 
 // decode decodes opcode opcode and returns relevant information.
@@ -204,7 +269,7 @@ func (c *CPU) decode(opcode byte) (name string, addressingMode, byteCost, cycleC
 			instruction.addressingMode,
 			instruction.byteCost,
 			instruction.cycleCost,
-			instruction.pageCrossCost,
+			instruction.pageCrossCycleCost,
 			instruction.execute,
 			nil
 	}
@@ -307,23 +372,29 @@ func (c *CPU) getAddressWithMode(addressingMode int) (addr uint16) {
 
 // Step performs a single step of the CPU.
 // Briefly, this consists of:
+// 0. Handling any interrupts (i.e. loading PC with interrupt handling routine if needed)
 // 1. Retrieving the opcode at current PC.
 // 2. Decoding the opcode.
 // 3. Incrementing the program counter by the correct amount.
 // 4. Performing the instruction. This is done after (3) because
 // 		Jump instructions may directly change the PC.
 // 5. Add cpu cycles based on instruction execution.
-// TODO: add interrupt support
 func (c *CPU) Step() {
 	// Reset instruction-wise flags
 	c.pageCrossed = false
 	c.branchSucceeded = false
 
+	// 0. Handle any interrupts
+	if c.mustHandleInterrupt {
+		c.handleInterrupt()
+		c.cycles += interruptCycleCost
+	}
+
 	// 1. Retrieve opcode at current PC
 	opcode := c.Read(c.PC)
 
 	// 2. Decode opcode
-	name, addressingMode, byteCost, cycleCost, pageCrossCost, execute, err := c.decode(opcode)
+	name, addressingMode, byteCost, cycleCost, pageCrossCycleCost, execute, err := c.decode(opcode)
 	if IsInvalidOpcodeErr(err) {
 		// If the opcode is invalid, shut down everything for now.
 		log.Fatalln(err)
@@ -356,9 +427,9 @@ func (c *CPU) Step() {
 	// CPU cycles are used to keep the CPU in sync with other modules (like the PPU).
 	c.cycles += cycleCost
 	if c.branchSucceeded {
-		c.cycles += branchSuccCost
+		c.cycles += branchSuccCycleCost
 	}
 	if c.pageCrossed {
-		c.cycles += pageCrossCost
+		c.cycles += pageCrossCycleCost
 	}
 }
