@@ -1,45 +1,32 @@
-package nes
+package core
 
 import (
 	"io"
 	"log"
 
-	"github.com/justinawrey/goretro/apu"
-	"github.com/justinawrey/goretro/cartridge"
-	"github.com/justinawrey/goretro/cpu"
-	"github.com/justinawrey/goretro/display"
-	"github.com/justinawrey/goretro/memory"
-	"github.com/justinawrey/goretro/ppu"
+	"github.com/justinawrey/goretro/internal/display"
+	"github.com/justinawrey/goretro/internal/input"
 )
 
-// Module describes a module of the nes which can be determanistically initialized and cleared.
-type Module interface {
-	// Init initializes the module to its correct start up state.
-	Init()
-
-	// Clear clears the module to its correct power down state.
-	Clear()
-}
-
 // initAll initializes all provided modules to the correct start up state.
-func initAll(modules ...Module) {
+func initAll(modules ...Component) {
 	for _, m := range modules {
-		m.Init()
+		m.init()
 	}
 }
 
 // clearAll clears all provided modules.
-func clearAll(modules ...Module) {
+func clearAll(modules ...Component) {
 	for _, m := range modules {
-		m.Clear()
+		m.clear()
 	}
 }
 
 // resetAll resets all provided modules.
-func resetAll(modules ...Module) {
+func resetAll(modules ...Component) {
 	for _, m := range modules {
-		m.Clear()
-		m.Init()
+		m.clear()
+		m.init()
 	}
 }
 
@@ -47,39 +34,50 @@ func resetAll(modules ...Module) {
 // which work together to power the entire system.
 // NES is meant be used primarily as a high-level emulation API.
 type NES struct {
-	cpu  *cpu.CPU
-	ppu  *ppu.PPU
-	apu  *apu.APU
-	mem  *memory.Memory
-	disp *display.Display
-	cart *cartridge.Cartridge
+	cpu  *CPU
+	ppu  *PPU
+	apu  *APU
+	mem  *Memory
+	cart *Cartridge
+
+	disp  *display.Display
+	input *input.Input
 }
 
 // New creates a new NES.
-func New() (nes *NES) {
+func NewNes() (nes *NES) {
 	// Create all modules
-	cpu := cpu.New()
-	ppu := ppu.New()
-	apu := apu.New()
-	mem := memory.New()
-	disp := display.New()
+	cpu := newCpu()
+	ppu := newPpu()
+	apu := newApu()
+	mem := newMemory()
+
+	disp := display.NewDisplay()
+	input := input.NewInput()
 
 	// Set up memory mapped IO
-	cpu.UseMemory(mem)
-	mem.AssignMemoryMappedIO(ppu, apu)
+	cpu.useMemory(mem)
+	mem.assignMemoryMappedIO(ppu, apu)
 
 	// Use correct display
-	ppu.UseDisplay(disp)
+	ppu.useDisplay(disp)
 
 	// Get all modules to correct start up state
-	initAll(cpu, ppu, apu, disp)
+	initAll(cpu, ppu, apu, disp, input)
 
-	return &NES{cpu: cpu, ppu: ppu, apu: apu, mem: mem, disp: disp}
+	return &NES{
+		cpu:   cpu,
+		ppu:   ppu,
+		apu:   apu,
+		mem:   mem,
+		disp:  disp,
+		input: input,
+	}
 }
 
 // Load loads a cartridge with name name into the nes.
 func (nes *NES) Load(name string) {
-	cart := cartridge.New()
+	cart := NewCartridge()
 	cart.Load(name)
 	nes.mem.AssignMemoryMappedIO(cart)
 	nes.cart = cart

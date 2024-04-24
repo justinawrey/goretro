@@ -1,13 +1,4 @@
-// Package memory provides functionality related to emulator main memory.
-// It is a central point for dispatching all memory mapped IO events.
-package memory
-
-import (
-	"github.com/justinawrey/goretro/apu"
-	"github.com/justinawrey/goretro/cartridge"
-	"github.com/justinawrey/goretro/mmio"
-	"github.com/justinawrey/goretro/ppu"
-)
+package core
 
 const (
 	// 6502 has a 64kB memory map
@@ -39,26 +30,26 @@ const (
 // $4020-$FFFF	$BFE0	Cartridge space: PRG ROM, PRG RAM, and mapper registers (See Note)
 type Memory struct {
 	internal [internalRAMSize]byte
-	ppuIO    mmio.MemoryMappedIO
-	cartIO   mmio.MemoryMappedIO
-	apuIO    mmio.MemoryMappedIO
+	ppuIO    MemoryMappedIO
+	cartIO   MemoryMappedIO
+	apuIO    MemoryMappedIO
 }
 
 // New constructs a new Memory.
-func New() (m *Memory) {
+func NewMemory() (m *Memory) {
 	return &Memory{}
 }
 
 // AssignMemoryMappedIO sets up writing to / reading from memory to be memory mapped
 // with the specified argument modules.
-func (m *Memory) AssignMemoryMappedIO(mmios ...mmio.MemoryMappedIO) {
+func (m *Memory) AssignMemoryMappedIO(mmios ...MemoryMappedIO) {
 	for _, mmio := range mmios {
 		switch io := mmio.(type) {
-		case *ppu.PPU:
+		case *PPU:
 			m.ppuIO = io
-		case *cartridge.Cartridge:
+		case *Cartridge:
 			m.cartIO = io
-		case *apu.APU:
+		case *APU:
 			m.apuIO = io
 		default:
 		}
@@ -111,11 +102,11 @@ func (m *Memory) Write(address uint16, data byte) {
 	}
 }
 
-// Init implements nes.Module.
+// Init implements nes.Component.
 // Gets Memory m to a valid startup state.
 func (m *Memory) Init() {}
 
-// Clear implements nes.Module.
+// Clear implements nes.Component.
 // Clear sets all cpu RAM (0x0000 to 0x1FFF) to 0x00.
 func (m *Memory) Clear() {
 	for i := range m.internal {

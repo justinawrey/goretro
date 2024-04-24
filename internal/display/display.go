@@ -5,11 +5,17 @@ package display
 // It is not emulation specific.
 type Display struct{}
 
-// New creates a new Display.
-func New() (d *Display) { return &Display{} }
+// NewDisplay creates a new Display.
+func NewDisplay() (d *Display) {
+	return &Display{}
+}
 
-// Init implements nes.Module.
-func (d *Display) Init() {}
+// clear implements core.Component.
+func (d *Display) clear() {
+	panic("unimplemented")
+}
 
-// Clear implements nes.Module.
-func (d *Display) Clear() {}
+// init implements core.Component.
+func (d *Display) init() {
+	panic("unimplemented")
+}

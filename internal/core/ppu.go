@@ -1,9 +1,6 @@
-// Package ppu provides functionality related to the nes PPU.
-package nes
+package core
 
-import (
-	"github.com/justinawrey/goretro/display"
-)
+import "github.com/justinawrey/goretro/internal/display"
 
 // common bit masks
 const (
@@ -20,7 +17,7 @@ const (
 )
 
 // ctrl1 is the first ppu control register.
-// See https://wiki.nesdev.com/w/index.php/PPU_registers.
+// See https://wiki.nesdev.com/w/index.php/ppu_registers.
 type ctrl1 struct {
 	ntAddr    uint16 // Base nametable address
 	addrInc   uint16 // Vram address increment per cpu read/write of ppudata
@@ -46,7 +43,7 @@ func (c *ctrl1) write(data byte) {
 	c.sprSize = 8
 	c.nmi = false
 
-	// See https://wiki.nesdev.com/w/index.php/PPU_registers for
+	// See https://wiki.nesdev.com/w/index.php/ppu_registers for
 	// detailed information on values below.
 	switch b01 {
 	case 1:
@@ -76,7 +73,7 @@ func (c *ctrl1) write(data byte) {
 }
 
 // ctrl2 is the first ppu control register.
-// See https://wiki.nesdev.com/w/index.php/PPU_registers.
+// See https://wiki.nesdev.com/w/index.php/ppu_registers.
 type ctrl2 struct {
 	monochrome       bool // Whether or not display should be monochrome
 	showBgPixels     bool // Show background in leftmost 8 pixels of screen
@@ -109,7 +106,7 @@ func (c *ctrl2) write(data byte) {
 	c.emphasizeGreen = false
 	c.emphasizeBlue = false
 
-	// See https://wiki.nesdev.com/w/index.php/PPU_registers for
+	// See https://wiki.nesdev.com/w/index.php/ppu_registers for
 	// detailed information on values below.
 	if b0 {
 		c.monochrome = true
@@ -137,9 +134,9 @@ func (c *ctrl2) write(data byte) {
 	}
 }
 
-// status is the ppu status register.
-// See https://wiki.nesdev.com/w/index.php/PPU_registers for more info.
-type status struct {
+// statusReg is the ppu status register.
+// See https://wiki.nesdev.com/w/index.php/ppu_registers for more info.
+type ppuStatusReg struct {
 	vramWriteIgnore     bool // Whether or not to ignore vram writes
 	highScanlineSprites bool // Sprite overflow
 	spriteHit           bool // Sprite 0 hit (nonzero pixel of sprite 0 overlaps a nonzero bg pixel)
@@ -147,7 +144,7 @@ type status struct {
 }
 
 // read reads data from the ppu status register and returns data as a byte.
-func (s *status) read() (data byte) {
+func (s *ppuStatusReg) read() (data byte) {
 	data = 0x00
 
 	if s.vramWriteIgnore {
@@ -209,41 +206,44 @@ const (
 	sprDMAReg     = 0x4014
 )
 
-// PPU represents the picture processing unit of the nes.
-type PPU struct {
-	ctrl1                    // PPU control reg 1
-	ctrl2                    // PPU control reg 2
-	status                   // PPU status reg
+// ppu represents the picture processing unit of the nes.
+type ppu struct {
+	ctrl1 // ppu control reg 1
+	ctrl2 // ppu control reg 2
+
+	ppuStatusReg // ppu status reg
+
 	sprRAMAddr byte          // SPR-RAM read/write address
 	scrollAddr *doubleWriter // Fine scroll position (two writes: X scroll, Y scroll)
-	vRAMAddr   *doubleWriter // PPU read/write address (two writes: hi byte, lo byte)
-	//TODO: DMA
+	vRAMAddr   *doubleWriter // ppu read/write address (two writes: hi byte, lo byte)
 
-	sprRAM [sprRAMSize]byte // PPU SPR-RAM
-	vRAM   [vRAMSize]byte   // PPU VRAM
+	//TODO: dma
+
+	sprRAM [sprRAMSize]byte // ppu SPR-RAM
+	vRAM   [vRAMSize]byte   // ppu VRAM
 
 	*display.Display // Output display driver
 }
 
-// New creates a new PPU.
-func New() (p *PPU) {
-	return &PPU{
+// newPpu creates a new ppu.
+func newPpU() (p *ppu) {
+	return &ppu{
 		scrollAddr: &doubleWriter{},
 		vRAMAddr:   &doubleWriter{},
 	}
 }
 
-// UseDisplay sets the ppu p to display picture information using the
+// useDisplay sets the ppu p to display picture information using the
 // display driver d.
-func (p *PPU) UseDisplay(d *display.Display) {
+func (p *ppu) useDisplay(d *display.Display) {
 	p.Display = d
 }
 
-// ReadRegister implements mmio.MemoryMappedIO.
-func (p *PPU) ReadRegister(reg uint16) (data byte) {
+// readRegister implements mmio.MemoryMappedIO.
+func (p *ppu) readRegister(reg uint16) (data byte) {
 	switch reg {
 	case statusReg:
-		return p.status.read()
+		return p.ppuStatusReg.read()
 	case sprRAMAddrReg:
 		// TODO: read data from sprRam
 		fallthrough
@@ -255,8 +255,8 @@ func (p *PPU) ReadRegister(reg uint16) (data byte) {
 	}
 }
 
-// WriteRegister implements mmio.MemoryMappedIO.
-func (p *PPU) WriteRegister(reg uint16, data byte) {
+// writeRegister implements mmio.MemoryMappedIO.
+func (p *ppu) writeRegister(reg uint16, data byte) {
 	switch reg {
 	case ctrlReg1:
 		p.ctrl1.write(data)
@@ -279,14 +279,14 @@ func (p *PPU) WriteRegister(reg uint16, data byte) {
 	}
 }
 
-// Init implements nes.Module.
-func (p *PPU) Init() {
-	// TODO: PPU start up state.
+// init implements core.Component.
+func (p *ppu) init() {
+	// TODO: ppu start up state.
 }
 
-// Clear implements nes.Module.
-func (p *PPU) Clear() {
-	*p = PPU{
+// clear implements core.Component.
+func (p *ppu) clear() {
+	*p = ppu{
 		scrollAddr: &doubleWriter{},
 		vRAMAddr:   &doubleWriter{},
 	}

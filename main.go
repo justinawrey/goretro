@@ -1,8 +1,8 @@
 package main
 
-import "github.com/justinawrey/goretro/internal/nes"
+import "github.com/justinawrey/goretro/internal/core"
 
 func main() {
-	nes := nes.New()
+	nes := core.NewNes()
 	nes.Load("/home/justin/rom/donkeykong.nes")
 }

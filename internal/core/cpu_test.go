@@ -1,9 +1,11 @@
-package cpu_test
+package core_test
 
 import (
 	"errors"
 	"fmt"
 	"testing"
+
+	nes "github.com/justinawrey/goretro/internal/core"
 )
 
 const statusBitLen = 8
@@ -12,7 +14,7 @@ var validBits = map[string]bool{"0": true, "1": true, "X": true}
 
 var errInvalidStatusString = errors.New("invalid format of status string")
 
-func statusRegisterDiff(want string, got *cpu.Status) string {
+func statusRegisterDiff(want string, got *nes.Status) string {
 	return fmt.Sprintf(`       NV BDIZC
       ---------
 want | %s
@@ -20,7 +22,7 @@ want | %s
 `, want, got)
 }
 
-func statusEquals(status string, sr *cpu.Status) (success bool, err error) {
+func statusEquals(status string, sr *nes.Status) (success bool, err error) {
 	bitEquals := func(bit string, actual bool) (success bool, err error) {
 		if _, ok := validBits[bit]; !ok {
 			return false, errInvalidStatusString
@@ -71,7 +73,7 @@ func statusEquals(status string, sr *cpu.Status) (success bool, err error) {
 	return true, nil
 }
 
-func assertStatus(status string, sr *cpu.Status, t *testing.T) {
+func assertStatus(status string, sr *nes.Status, t *testing.T) {
 	eq, err := statusEquals(status, sr)
 	if err != nil {
 		t.Error(err)
@@ -94,7 +96,7 @@ func assertRegister16(expected, reg uint16, t *testing.T) {
 	}
 }
 
-func assertMemory(expected byte, loc uint16, mem *memory.Memory, t *testing.T) {
+func assertMemory(expected byte, loc uint16, mem *nes.Memory, t *testing.T) {
 	got := mem.Read(loc)
 	if got != expected {
 		t.Errorf("memory: want: %v, got %v\n", expected, got)
@@ -102,13 +104,13 @@ func assertMemory(expected byte, loc uint16, mem *memory.Memory, t *testing.T) {
 }
 
 func TestInstructions(t *testing.T) {
-	newCPUAndTest := func(inner func(c *cpu.CPU, t *testing.T)) func(*testing.T) {
+	newCPUAndTest := func(inner func(c *nes.CPU, t *testing.T)) func(*testing.T) {
 		// Pre-computation closure
 		return func(t *testing.T) {
 			// All tests should be ran with a new CPU, in parallel
 			t.Parallel()
-			cpu := cpu.New()
-			mem := memory.New()
+			cpu := nes.NewCpu()
+			mem := nes.NewMemory()
 			cpu.UseMemory(mem)
 
 			// Ignore any start-up state for these CPU tests
@@ -121,43 +123,43 @@ func TestInstructions(t *testing.T) {
 	}
 
 	// Test status register bit toggling instructions first
-	t.Run("test SEC", newCPUAndTest(func(cpu *cpu.CPU, t *testing.T) {
+	t.Run("test SEC", newCPUAndTest(func(cpu *nes.CPU, t *testing.T) {
 		cpu.SEC(0x0)
 		assertStatus("00X00001", cpu.Status, t)
 	}))
 
-	t.Run("test CLC", newCPUAndTest(func(cpu *cpu.CPU, t *testing.T) {
+	t.Run("test CLC", newCPUAndTest(func(cpu *nes.CPU, t *testing.T) {
 		cpu.CLC(0x0)
 		assertStatus("00X00000", cpu.Status, t)
 	}))
 
-	t.Run("test SEI", newCPUAndTest(func(cpu *cpu.CPU, t *testing.T) {
+	t.Run("test SEI", newCPUAndTest(func(cpu *nes.CPU, t *testing.T) {
 		cpu.SEI(0x0)
 		assertStatus("00X00100", cpu.Status, t)
 	}))
 
-	t.Run("test CLI", newCPUAndTest(func(cpu *cpu.CPU, t *testing.T) {
+	t.Run("test CLI", newCPUAndTest(func(cpu *nes.CPU, t *testing.T) {
 		cpu.CLI(0x0)
 		assertStatus("00X00000", cpu.Status, t)
 	}))
 
-	t.Run("test SED", newCPUAndTest(func(cpu *cpu.CPU, t *testing.T) {
+	t.Run("test SED", newCPUAndTest(func(cpu *nes.CPU, t *testing.T) {
 		cpu.SED(0x0)
 		assertStatus("00X01000", cpu.Status, t)
 	}))
 
-	t.Run("test CLD", newCPUAndTest(func(cpu *cpu.CPU, t *testing.T) {
+	t.Run("test CLD", newCPUAndTest(func(cpu *nes.CPU, t *testing.T) {
 		cpu.CLD(0x0)
 		assertStatus("00X00000", cpu.Status, t)
 	}))
 
-	t.Run("test CLV", newCPUAndTest(func(cpu *cpu.CPU, t *testing.T) {
+	t.Run("test CLV", newCPUAndTest(func(cpu *nes.CPU, t *testing.T) {
 		cpu.Status.V = true
 		cpu.CLV(0x0)
 		assertStatus("00X00000", cpu.Status, t)
 	}))
 
-	t.Run("test INX", newCPUAndTest(func(cpu *cpu.CPU, t *testing.T) {
+	t.Run("test INX", newCPUAndTest(func(cpu *nes.CPU, t *testing.T) {
 		// Should set negative flag, no zero flag
 		cpu.X = 127
 		cpu.INX(0x0)

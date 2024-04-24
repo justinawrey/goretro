@@ -4,12 +4,12 @@ import (
 	"os"
 	"testing"
 
-	"github.com/justinawrey/goretro/nes"
+	nes "github.com/justinawrey/goretro/internal/core"
 )
 
 func TestNestest(t *testing.T) {
 	// Set up logging
-	nestest := nes.New()
+	nestest := nes.NewNes()
 	nestest.Load("nestest.nes")
 	fi, err := os.Create("output.log")
 	if err != nil {

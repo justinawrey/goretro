@@ -1,4 +1,4 @@
-package nes
+package core
 
 import (
 	"bytes"
@@ -13,14 +13,6 @@ const (
 	mapperNROM = iota
 )
 
-// bit masks
-const (
-	mask0 = 1 << iota
-	mask1
-	mask2
-	mask3
-)
-
 // iNES related memory sizes
 const (
 	headerLen     = 0x10
@@ -28,9 +20,6 @@ const (
 	prgROMBankLen = 0x4000
 	chrROMBankLen = 0x2000
 )
-
-// prg ROM starts at memory location 0x8000 in main memory
-const prgROMStart = 0x8000
 
 // errInvalidHeader is an error related to the header of an iNES file
 // being invalid.  This means it is either the incorrect size (16 bytes) or has
@@ -49,37 +38,37 @@ func (err errInvalidHeader) Error() (message string) {
 
 // Mapper is a memory mapper as used by NES cartridges.
 // For a list of mappers and their iNES numbers see http://wiki.nesdev.com/w/index.php/Mapper.
-type Mapper interface {
+type mapper interface {
 	// Mapper implements mmio.MemoryMappedIO.
-	mmio.MemoryMappedIO
+	memoryMappedIO
 
 	// Load specifies how memory should be loaded on initial mapper load.
 	// A slice of bytes is provided and represents binary data as loaded directly
 	// from a .nes file.
-	Load([]byte)
+	load([]byte)
 }
 
 // newMapper creates a new Mapper from the provided iNES mapper id.
-// The Cartridge to which the Mapper is associated to must also be provided.
-func newMapper(id int, c *Cartridge) (m Mapper) {
+// The cartridge to which the Mapper is associated to must also be provided.
+func newMapper(id int, c *cartridge) (m mapper) {
 	switch id {
 	default:
 		fallthrough
 	case 0:
-		return &NROM{c}
+		return &nrom{c}
 	}
 }
 
-// Cartridge represents a nes Cartridge.
+// cartridge represents a nes Cartridge.
 // It implements mmio.MemoryMappedIO and thus can be directly
 // written to / read from via registers.
-type Cartridge struct {
-	Mapper
+type cartridge struct {
+	mapper
 
 	prgROM []byte
 	chrROM []byte
 
-	MapperNum   int // iNES mapper #
+	mapperNum   int // iNES mapper #
 	prgROMBanks int // Number of prgROM banks
 	chrROMBanks int // Number of chrROM (VROM) banks
 
@@ -92,13 +81,13 @@ type Cartridge struct {
 	fourScreenMirroring bool // whether or not to ignore above flag and use four screen mirroring
 }
 
-// New creates a new Cartridge.
-func New() (c *Cartridge) {
-	return &Cartridge{}
+// New creates a new cartridge.
+func newcartridge() (c *cartridge) {
+	return &cartridge{}
 }
 
-// Load loads a .nes file with name name into the Cartridge c.
-func (c *Cartridge) Load(name string) {
+// Load loads a .nes file with name name into the cartridge c.
+func (c *cartridge) Load(name string) {
 	// Only use iNES format
 	if !strings.HasSuffix(name, ".nes") {
 		log.Fatalln("only .nes format is supported")
@@ -116,21 +105,21 @@ func (c *Cartridge) Load(name string) {
 	}
 
 	// Use correct mapper as according to file header
-	c.Mapper = newMapper(c.MapperNum, c)
+	c.mapper = newMapper(c.mapperNum, c)
 
 	// Load data into prgRom and chrRom
-	c.Mapper.Load(bytes)
+	c.mapper.load(bytes)
 }
 
 // writePrg writes to prgROM at address, with data.
 // ROM is not meant to be written to (as the name implies),
 // but this is here for completeness.
-func (c *Cartridge) writePrg(address uint16, data byte) {
+func (c *cartridge) writePrg(address uint16, data byte) {
 	c.prgROM[address-prgROMStart] = data
 }
 
 // readPrg reads from prgROM at address and returns a byte of data.
-func (c *Cartridge) readPrg(address uint16) (data byte) {
+func (c *cartridge) readPrg(address uint16) (data byte) {
 	return c.prgROM[address-prgROMStart]
 }
 
@@ -141,7 +130,7 @@ func (c *Cartridge) readPrg(address uint16) (data byte) {
 //
 // More complicated mappers may require their own loading
 // logic which can be defined in their respective Load methods.
-func (c *Cartridge) loadPrg(bytes []byte) {
+func (c *cartridge) loadPrg(bytes []byte) {
 	c.prgROM = make([]byte, prgROMBankLen*2)
 
 	if c.prgROMBanks == 1 {
@@ -160,7 +149,7 @@ func (c *Cartridge) loadPrg(bytes []byte) {
 }
 
 // loadChr loads data into chrROM.
-func (c *Cartridge) loadChr(bytes []byte) {
+func (c *cartridge) loadChr(bytes []byte) {
 	c.chrROM = make([]byte, chrROMBankLen)
 
 	// Fill chrROM.
@@ -172,7 +161,7 @@ func (c *Cartridge) loadChr(bytes []byte) {
 // decodeHeader decodes the raw header bytes header and populates
 // c with pertinent information.  Returns an errInvalidHeader if
 // the supplied header bytes are invalid.
-func (c *Cartridge) decodeHeader(header []byte) (err error) {
+func (c *cartridge) decodeHeader(header []byte) (err error) {
 	// Header should be 16 bytes long.
 	if len(header) != headerLen {
 		return newErrInvalidHeader("invalid header length")
@@ -195,7 +184,7 @@ func (c *Cartridge) decodeHeader(header []byte) (err error) {
 
 	// 7th byte also specifies flags, see link.
 	flags7 := header[7]
-	c.MapperNum = int(byte(flags6&0xF0>>4) | byte(flags7&0xF0))
+	c.mapperNum = int(byte(flags6&0xF0>>4) | byte(flags7&0xF0))
 
 	// Compute prg and chr start bytes.
 	c.romStart = headerLen

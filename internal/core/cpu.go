@@ -1,4 +1,4 @@
-package nes
+package core
 
 import (
 	"fmt"
@@ -13,18 +13,6 @@ const (
 	nmiVector   = 0xFFFA
 	rstVector   = 0xFFFC
 	irqVector   = 0xFFFE
-)
-
-// common masks
-const (
-	mask0 = 1 << iota
-	mask1
-	mask2
-	mask3
-	mask4
-	mask5
-	mask6
-	mask7
 )
 
 // interrupt types
@@ -42,20 +30,20 @@ const (
 
 // Status holds data for each status flag
 // in the 6502 status register.
-type Status struct {
-	C bool // Carry
-	Z bool // Zero result
-	I bool // Interrupt disable
-	D bool // Decimal mode
-	B bool // Break command
-	U bool // Unused (here for better logging)
-	V bool // Overflow
-	N bool // Zero result
+type status struct {
+	c bool // Carry
+	z bool // Zero result
+	i bool // Interrupt disable
+	d bool // Decimal mode
+	b bool // Break command
+	u bool // Unused (here for better logging)
+	v bool // Overflow
+	n bool // Zero result
 }
 
 // GenerateInterrupt causes cpu c to generate the interrupt
 // specified by interruptType.
-func (c *CPU) GenerateInterrupt(interruptType int) {
+func (c *cpu) GenerateInterrupt(interruptType int) {
 	c.mustHandleInterrupt = true
 	c.interruptType = interruptType
 }
@@ -67,7 +55,7 @@ func (c *CPU) GenerateInterrupt(interruptType int) {
 // 3. Load the address of the interrupt handling routine from the vector table into the program
 // counter.
 // See http://www.nesdev.com/NESDoc.pdf.
-func (c *CPU) handleInterrupt() {
+func (c *cpu) handleInterrupt() {
 	c.mustHandleInterrupt = false
 
 	// 1. Push PC and SP onto stack
@@ -154,13 +142,13 @@ func (r *Registers) String() (repr string) {
 	return fmt.Sprintf("A:%02X X:%02X Y:%02X P:%02s SP:%02X", r.A, r.X, r.Y, r.Status, r.SP)
 }
 
-// CPU represents to 6502 and its associated registers and memory map.
+// cpu represents to 6502 and its associated registers and memory map.
 // This should be declared and used as a singleton during emulator execution.
-type CPU struct {
-	*memory.Memory // Pointer to main memory
-	*Registers     // Set of registers
+type cpu struct {
+	*Memory    // Pointer to main memory
+	*Registers // Set of registers
 
-	instructions        map[byte]instruction // Instructions available to CPU
+	instructions        map[byte]instruction // Instructions available to cpu
 	cycles              int                  // Number of cpu cycles
 	pageCrossed         bool                 // Whether or not the most recently executed instruction crossed a page
 	branchSucceeded     bool                 // Whether or not the most recently executed branch instruction succeeded
@@ -172,10 +160,10 @@ type CPU struct {
 	logger io.Writer // Writer through which to output logs
 }
 
-// New initializes a new 6502 CPU with all status bits, register, and memory
-// initialized to zero. Memory is the shared memory that the CPU will access.
-func New() (c *CPU) {
-	cpu := &CPU{
+// New initializes a new 6502 cpu with all status bits, register, and memory
+// initialized to zero. Memory is the shared memory that the cpu will access.
+func NewCpu() (c *cpu) {
+	cpu := &cpu{
 		Registers: &Registers{
 			Status: &Status{},
 		},
@@ -184,20 +172,20 @@ func New() (c *CPU) {
 }
 
 // OutputTo sets the cpu to log its execution to io.Writer w.
-func (c *CPU) OutputTo(w io.Writer) {
+func (c *cpu) OutputTo(w io.Writer) {
 	c.debug = true
 	c.logger = w
 }
 
-// UseMemory associates the CPU c with main memory m.
-func (c *CPU) UseMemory(m *memory.Memory) {
+// UseMemory associates the cpu c with main memory m.
+func (c *cpu) UseMemory(m *Memory) {
 	c.Memory = m
 }
 
-// Init implements nes.Module.
-// See https://wiki.nesdev.com/w/index.php/CPU_power_up_state#cite_note-1.
+// Init implements nes.Component.
+// See https://wiki.nesdev.com/w/index.php/cpu_power_up_state#cite_note-1.
 // TODO: Make robust
-func (c *CPU) Init() {
+func (c *cpu) Init() {
 	c.initInstructions()
 	c.Status.I = true
 	c.Status.U = true
@@ -205,11 +193,11 @@ func (c *CPU) Init() {
 	// TODO: APU start-up state
 }
 
-// Clear implements nes.Module.
+// Clear implements nes.Component.
 // Clear sets every register in c (including PC, SP, and status) to 0x00.
 // Retains memory linked through UseMemory.
 // TODO: Make robust
-func (c *CPU) Clear() {
+func (c *cpu) Clear() {
 	*c.Registers = Registers{
 		Status: &Status{},
 	}
@@ -217,14 +205,14 @@ func (c *CPU) Clear() {
 
 // setPageCrossed sets the cpu to whether or not a page has been crossed
 // according to the current PC and the provided address.
-func (c *CPU) setPageCrossed(address uint16) {
+func (c *cpu) setPageCrossed(address uint16) {
 	// TODO: implement page cross logic
 	c.pageCrossed = false
 }
 
 // branchTo branches the cpu program counter to address.
 // This function counts cycles correctly.
-func (c *CPU) branchTo(address uint16) {
+func (c *cpu) branchTo(address uint16) {
 	c.setPageCrossed(address)
 	c.branchSucceeded = true
 	c.PC = address
@@ -232,13 +220,13 @@ func (c *CPU) branchTo(address uint16) {
 
 // pushStack pushes a byte of data onto the stack.
 // The stack pointer always points to the next free location on the stack.
-func (c *CPU) pushStack(data byte) {
+func (c *cpu) pushStack(data byte) {
 	c.Write(stackStart+uint16(c.SP), data)
 	c.SP--
 }
 
 // push16 pushes a 16 byte word onto the stack, low byte and then high byte.
-func (c *CPU) push16(word uint16) {
+func (c *cpu) push16(word uint16) {
 	lo := byte(word & 0x00FF)
 	hi := byte(word & 0xFF00)
 	c.pushStack(lo)
@@ -247,20 +235,20 @@ func (c *CPU) push16(word uint16) {
 
 // pullStack pulls a byte of data from the stack.
 // The stack pointer always points to the next free location on the stack.
-func (c *CPU) pullStack() (data byte) {
+func (c *cpu) pullStack() (data byte) {
 	c.SP++
 	return c.Read(stackStart + uint16(c.SP))
 }
 
 // pull16 pulls a 16 byte word from the stack, high byte and then low byte.
-func (c *CPU) pull16() (word uint16) {
+func (c *cpu) pull16() (word uint16) {
 	hi := uint16(c.pullStack())
 	lo := uint16(c.pullStack())
 	return hi<<8 | lo
 }
 
 // decode decodes opcode opcode and returns relevant information.
-func (c *CPU) decode(opcode byte) (name string, addressingMode, byteCost, cycleCost, pageCrossCost int, execute func(uint16), err error) {
+func (c *cpu) decode(opcode byte) (name string, addressingMode, byteCost, cycleCost, pageCrossCost int, execute func(uint16), err error) {
 	if instruction, ok := c.instructions[opcode]; ok {
 		return instruction.name,
 			instruction.addressingMode,
@@ -277,7 +265,7 @@ func (c *CPU) decode(opcode byte) (name string, addressingMode, byteCost, cycleC
 // an address on which any instruction can execute.
 // Must be used when c.PC is on an opcode address, otherwise
 // the following addresses will be interpreted incorrectly.
-func (c *CPU) getAddressWithMode(addressingMode int) (addr uint16) {
+func (c *cpu) getAddressWithMode(addressingMode int) (addr uint16) {
 	switch addressingMode {
 	case modeImplied:
 		// Address will be unused for following two addressing modes; return 0
@@ -367,7 +355,7 @@ func (c *CPU) getAddressWithMode(addressingMode int) (addr uint16) {
 	}
 }
 
-// Step performs a single step of the CPU.
+// Step performs a single step of the cpu.
 // Briefly, this consists of:
 // 0. Handling any interrupts (i.e. loading PC with interrupt handling routine if needed)
 // 1. Retrieving the opcode at current PC.
@@ -375,7 +363,7 @@ func (c *CPU) getAddressWithMode(addressingMode int) (addr uint16) {
 // 3. Incrementing the program counter by the correct amount.
 // 4. Performing the instruction. This is done after (3) because jump instructions may directly change the PC.
 // 5. Add cpu cycles based on instruction execution.
-func (c *CPU) Step() {
+func (c *cpu) step() {
 	// Reset instruction-wise flags
 	c.pageCrossed = false
 	c.branchSucceeded = false
@@ -420,7 +408,7 @@ func (c *CPU) Step() {
 	execute(instructionAddress)
 
 	// 5. Add cpu cycles based on instruction execution.
-	// CPU cycles are used to keep the CPU in sync with other modules (like the PPU).
+	// cpu cycles are used to keep the CPU in sync with other modules (like the PPU).
 	c.cycles += cycleCost
 	if c.branchSucceeded {
 		c.cycles += branchSuccCycleCost
