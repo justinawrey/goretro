@@ -1,5 +1,4 @@
-// Package cpu provides functionality related to the nes 6502 CPU.
-package cpu
+package nes
 
 import "fmt"
 

@@ -1,12 +1,9 @@
-// Package cpu provides functionality related to the nes 6502 CPU.
-package cpu
+package nes
 
 import (
 	"fmt"
 	"io"
 	"log"
-
-	"github.com/justinawrey/goretro/memory"
 )
 
 // key memory locations

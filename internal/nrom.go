@@ -1,6 +1,4 @@
-// Package cartridge provides functionality related to nes cartridges
-// and common memory mappers.
-package cartridge
+package nes
 
 // NROM - iNES mapper #0.
 // See https://wiki.nesdev.com/w/index.php/NROM.

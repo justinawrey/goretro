@@ -1,6 +1,6 @@
 package main
 
-import "github.com/justinawrey/goretro/nes"
+import "github.com/justinawrey/goretro/internal/nes"
 
 func main() {
 	nes := nes.New()

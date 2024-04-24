@@ -1,5 +1,5 @@
 // Package ppu provides functionality related to the nes PPU.
-package ppu
+package nes
 
 import (
 	"github.com/justinawrey/goretro/display"

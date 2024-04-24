@@ -1,5 +1,4 @@
-// Package apu provides functionality related to the nes audio processing unit.
-package apu
+package nes
 
 // APU is the audio processing unit of the nes.
 type APU struct {

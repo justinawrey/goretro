@@ -1,6 +1,4 @@
-// Package cartridge provides functionality related to nes cartridges
-// and common memory mappers.
-package cartridge
+package nes
 
 import (
 	"bytes"
@@ -8,8 +6,6 @@ import (
 	"io/ioutil"
 	"log"
 	"strings"
-
-	"github.com/justinawrey/goretro/mmio"
 )
 
 // iNES mapper numbers for supported mappers
@@ -139,8 +135,10 @@ func (c *Cartridge) readPrg(address uint16) (data byte) {
 }
 
 // loadPrg loads data into prgROM.  It performs the default action of loading either:
-// 	a) if there is only one bank of prgROM, it gets mirrored at 0x8000 and 0xC000.
-// 	b) if there is two, it gets fully loaded from 0x8000 to 0xFFFF.
+//
+//	a) if there is only one bank of prgROM, it gets mirrored at 0x8000 and 0xC000.
+//	b) if there is two, it gets fully loaded from 0x8000 to 0xFFFF.
+//
 // More complicated mappers may require their own loading
 // logic which can be defined in their respective Load methods.
 func (c *Cartridge) loadPrg(bytes []byte) {
