@@ -40,7 +40,7 @@ func (err errInvalidHeader) Error() (message string) {
 // For a list of mappers and their iNES numbers see http://wiki.nesdev.com/w/index.php/Mapper.
 type mapper interface {
 	// Mapper implements mmio.MemoryMappedIO.
-	memoryMappedIO
+	// memoryMappedIO
 
 	// Load specifies how memory should be loaded on initial mapper load.
 	// A slice of bytes is provided and represents binary data as loaded directly
@@ -59,7 +59,7 @@ func newMapper(id int, c *cartridge) (m mapper) {
 	}
 }
 
-// cartridge represents a nes Cartridge.
+// cartridge represents a nes cartridge.
 // It implements mmio.MemoryMappedIO and thus can be directly
 // written to / read from via registers.
 type cartridge struct {
@@ -81,10 +81,22 @@ type cartridge struct {
 	fourScreenMirroring bool // whether or not to ignore above flag and use four screen mirroring
 }
 
-// New creates a new cartridge.
-func newcartridge() (c *cartridge) {
+// newCartridge creates a new cartridge.
+// TODO: load with path.
+func newCartridge(path string) (c *cartridge) {
 	return &cartridge{}
 }
+
+// Load loads a cartridge with name name into the nes.
+// func (n *nes) Load(name string) {
+// 	cart := Newcartridge()
+// 	cart.Load(name)
+// 	nes.mem.AssignMemoryMappedIO(cart)
+// 	nes.cart = cart
+//
+// 	log.Println("loaded: ", name)
+// 	log.Println("mapper: ", nes.cart.MapperNum)
+// }
 
 // Load loads a .nes file with name name into the cartridge c.
 func (c *cartridge) Load(name string) {

@@ -59,20 +59,20 @@ func (c *cpu) handleInterrupt() {
 	c.mustHandleInterrupt = false
 
 	// 1. Push PC and SP onto stack
-	c.push16(c.PC)
-	c.pushStack(c.Status.asByte())
+	c.push16(c.pc)
+	c.pushStack(c.status.asByte())
 
 	// 2. Set interrupt disable flag
-	c.Status.I = true
+	c.status.i = true
 
 	// 3. Load address of interrupt handling routine into PC from vector table
 	switch c.interruptType {
 	case nmi:
-		c.PC = c.Read16(nmiVector)
+		c.pc = c.read16(nmiVector)
 	case irq:
-		c.PC = c.Read16(irqVector)
+		c.pc = c.read16(irqVector)
 	case rst:
-		c.PC = c.Read16(rstVector)
+		c.pc = c.read16(rstVector)
 	default:
 	}
 }
@@ -86,67 +86,67 @@ func convert(bit bool) (num byte) {
 }
 
 // String implements Stringer.
-func (sr *Status) String() (repr string) {
+func (sr *status) String() (repr string) {
 	return fmt.Sprintf("%X", sr.asByte())
 }
 
 // asByte returns the status register in byte format.
-func (sr *Status) asByte() (data byte) {
+func (sr *status) asByte() (data byte) {
 	var status byte = 0x00
-	status |= convert(sr.C)
-	status |= convert(sr.Z) << 1
-	status |= convert(sr.I) << 2
-	status |= convert(sr.D) << 3
-	status |= convert(sr.B) << 4
-	status |= convert(sr.U) << 5
-	status |= convert(sr.V) << 6
-	status |= convert(sr.N) << 7
+	status |= convert(sr.c)
+	status |= convert(sr.z) << 1
+	status |= convert(sr.i) << 2
+	status |= convert(sr.d) << 3
+	status |= convert(sr.b) << 4
+	status |= convert(sr.u) << 5
+	status |= convert(sr.v) << 6
+	status |= convert(sr.n) << 7
 	return status
 }
 
 // fromByte sets the status register according to the contents of a byte of data.
-func (sr *Status) fromByte(data byte) {
-	sr.C = data&mask0 != 0
-	sr.Z = data&mask1 != 0
-	sr.I = data&mask2 != 0
-	sr.D = data&mask3 != 0
-	sr.B = data&mask4 != 0
-	sr.U = data&mask5 != 0
-	sr.V = data&mask6 != 0
-	sr.N = data&mask7 != 0
+func (sr *status) fromByte(data byte) {
+	sr.c = data&mask0 != 0
+	sr.z = data&mask1 != 0
+	sr.i = data&mask2 != 0
+	sr.d = data&mask3 != 0
+	sr.b = data&mask4 != 0
+	sr.u = data&mask5 != 0
+	sr.v = data&mask6 != 0
+	sr.n = data&mask7 != 0
 }
 
 // setZN sets both the zero flag and negative flag of sr
 // according to the contents of reg.
-func (sr *Status) setZN(reg byte) {
-	sr.Z = reg == 0
-	sr.N = reg&mask7 != 0
+func (sr *status) setZN(reg byte) {
+	sr.z = reg == 0
+	sr.n = reg&mask7 != 0
 }
 
 // Registers holds data for each register
 // used by the 6502.
-type Registers struct {
+type registers struct {
 	// Special purpose registers
-	Status *Status // Status register
-	PC     uint16  // Program counter
-	SP     byte    // Stack pointer
+	status *status // Status register
+	pc     uint16  // Program counter
+	sp     byte    // Stack pointer
 
 	// General purpose registers
-	A byte // Accumulator register
-	X byte // Index register X
-	Y byte // Index register Y
+	a byte // Accumulator register
+	x byte // Index register X
+	y byte // Index register Y
 }
 
 // String implements Stringer.
-func (r *Registers) String() (repr string) {
-	return fmt.Sprintf("A:%02X X:%02X Y:%02X P:%02s SP:%02X", r.A, r.X, r.Y, r.Status, r.SP)
+func (r *registers) String() (repr string) {
+	return fmt.Sprintf("A:%02X X:%02X Y:%02X P:%02s SP:%02X", r.a, r.x, r.y, r.status, r.sp)
 }
 
 // cpu represents to 6502 and its associated registers and memory map.
 // This should be declared and used as a singleton during emulator execution.
 type cpu struct {
-	*Memory    // Pointer to main memory
-	*Registers // Set of registers
+	*memory    // Pointer to main memory
+	*registers // Set of registers
 
 	instructions        map[byte]instruction // Instructions available to cpu
 	cycles              int                  // Number of cpu cycles
@@ -162,10 +162,10 @@ type cpu struct {
 
 // New initializes a new 6502 cpu with all status bits, register, and memory
 // initialized to zero. Memory is the shared memory that the cpu will access.
-func NewCpu() (c *cpu) {
+func newCpu() (c *cpu) {
 	cpu := &cpu{
-		Registers: &Registers{
-			Status: &Status{},
+		registers: &registers{
+			status: &status{},
 		},
 	}
 	return cpu
@@ -178,8 +178,8 @@ func (c *cpu) OutputTo(w io.Writer) {
 }
 
 // UseMemory associates the cpu c with main memory m.
-func (c *cpu) UseMemory(m *Memory) {
-	c.Memory = m
+func (c *cpu) UseMemory(m *memory) {
+	c.memory = m
 }
 
 // Init implements nes.Component.
@@ -187,19 +187,18 @@ func (c *cpu) UseMemory(m *Memory) {
 // TODO: Make robust
 func (c *cpu) Init() {
 	c.initInstructions()
-	c.Status.I = true
-	c.Status.U = true
-	c.SP = 0xFD
+	c.status.i = true
+	c.status.u = true
+	c.sp = 0xFD
 	// TODO: APU start-up state
 }
 
-// Clear implements nes.Component.
 // Clear sets every register in c (including PC, SP, and status) to 0x00.
 // Retains memory linked through UseMemory.
 // TODO: Make robust
 func (c *cpu) Clear() {
-	*c.Registers = Registers{
-		Status: &Status{},
+	*c.registers = registers{
+		status: &status{},
 	}
 }
 
@@ -215,14 +214,14 @@ func (c *cpu) setPageCrossed(address uint16) {
 func (c *cpu) branchTo(address uint16) {
 	c.setPageCrossed(address)
 	c.branchSucceeded = true
-	c.PC = address
+	c.pc = address
 }
 
 // pushStack pushes a byte of data onto the stack.
 // The stack pointer always points to the next free location on the stack.
 func (c *cpu) pushStack(data byte) {
-	c.Write(stackStart+uint16(c.SP), data)
-	c.SP--
+	c.write(stackStart+uint16(c.sp), data)
+	c.sp--
 }
 
 // push16 pushes a 16 byte word onto the stack, low byte and then high byte.
@@ -236,8 +235,8 @@ func (c *cpu) push16(word uint16) {
 // pullStack pulls a byte of data from the stack.
 // The stack pointer always points to the next free location on the stack.
 func (c *cpu) pullStack() (data byte) {
-	c.SP++
-	return c.Read(stackStart + uint16(c.SP))
+	c.sp++
+	return c.Read(stackStart + uint16(c.sp))
 }
 
 // pull16 pulls a 16 byte word from the stack, high byte and then low byte.
@@ -281,47 +280,47 @@ func (c *cpu) getAddressWithMode(addressingMode int) (addr uint16) {
 		// The address will only be jumped to if the branch succeeeds.
 		// Note: relative addressing uses twos complement to branch both
 		// forwards and backwards.
-		offset := uint16(c.Read(c.PC + 1))
+		offset := uint16(c.Read(c.pc + 1))
 		if offset >= 0x80 {
 			// interpret as negative number
-			return c.PC + offset - 0x100
+			return c.pc + offset - 0x100
 		}
-		return c.PC + offset
+		return c.pc + offset
 
 	case modeImmediate:
 		// Instructions with modeImmediate take 2 bytes:
 		// 1. opcode
 		// 2. 8 bit constant value
-		return c.PC + 1
+		return c.pc + 1
 
 	case modeZeroPage:
 		// Instructions with modeZeroPage take 2 bytes:
 		// 1. opcode
 		// 2. zero-page address
-		return uint16(c.Read(c.PC + 1))
+		return uint16(c.Read(c.pc + 1))
 
 	case modeZeroPageX:
 		// Same as modeZeroPage, but with zero page address being added to X register with wraparound
-		return uint16(c.Read(c.PC+1)+c.X) & zeroPageEnd
+		return uint16(c.Read(c.pc+1)+c.x) & zeroPageEnd
 
 	case modeZeroPageY:
 		// Same as modeZeroPage, but with zero page address being added to Y register with wraparound
-		return uint16(c.Read(c.PC+1)+c.Y) & zeroPageEnd
+		return uint16(c.Read(c.pc+1)+c.y) & zeroPageEnd
 
 	case modeAbsolute:
 		// Instructions with modeAbsolute take 3 bytes:
 		// 1. opcode
 		// 2. least significant byte of address
 		// 3. most significant byte of address
-		return c.Read16(c.PC + 1)
+		return c.read16(c.pc + 1)
 
 	case modeAbsoluteX:
 		// Same as modeAbsolute, with address being added to contents of X register
-		return c.Read16(c.PC+1) + uint16(c.X)
+		return c.read16(c.pc+1) + uint16(c.x)
 
 	case modeAbsoluteY:
 		// Same as modeAbsolute, with address being added to contents of Y register
-		return c.Read16(c.PC+1) + uint16(c.Y)
+		return c.read16(c.pc+1) + uint16(c.y)
 
 	case modeIndirect:
 		// Instructions with modeIndirect take 3 bytes:
@@ -330,7 +329,7 @@ func (c *cpu) getAddressWithMode(addressingMode int) (addr uint16) {
 		// 3. most significant byte of address
 		// The formulated address, along with the next,
 		// are then accessed again to get the final address.
-		return c.Read16(c.Read16(c.PC + 1))
+		return c.read16(c.read16(c.pc + 1))
 
 	case modeIndirectX:
 		// Instructions with modeIndirectX take 2 bytes:
@@ -338,7 +337,7 @@ func (c *cpu) getAddressWithMode(addressingMode int) (addr uint16) {
 		// 2. single byte
 		// The byte is then added to the X register, which then
 		// gives the least significant byte of the target address.
-		return c.Read16(uint16(c.Read(c.PC+1) + c.X))
+		return c.read16(uint16(c.Read(c.pc+1) + c.x))
 
 	case modeIndirectY:
 		// Instructions with modeIndirectY take 2 bytes:
@@ -347,7 +346,7 @@ func (c *cpu) getAddressWithMode(addressingMode int) (addr uint16) {
 		// The zero page address is then accessed, and the data
 		// is added to the Y register. The resulting data is the
 		// target address.
-		return c.Read16(uint16(c.Read(c.PC+1))) + uint16(c.Y)
+		return c.read16(uint16(c.Read(c.pc+1))) + uint16(c.y)
 
 	default:
 		// shouldn't happen, but handle gracefully
@@ -375,7 +374,7 @@ func (c *cpu) step() {
 	}
 
 	// 1. Retrieve opcode at current PC
-	opcode := c.Read(c.PC)
+	opcode := c.Read(c.pc)
 
 	// 2. Decode opcode
 	name, addressingMode, byteCost, cycleCost, pageCrossCycleCost, execute, err := c.decode(opcode)
@@ -392,16 +391,16 @@ func (c *cpu) step() {
 		// Retrieve the raw next bytes used for this instruction.  Used purely for logging.
 		var nextBytes []byte
 		for i := 0; i < byteCost; i++ {
-			nextBytes = append(nextBytes, c.Read(c.PC+uint16(i)))
+			nextBytes = append(nextBytes, c.Read(c.pc+uint16(i)))
 		}
 
 		// Form a trace (a line of logs for this single instruction including status state, cycles, all registers, etc.)
-		trace := fmt.Sprintf("%-6X% -10X%-7s%s CYC:%d\n", c.PC, nextBytes, name, c.Registers, c.cycles)
+		trace := fmt.Sprintf("%-6X% -10X%-7s%s CYC:%d\n", c.pc, nextBytes, name, c.registers, c.cycles)
 		io.WriteString(c.logger, trace)
 	}
 
 	// 3. Increment program counter
-	c.PC += uint16(byteCost)
+	c.pc += uint16(byteCost)
 
 	// 4. Perform instruction
 	// Done after (3) because some instructions (relative addressing) will directly change the PC.

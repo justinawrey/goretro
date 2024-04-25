@@ -1,7 +1,5 @@
 package core
 
-import "github.com/justinawrey/goretro/internal/display"
-
 // common bit masks
 const (
 	mask0 = 1 << iota
@@ -221,22 +219,14 @@ type ppu struct {
 
 	sprRAM [sprRAMSize]byte // ppu SPR-RAM
 	vRAM   [vRAMSize]byte   // ppu VRAM
-
-	*display.Display // Output display driver
 }
 
 // newPpu creates a new ppu.
-func newPpU() (p *ppu) {
+func newPpu() (p *ppu) {
 	return &ppu{
 		scrollAddr: &doubleWriter{},
 		vRAMAddr:   &doubleWriter{},
 	}
-}
-
-// useDisplay sets the ppu p to display picture information using the
-// display driver d.
-func (p *ppu) useDisplay(d *display.Display) {
-	p.Display = d
 }
 
 // readRegister implements mmio.MemoryMappedIO.
@@ -279,15 +269,16 @@ func (p *ppu) writeRegister(reg uint16, data byte) {
 	}
 }
 
-// init implements core.Component.
-func (p *ppu) init() {
-	// TODO: ppu start up state.
-}
-
-// clear implements core.Component.
-func (p *ppu) clear() {
-	*p = ppu{
-		scrollAddr: &doubleWriter{},
-		vRAMAddr:   &doubleWriter{},
-	}
-}
+// TODO: bring this back somewhere
+// // init implements core.Component.
+// func (p *ppu) init() {
+// 	// TODO: ppu start up state.
+// }
+//
+// // clear implements core.Component.
+// func (p *ppu) clear() {
+// 	*p = ppu{
+// 		scrollAddr: &doubleWriter{},
+// 		vRAMAddr:   &doubleWriter{},
+// 	}
+// }

@@ -7,17 +7,17 @@ type nrom struct {
 }
 
 // readRegister implements mmio.MemoryMappedIO.
-func (nr *nrom) readRegister(address uint16) (data byte) {
-	return nr.readPrg(address)
-}
-
-// writeRegister implements mmio.MemoryMappedIO.
-func (nr *nrom) writeRegister(address uint16, data byte) {
-	nr.writePrg(address, data)
-}
-
-// load implements Mapper.
-func (nr *nrom) load(bytes []byte) {
-	nr.loadPrg(bytes)
-	nr.loadChr(bytes)
-}
+// func (nr *nrom) readRegister(address uint16) (data byte) {
+// 	return nr.readPrg(address)
+// }
+//
+// // writeRegister implements mmio.MemoryMappedIO.
+// func (nr *nrom) writeRegister(address uint16, data byte) {
+// 	nr.writePrg(address, data)
+// }
+//
+// // load implements Mapper.
+// func (nr *nrom) load(bytes []byte) {
+// 	nr.loadPrg(bytes)
+// 	nr.loadChr(bytes)
+// }

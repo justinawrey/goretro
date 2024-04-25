@@ -52,7 +52,7 @@ func IsInvalidOpcodeErr(err error) (invalid bool) {
 // from http://obelisk.me.uk/6502/reference.html.
 // Instruction "execute" functions are assigned to c, i.e. set to make
 // use of the memory and registers assigned to c.
-func (c *CPU) initInstructions() {
+func (c *cpu) initInstructions() {
 	c.instructions = map[byte]instruction{
 		// example
 		0x69: {
@@ -1271,28 +1271,28 @@ func (c *CPU) initInstructions() {
 // adcSbcHelper provides common logic for both ADC and SBC.
 // This works because sbc can be implemented by invoking adc with data bits inverted.
 // See http://forums.nesdev.com/viewtopic.php?p=19080#19080.
-func (c *CPU) adcSbcHelper(data byte) {
-	carry := convert(c.Status.C)
-	temp := c.A + data + carry
-	c.Status.C = (int(data) + int(carry) + int(c.A)) > zeroPageEnd
-	c.Status.V = ((c.A ^ temp) & (data ^ temp) & mask7) != 0
-	c.A = temp
-	c.Status.setZN(c.A)
+func (c *cpu) adcSbcHelper(data byte) {
+	carry := convert(c.status.c)
+	temp := c.a + data + carry
+	c.status.c = (int(data) + int(carry) + int(c.a)) > zeroPageEnd
+	c.status.v = ((c.a ^ temp) & (data ^ temp) & mask7) != 0
+	c.a = temp
+	c.status.setZN(c.a)
 }
 
 /* Instructions Start */
 
 // ADC Add with Carry
 // Fairly complicated, see http://www.obelisk.me.uk/6502/reference.html#ADC.
-func (c *CPU) ADC(address uint16) {
+func (c *cpu) ADC(address uint16) {
 	c.adcSbcHelper(c.Read(address))
 	c.setPageCrossed(address)
 }
 
 // AND Logical AND
-func (c *CPU) AND(address uint16) {
-	c.A &= c.Read(address)
-	c.Status.setZN(c.A)
+func (c *cpu) AND(address uint16) {
+	c.a &= c.Read(address)
+	c.status.setZN(c.a)
 	c.setPageCrossed(address)
 }
 
@@ -1301,209 +1301,209 @@ func (c *CPU) AND(address uint16) {
 // reasons; one function which is called when ASL is called in
 // modeAccumulator, and the other is called when ASL is
 // called in any other addressing mode.
-func (c *CPU) ASLA(address uint16) {
-	c.Status.C = c.A&mask7 != 0
-	c.A <<= 1
-	c.Status.setZN(c.A)
+func (c *cpu) ASLA(address uint16) {
+	c.status.c = c.a&mask7 != 0
+	c.a <<= 1
+	c.status.setZN(c.a)
 }
 
 // ASLM Arithmetic Shift Left, acting on Memory.
 // See explanation for ASLA
-func (c *CPU) ASLM(address uint16) {
+func (c *cpu) ASLM(address uint16) {
 	val := c.Read(address)
-	c.Status.C = val&mask7 != 0
+	c.status.c = val&mask7 != 0
 	val <<= 1
-	c.Write(address, val)
-	c.Status.setZN(val)
+	c.write(address, val)
+	c.status.setZN(val)
 }
 
 // BCC Branch if Carry Clear
-func (c *CPU) BCC(address uint16) {
-	if !c.Status.C {
+func (c *cpu) BCC(address uint16) {
+	if !c.status.c {
 		c.branchTo(address)
 	}
 }
 
 // BCS Branch if Carry Set
-func (c *CPU) BCS(address uint16) {
-	if c.Status.C {
+func (c *cpu) BCS(address uint16) {
+	if c.status.c {
 		c.branchTo(address)
 	}
 }
 
 // BEQ Branch if Equal
-func (c *CPU) BEQ(address uint16) {
-	if c.Status.Z {
+func (c *cpu) BEQ(address uint16) {
+	if c.status.z {
 		c.branchTo(address)
 	}
 }
 
 // BIT Bit Test
-func (c *CPU) BIT(address uint16) {
+func (c *cpu) BIT(address uint16) {
 	val := c.Read(address)
-	c.Status.Z = c.A&val == 0
-	c.Status.V = val&mask6 != 0
-	c.Status.N = val&mask7 != 0
+	c.status.z = c.a&val == 0
+	c.status.v = val&mask6 != 0
+	c.status.n = val&mask7 != 0
 }
 
 // BMI Branch if Minus
-func (c *CPU) BMI(address uint16) {
-	if c.Status.N {
+func (c *cpu) BMI(address uint16) {
+	if c.status.n {
 		c.branchTo(address)
 	}
 }
 
 // BNE Branch if Not Equal
-func (c *CPU) BNE(address uint16) {
-	if !c.Status.Z {
+func (c *cpu) BNE(address uint16) {
+	if !c.status.z {
 		c.branchTo(address)
 	}
 }
 
 // BPL Branch if Positive
-func (c *CPU) BPL(address uint16) {
-	if !c.Status.N {
+func (c *cpu) BPL(address uint16) {
+	if !c.status.n {
 		c.branchTo(address)
 	}
 }
 
 // BRK Force Interrupt
-func (c *CPU) BRK(address uint16) {
+func (c *cpu) BRK(address uint16) {
 	c.GenerateInterrupt(irq)
-	c.Status.B = true
+	c.status.b = true
 }
 
 // BVC Branch if Overflow Clear
-func (c *CPU) BVC(address uint16) {
-	if !c.Status.V {
+func (c *cpu) BVC(address uint16) {
+	if !c.status.v {
 		c.branchTo(address)
 	}
 }
 
 // BVS Branch if Overflow Set
-func (c *CPU) BVS(address uint16) {
-	if c.Status.V {
+func (c *cpu) BVS(address uint16) {
+	if c.status.v {
 		c.branchTo(address)
 	}
 }
 
 // CLC Clear Carry Flag
-func (c *CPU) CLC(address uint16) {
-	c.Status.C = false
+func (c *cpu) CLC(address uint16) {
+	c.status.c = false
 }
 
 // CLD Clear Decimal Mode
-func (c *CPU) CLD(address uint16) {
-	c.Status.D = false
+func (c *cpu) CLD(address uint16) {
+	c.status.d = false
 }
 
 // CLI Clear Interrupt Disable
-func (c *CPU) CLI(address uint16) {
-	c.Status.I = false
+func (c *cpu) CLI(address uint16) {
+	c.status.i = false
 }
 
 // CLV Clear Overflow Flag
-func (c *CPU) CLV(address uint16) {
-	c.Status.V = false
+func (c *cpu) CLV(address uint16) {
+	c.status.v = false
 }
 
 // CMP Compare
-func (c *CPU) CMP(address uint16) {
+func (c *cpu) CMP(address uint16) {
 	val := c.Read(address)
-	c.Status.setZN(c.A - val)
-	c.Status.C = c.A >= val
+	c.status.setZN(c.a - val)
+	c.status.c = c.a >= val
 	c.setPageCrossed(address)
 }
 
 // CPX Compare X Register
-func (c *CPU) CPX(address uint16) {
+func (c *cpu) CPX(address uint16) {
 	val := c.Read(address)
-	c.Status.setZN(c.X - val)
-	c.Status.C = c.X >= val
+	c.status.setZN(c.x - val)
+	c.status.c = c.x >= val
 }
 
 // CPY Compare Y Register
-func (c *CPU) CPY(address uint16) {
+func (c *cpu) CPY(address uint16) {
 	val := c.Read(address)
-	c.Status.setZN(c.Y - val)
-	c.Status.C = c.Y >= val
+	c.status.setZN(c.y - val)
+	c.status.c = c.y >= val
 }
 
 // DEC Decrement Memory
-func (c *CPU) DEC(address uint16) {
+func (c *cpu) DEC(address uint16) {
 	val := c.Read(address) - 1
-	c.Write(address, val)
-	c.Status.setZN(val)
+	c.write(address, val)
+	c.status.setZN(val)
 }
 
 // DEX Decrement X Register
-func (c *CPU) DEX(address uint16) {
-	c.X--
-	c.Status.setZN(c.X)
+func (c *cpu) DEX(address uint16) {
+	c.x--
+	c.status.setZN(c.x)
 }
 
 // DEY Decrement Y Register
-func (c *CPU) DEY(address uint16) {
-	c.Y--
-	c.Status.setZN(c.Y)
+func (c *cpu) DEY(address uint16) {
+	c.y--
+	c.status.setZN(c.y)
 }
 
 // EOR Exclusive OR
-func (c *CPU) EOR(address uint16) {
-	c.A ^= c.Read(address)
-	c.Status.setZN(c.A)
+func (c *cpu) EOR(address uint16) {
+	c.a ^= c.Read(address)
+	c.status.setZN(c.a)
 	c.setPageCrossed(address)
 }
 
 // INC Increment Register
-func (c *CPU) INC(address uint16) {
+func (c *cpu) INC(address uint16) {
 	newVal := c.Read(address) + 0x01
-	c.Write(address, newVal)
-	c.Status.setZN(newVal)
+	c.write(address, newVal)
+	c.status.setZN(newVal)
 }
 
 // INX Increment X Register
-func (c *CPU) INX(address uint16) {
-	c.X++
-	c.Status.setZN(c.X)
+func (c *cpu) INX(address uint16) {
+	c.x++
+	c.status.setZN(c.x)
 }
 
 // INY Increment Y Register
-func (c *CPU) INY(address uint16) {
-	c.Y++
-	c.Status.setZN(c.Y)
+func (c *cpu) INY(address uint16) {
+	c.y++
+	c.status.setZN(c.y)
 }
 
 // JMP Jump
 // TODO: original 6502 bug?
-func (c *CPU) JMP(address uint16) {
-	c.PC = address
+func (c *cpu) JMP(address uint16) {
+	c.pc = address
 }
 
 // JSR Jump to Subroutine
-func (c *CPU) JSR(address uint16) {
-	c.push16(c.PC)
-	c.PC = address
+func (c *cpu) JSR(address uint16) {
+	c.push16(c.pc)
+	c.pc = address
 }
 
 // LDA Load Accumulator
-func (c *CPU) LDA(address uint16) {
-	c.A = c.Read(address)
-	c.Status.setZN(c.A)
+func (c *cpu) LDA(address uint16) {
+	c.a = c.Read(address)
+	c.status.setZN(c.a)
 	c.setPageCrossed(address)
 }
 
 // LDX Load X Register
-func (c *CPU) LDX(address uint16) {
-	c.X = c.Read(address)
-	c.Status.setZN(c.X)
+func (c *cpu) LDX(address uint16) {
+	c.x = c.Read(address)
+	c.status.setZN(c.x)
 	c.setPageCrossed(address)
 }
 
 // LDY Load Y Register
-func (c *CPU) LDY(address uint16) {
-	c.Y = c.Read(address)
-	c.Status.setZN(c.Y)
+func (c *cpu) LDY(address uint16) {
+	c.y = c.Read(address)
+	c.status.setZN(c.y)
 	c.setPageCrossed(address)
 }
 
@@ -1512,52 +1512,52 @@ func (c *CPU) LDY(address uint16) {
 // reasons; one function which is called when LSR is called in
 // modeAccumulator, and the other is called when LSR is
 // called in any other addressing mode.
-func (c *CPU) LSRA(address uint16) {
-	c.Status.C = c.A&mask0 == 1
-	c.A >>= 1
-	c.Status.setZN(c.A)
+func (c *cpu) LSRA(address uint16) {
+	c.status.c = c.a&mask0 == 1
+	c.a >>= 1
+	c.status.setZN(c.a)
 }
 
 // LSRM Logical Shift Right, acting on Memory.
 // See explanation for LSRA.
-func (c *CPU) LSRM(address uint16) {
+func (c *cpu) LSRM(address uint16) {
 	val := c.Read(address)
-	c.Status.C = val&mask0 == 1
+	c.status.c = val&mask0 == 1
 	val >>= 1
-	c.Write(address, val)
-	c.Status.setZN(val)
+	c.write(address, val)
+	c.status.setZN(val)
 }
 
 // NOP No Operation
-func (c *CPU) NOP(address uint16) {
+func (c *cpu) NOP(address uint16) {
 }
 
 // ORA Logical Inclusive OR
-func (c *CPU) ORA(address uint16) {
-	c.A |= c.Read(address)
-	c.Status.setZN(c.A)
+func (c *cpu) ORA(address uint16) {
+	c.a |= c.Read(address)
+	c.status.setZN(c.a)
 	c.setPageCrossed(address)
 }
 
 // PHA Push Accumulator
-func (c *CPU) PHA(address uint16) {
-	c.pushStack(c.A)
+func (c *cpu) PHA(address uint16) {
+	c.pushStack(c.a)
 }
 
 // PHP Push Processor Status
-func (c *CPU) PHP(address uint16) {
-	c.pushStack(c.Status.asByte())
+func (c *cpu) PHP(address uint16) {
+	c.pushStack(c.status.asByte())
 }
 
 // PLA Pull Accumulator
-func (c *CPU) PLA(address uint16) {
-	c.A = c.pullStack()
-	c.Status.setZN(c.A)
+func (c *cpu) PLA(address uint16) {
+	c.a = c.pullStack()
+	c.status.setZN(c.a)
 }
 
 // PLP Pull Processor Status
-func (c *CPU) PLP(address uint16) {
-	c.Status.fromByte(c.pullStack())
+func (c *cpu) PLP(address uint16) {
+	c.status.fromByte(c.pullStack())
 }
 
 // ROLA Rotate Left, acting on Accumulator.
@@ -1565,32 +1565,32 @@ func (c *CPU) PLP(address uint16) {
 // reasons; one function which is called when ROL is called in
 // modeAccumulator, and the other is called when ROL is
 // called in any other addressing mode.
-func (c *CPU) ROLA(address uint16) {
-	carry := c.A&mask7 != 0
-	c.A <<= 1
-	if c.Status.C {
-		c.A |= 0x01
+func (c *cpu) ROLA(address uint16) {
+	carry := c.a&mask7 != 0
+	c.a <<= 1
+	if c.status.c {
+		c.a |= 0x01
 	} else {
-		c.A &= 0xFE
+		c.a &= 0xFE
 	}
-	c.Status.C = carry
-	c.Status.setZN(c.A)
+	c.status.c = carry
+	c.status.setZN(c.a)
 }
 
 // ROLM Rotate Left, acting on Memory.
 // See explanation for ROLA.
-func (c *CPU) ROLM(address uint16) {
+func (c *cpu) ROLM(address uint16) {
 	val := c.Read(address)
 	carry := val&mask7 != 0
 	val <<= 1
-	if c.Status.C {
+	if c.status.c {
 		val |= 0x01
 	} else {
 		val &= 0xFE
 	}
-	c.Status.C = carry
-	c.Write(address, val)
-	c.Status.setZN(val)
+	c.status.c = carry
+	c.write(address, val)
+	c.status.setZN(val)
 }
 
 // RORA Rotate Right, acting on Accumulator.
@@ -1598,115 +1598,115 @@ func (c *CPU) ROLM(address uint16) {
 // reasons; one function which is called when ROR is called in
 // modeAccumulator, and the other is called when ROR is
 // called in any other addressing mode.
-func (c *CPU) RORA(address uint16) {
-	carry := c.A&mask0 == 1
-	c.A >>= 1
-	if c.Status.C {
-		c.A |= 0x80
+func (c *cpu) RORA(address uint16) {
+	carry := c.a&mask0 == 1
+	c.a >>= 1
+	if c.status.c {
+		c.a |= 0x80
 	} else {
-		c.A &= 0x7F
+		c.a &= 0x7F
 	}
-	c.Status.C = carry
-	c.Status.setZN(c.A)
+	c.status.c = carry
+	c.status.setZN(c.a)
 }
 
 // RORM Rotate Right, acting on Memory
 // See explanation for RORA
-func (c *CPU) RORM(address uint16) {
+func (c *cpu) RORM(address uint16) {
 	val := c.Read(address)
 	carry := val&mask0 == 1
 	val >>= 1
-	if c.Status.C {
+	if c.status.c {
 		val |= 0x80
 	} else {
 		val &= 0x7F
 	}
-	c.Status.C = carry
-	c.Write(address, val)
-	c.Status.setZN(val)
+	c.status.c = carry
+	c.write(address, val)
+	c.status.setZN(val)
 }
 
 // RTI Return from Interrupt
-func (c *CPU) RTI(address uint16) {
-	c.Status.fromByte(c.pullStack())
-	c.PC = c.pull16()
-	c.Status.B = false
-	c.Status.I = false
+func (c *cpu) RTI(address uint16) {
+	c.status.fromByte(c.pullStack())
+	c.pc = c.pull16()
+	c.status.b = false
+	c.status.i = false
 }
 
 // RTS Return from Subroutine
-func (c *CPU) RTS(address uint16) {
-	c.PC = c.pull16()
+func (c *cpu) RTS(address uint16) {
+	c.pc = c.pull16()
 }
 
 // SBC Subtract with Carry
 // Fairly complicated, see http://www.obelisk.me.uk/6502/reference.html#SDC.
-func (c *CPU) SBC(address uint16) {
+func (c *cpu) SBC(address uint16) {
 	c.adcSbcHelper(c.Read(address) ^ zeroPageEnd)
 	c.setPageCrossed(address)
 }
 
 // SEC Set Carry Flag
-func (c *CPU) SEC(address uint16) {
-	c.Status.C = true
+func (c *cpu) SEC(address uint16) {
+	c.status.c = true
 }
 
 // SED Set Decimal Mode
-func (c *CPU) SED(address uint16) {
-	c.Status.D = true
+func (c *cpu) SED(address uint16) {
+	c.status.d = true
 }
 
 // SEI Set Interrupt Disable
-func (c *CPU) SEI(address uint16) {
-	c.Status.I = true
+func (c *cpu) SEI(address uint16) {
+	c.status.i = true
 }
 
 // STA Store Accumulator
-func (c *CPU) STA(address uint16) {
-	c.Write(address, c.A)
+func (c *cpu) STA(address uint16) {
+	c.write(address, c.a)
 }
 
 // STX Store X Register
-func (c *CPU) STX(address uint16) {
-	c.Write(address, c.X)
+func (c *cpu) STX(address uint16) {
+	c.write(address, c.x)
 }
 
 // STY Store Y Register
-func (c *CPU) STY(address uint16) {
-	c.Write(address, c.Y)
+func (c *cpu) STY(address uint16) {
+	c.write(address, c.y)
 }
 
 // TAX Transfer Accumulator to X
-func (c *CPU) TAX(address uint16) {
-	c.X = c.A
-	c.Status.setZN(c.X)
+func (c *cpu) TAX(address uint16) {
+	c.x = c.a
+	c.status.setZN(c.x)
 }
 
 // TAY Transfer Accumulator to Y
-func (c *CPU) TAY(address uint16) {
-	c.Y = c.A
-	c.Status.setZN(c.Y)
+func (c *cpu) TAY(address uint16) {
+	c.y = c.a
+	c.status.setZN(c.y)
 }
 
 // TSX Transfer Stack Pointer to X
-func (c *CPU) TSX(address uint16) {
-	c.X = c.SP
-	c.Status.setZN(c.X)
+func (c *cpu) TSX(address uint16) {
+	c.x = c.sp
+	c.status.setZN(c.x)
 }
 
 // TXA Transfer X to Accumulator
-func (c *CPU) TXA(address uint16) {
-	c.A = c.X
-	c.Status.setZN(c.A)
+func (c *cpu) TXA(address uint16) {
+	c.a = c.x
+	c.status.setZN(c.a)
 }
 
 // TXS Transfer X to Stack Pointer
-func (c *CPU) TXS(address uint16) {
-	c.SP = c.X
+func (c *cpu) TXS(address uint16) {
+	c.sp = c.x
 }
 
 // TYA Transfer Y to Accumulator
-func (c *CPU) TYA(address uint16) {
-	c.A = c.Y
-	c.Status.setZN(c.A)
+func (c *cpu) TYA(address uint16) {
+	c.a = c.y
+	c.status.setZN(c.a)
 }

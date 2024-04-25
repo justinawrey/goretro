@@ -9,13 +9,3 @@ type Display struct{}
 func NewDisplay() (d *Display) {
 	return &Display{}
 }
-
-// clear implements core.Component.
-func (d *Display) clear() {
-	panic("unimplemented")
-}
-
-// init implements core.Component.
-func (d *Display) init() {
-	panic("unimplemented")
-}
