@@ -1,19 +1,5 @@
 package core
 
-// common bit masks
-const (
-	mask0 = 1 << iota
-	mask1
-	mask2
-	mask3
-	mask4
-	mask5
-	mask6
-	mask7
-	mask01 = 3   // mask bits 0, 1
-	mask57 = 224 // mask bits 5, 6, 7
-)
-
 // ctrl1 is the first ppu control register.
 // See https://wiki.nesdev.com/w/index.php/ppu_registers.
 type ctrl1 struct {

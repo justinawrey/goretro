@@ -1,8 +1,8 @@
 package core
 
 import (
+	"fmt"
 	"io"
-	// "log"
 
 	"github.com/justinawrey/goretro/internal/audio"
 	"github.com/justinawrey/goretro/internal/display"
@@ -36,29 +36,39 @@ func (n *nes) UseAudio(a *audio.Audio) {
 	n.audio = a
 }
 
-func (n *nes) UseCartridge(path string) {
-	n.cart = newCartridge(path)
+func (n *nes) UseCartridge(path string) error {
+	cart, err := newCartridge(path)
+	if err != nil {
+		return err
+	}
+
+	n.cart = cart
+
+	fmt.Println(cart)
+
+	return nil
 }
 
 // New creates a new NES.
-func NewNes() (n *nes) {
+func NewNes() *nes {
 	// Create all modules
-	cpu := newCpu()
-	ppu := newPpu()
-	apu := newApu()
-	mem := newMemory()
-
-	// TODO: bring this back
-	// Set up memory mapped IO
-	// cpu.useMemory(mem)
-	// mem.assignMemoryMappedIO(ppu, apu)
-
-	return &nes{
-		cpu: cpu,
-		ppu: ppu,
-		apu: apu,
-		mem: mem,
-	}
+	// cpu := newCpu()
+	// ppu := newPpu()
+	// apu := newApu()
+	// mem := newMemory()
+	//
+	// // TODO: bring this back
+	// // Set up memory mapped IO
+	// // cpu.useMemory(mem)
+	// // mem.assignMemoryMappedIO(ppu, apu)
+	//
+	// return &nes{
+	// 	cpu: cpu,
+	// 	ppu: ppu,
+	// 	apu: apu,
+	// 	mem: mem,
+	// }
+	return &nes{}
 }
 
 // OutputTo sets the nes to log its execution to io.Writer w.

@@ -28,7 +28,7 @@ const (
 	interruptCycleCost  = 7
 )
 
-// Status holds data for each status flag
+// status holds data for each status flag
 // in the 6502 status register.
 type status struct {
 	c bool // Carry
@@ -356,12 +356,12 @@ func (c *cpu) getAddressWithMode(addressingMode int) (addr uint16) {
 
 // Step performs a single step of the cpu.
 // Briefly, this consists of:
-// 0. Handling any interrupts (i.e. loading PC with interrupt handling routine if needed)
-// 1. Retrieving the opcode at current PC.
-// 2. Decoding the opcode.
-// 3. Incrementing the program counter by the correct amount.
-// 4. Performing the instruction. This is done after (3) because jump instructions may directly change the PC.
-// 5. Add cpu cycles based on instruction execution.
+//  0. Handling any interrupts (i.e. loading PC with interrupt handling routine if needed)
+//  1. Retrieving the opcode at current PC.
+//  2. Decoding the opcode.
+//  3. Incrementing the program counter by the correct amount.
+//  4. Performing the instruction. This is done after (3) because jump instructions may directly change the PC.
+//  5. Add cpu cycles based on instruction execution.
 func (c *cpu) step() {
 	// Reset instruction-wise flags
 	c.pageCrossed = false
