@@ -31,6 +31,8 @@ func (err errINesFileInvalid) Error() string {
 
 // cartridge represents a nes cartridge.
 type cartridge struct {
+	path string // the path at which the backing iNES file resides on disk
+
 	mapperNum   int // iNES mapper #
 	prgROMBanks int // Number of prgROM banks
 	chrROMBanks int // Number of chrROM (VROM) banks
@@ -44,7 +46,7 @@ type cartridge struct {
 
 // String implements Stringer.
 func (c *cartridge) String() string {
-	return fmt.Sprintf("[cartridge] mapper: %v, prg ROM banks: %v, chr ROM banks: %v, RAM banks: %v", c.mapperNum, c.prgROMBanks, c.chrROMBanks, c.ramBanks)
+	return fmt.Sprintf("[%v] mapper: %v, prg ROM banks: %v, chr ROM banks: %v, RAM banks: %v", c.path, c.mapperNum, c.prgROMBanks, c.chrROMBanks, c.ramBanks)
 }
 
 // newCartridge creates a new catridge from the file specified at relative path path.
@@ -83,7 +85,7 @@ func newCartridge(path string) (*cartridge, error) {
 		return nil
 	}
 
-	c := &cartridge{}
+	c := &cartridge{path: path}
 
 	bytes, err := os.ReadFile(path)
 	if err != nil {
