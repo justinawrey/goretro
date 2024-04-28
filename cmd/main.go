@@ -4,11 +4,19 @@ import (
 	"flag"
 
 	"github.com/justinawrey/goretro/internal/core"
+	"github.com/justinawrey/goretro/internal/display"
 	"github.com/justinawrey/goretro/internal/log"
 )
 
+func run() {
+
+}
+
 func main() {
+	var scale int
+
 	flag.BoolVar(&log.Enabled, "debug", false, "run with debug logging enabled")
+	flag.IntVar(&scale, "render-scale", 4, "display rendering scale")
 	flag.Parse()
 
 	nes := core.NewNes()
@@ -17,5 +25,5 @@ func main() {
 		return
 	}
 
-	nes.Start()
+	display.NewDisplay(scale)
 }

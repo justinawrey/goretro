@@ -52,7 +52,7 @@ func (n *nes) UseCartridge(path string) error {
 // New creates a new NES.
 func NewNes() *nes {
 	// Create all modules
-	// cpu := newCpu()
+	cpu := newCpu()
 	// ppu := newPpu()
 	// apu := newApu()
 	// mem := newMemory()
@@ -68,7 +68,7 @@ func NewNes() *nes {
 	// 	apu: apu,
 	// 	mem: mem,
 	// }
-	return &nes{}
+	return &nes{cpu: cpu}
 }
 
 // OutputTo sets the nes to log its execution to io.Writer w.

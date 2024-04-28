@@ -379,7 +379,7 @@ func (c *cpu) step() {
 	// 2. Decode opcode
 	name, addressingMode, byteCost, cycleCost, pageCrossCycleCost, execute, err := c.decode(opcode)
 	if IsInvalidOpcodeErr(err) {
-		// If the opcode is invalid, shut down everything for now.
+		// TODO: If the opcode is invalid, shut down everything for now.
 		log.Fatalln(err)
 		return
 	}

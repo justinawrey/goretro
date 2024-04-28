@@ -935,7 +935,6 @@ func (c *cpu) initInstructions() {
 			0,
 			c.ROLA,
 		},
-
 		0x26: {
 			"ROL",
 			modeZeroPage,
@@ -976,7 +975,6 @@ func (c *cpu) initInstructions() {
 			0,
 			c.RORA,
 		},
-
 		0x66: {
 			"ROR",
 			modeZeroPage,
