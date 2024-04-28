@@ -7,6 +7,7 @@ import (
 	"github.com/justinawrey/goretro/internal/audio"
 	"github.com/justinawrey/goretro/internal/display"
 	"github.com/justinawrey/goretro/internal/input"
+	"github.com/justinawrey/goretro/internal/log"
 )
 
 // NES represents an entire nes system.  It contains a collection of modules
@@ -43,8 +44,7 @@ func (n *nes) UseCartridge(path string) error {
 	}
 
 	n.cart = cart
-
-	fmt.Println(cart)
+	log.Log(fmt.Sprintf("cartridge loaded: %v", cart))
 
 	return nil
 }

@@ -1,16 +1,16 @@
 package main
 
 import (
-	"log"
-
 	"github.com/justinawrey/goretro/internal/core"
+	"github.com/justinawrey/goretro/internal/log"
 )
 
 func main() {
 	nes := core.NewNes()
 
 	if err := nes.UseCartridge("donkey-kong.nes"); err != nil {
-		log.Fatalln(err)
+		log.Log(err)
+		return
 	}
 
 	nes.Start()
