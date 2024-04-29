@@ -8,10 +8,6 @@ import (
 	"github.com/justinawrey/goretro/internal/log"
 )
 
-func run() {
-
-}
-
 func main() {
 	var scale int
 
