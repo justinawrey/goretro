@@ -1,23 +1,6 @@
-package core
+package nes
 
 import "fmt"
-
-// CPU addressing modes
-const (
-	modeImplied = iota
-	modeRelative
-	modeAccumulator
-	modeImmediate
-	modeZeroPage
-	modeZeroPageX
-	modeZeroPageY
-	modeAbsolute
-	modeAbsoluteX
-	modeAbsoluteY
-	modeIndirect
-	modeIndirectX
-	modeIndirectY
-)
 
 // instruction is a 6502 instruction.  It has a specific
 // name, addressing mode, cycle cost, page cross cost, and byte cost.
@@ -42,18 +25,24 @@ func (e ErrInvalidOpcode) Error() (repr string) {
 // IsInvalidOpcodeErr returns whether or not err is of type
 // ErrInvalidOpcode.
 func IsInvalidOpcodeErr(err error) (invalid bool) {
-	if _, ok := err.(ErrInvalidOpcode); ok {
-		return true
-	}
-	return false
+	_, ok := err.(ErrInvalidOpcode)
+	return ok
 }
 
-// initInstructions assembles instructions according to information
+// decode decodes opcode opcode and returns relevant information.
+func (c *cpu) decode(opcode byte) (instr *instruction, err error) {
+	if instruction, ok := c.instructions[opcode]; ok {
+		return instruction, nil
+	}
+	return &instruction{}, ErrInvalidOpcode(opcode)
+}
+
+// initInstructionLookupTable assembles instructions according to information
 // from http://obelisk.me.uk/6502/reference.html.
 // Instruction "execute" functions are assigned to c, i.e. set to make
 // use of the memory and registers assigned to c.
-func (c *cpu) initInstructions() {
-	c.instructions = map[byte]instruction{
+func (c *cpu) initInstructionLookupTable() {
+	c.instructions = map[byte]*instruction{
 		// example
 		0x69: {
 			name:               "ADC",

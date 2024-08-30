@@ -1,4 +1,4 @@
-package core
+package nes
 
 // apu is the audio processing unit of the nes.
 type apu struct{}

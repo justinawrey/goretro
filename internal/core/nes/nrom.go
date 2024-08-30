@@ -1,4 +1,4 @@
-package core
+package nes
 
 // NROM - iNES mapper #0.
 // See https://wiki.nesdev.com/w/index.php/NROM.

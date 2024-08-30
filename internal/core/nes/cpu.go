@@ -1,4 +1,4 @@
-package core
+package nes
 
 import (
 	"fmt"
@@ -126,12 +126,10 @@ func (sr *status) setZN(reg byte) {
 // Registers holds data for each register
 // used by the 6502.
 type registers struct {
-	// Special purpose registers
 	status *status // Status register
 	pc     uint16  // Program counter
 	sp     byte    // Stack pointer
 
-	// General purpose registers
 	a byte // Accumulator register
 	x byte // Index register X
 	y byte // Index register Y
@@ -148,12 +146,12 @@ type cpu struct {
 	*memory    // Pointer to main memory
 	*registers // Set of registers
 
-	instructions        map[byte]instruction // Instructions available to cpu
-	cycles              int                  // Number of cpu cycles
-	pageCrossed         bool                 // Whether or not the most recently executed instruction crossed a page
-	branchSucceeded     bool                 // Whether or not the most recently executed branch instruction succeeded
-	mustHandleInterrupt bool                 // Whether or not the cpu must handle an interrupt on its next step
-	interruptType       int                  // The type of interrupt that must be handled (assuming cpu is interrupted)
+	instructions        map[byte]*instruction // Instructions available to cpu
+	cycles              int                   // Number of cpu cycles
+	pageCrossed         bool                  // Whether or not the most recently executed instruction crossed a page
+	branchSucceeded     bool                  // Whether or not the most recently executed branch instruction succeeded
+	mustHandleInterrupt bool                  // Whether or not the cpu must handle an interrupt on its next step
+	interruptType       int                   // The type of interrupt that must be handled (assuming cpu is interrupted)
 
 	// For logging only
 	debug  bool      // Whether or not to output logs
@@ -168,6 +166,7 @@ func newCpu() (c *cpu) {
 			status: &status{},
 		},
 	}
+	cpu.initInstructionLookupTable()
 	return cpu
 }
 
@@ -186,7 +185,7 @@ func (c *cpu) UseMemory(m *memory) {
 // See https://wiki.nesdev.com/w/index.php/cpu_power_up_state#cite_note-1.
 // TODO: Make robust
 func (c *cpu) Init() {
-	c.initInstructions()
+	c.initInstructionLookupTable()
 	c.status.i = true
 	c.status.u = true
 	c.sp = 0xFD
@@ -246,114 +245,6 @@ func (c *cpu) pull16() (word uint16) {
 	return hi<<8 | lo
 }
 
-// decode decodes opcode opcode and returns relevant information.
-func (c *cpu) decode(opcode byte) (name string, addressingMode, byteCost, cycleCost, pageCrossCost int, execute func(uint16), err error) {
-	if instruction, ok := c.instructions[opcode]; ok {
-		return instruction.name,
-			instruction.addressingMode,
-			instruction.byteCost,
-			instruction.cycleCost,
-			instruction.pageCrossCycleCost,
-			instruction.execute,
-			nil
-	}
-	return "", 0, 0, 0, 0, nil, ErrInvalidOpcode(opcode)
-}
-
-// GetAddressWithMode uses addressing mode addressingMode to get
-// an address on which any instruction can execute.
-// Must be used when c.PC is on an opcode address, otherwise
-// the following addresses will be interpreted incorrectly.
-func (c *cpu) getAddressWithMode(addressingMode int) (addr uint16) {
-	switch addressingMode {
-	case modeImplied:
-		// Address will be unused for following two addressing modes; return 0
-		fallthrough
-
-	case modeAccumulator:
-		return 0
-
-	case modeRelative:
-		// Instructions with modeRelative take 2 bytes:
-		// 1. opcode
-		// 2. 8 bit constant value
-		// The address will only be jumped to if the branch succeeeds.
-		// Note: relative addressing uses twos complement to branch both
-		// forwards and backwards.
-		offset := uint16(c.Read(c.pc + 1))
-		if offset >= 0x80 {
-			// interpret as negative number
-			return c.pc + offset - 0x100
-		}
-		return c.pc + offset
-
-	case modeImmediate:
-		// Instructions with modeImmediate take 2 bytes:
-		// 1. opcode
-		// 2. 8 bit constant value
-		return c.pc + 1
-
-	case modeZeroPage:
-		// Instructions with modeZeroPage take 2 bytes:
-		// 1. opcode
-		// 2. zero-page address
-		return uint16(c.Read(c.pc + 1))
-
-	case modeZeroPageX:
-		// Same as modeZeroPage, but with zero page address being added to X register with wraparound
-		return uint16(c.Read(c.pc+1)+c.x) & zeroPageEnd
-
-	case modeZeroPageY:
-		// Same as modeZeroPage, but with zero page address being added to Y register with wraparound
-		return uint16(c.Read(c.pc+1)+c.y) & zeroPageEnd
-
-	case modeAbsolute:
-		// Instructions with modeAbsolute take 3 bytes:
-		// 1. opcode
-		// 2. least significant byte of address
-		// 3. most significant byte of address
-		return c.read16(c.pc + 1)
-
-	case modeAbsoluteX:
-		// Same as modeAbsolute, with address being added to contents of X register
-		return c.read16(c.pc+1) + uint16(c.x)
-
-	case modeAbsoluteY:
-		// Same as modeAbsolute, with address being added to contents of Y register
-		return c.read16(c.pc+1) + uint16(c.y)
-
-	case modeIndirect:
-		// Instructions with modeIndirect take 3 bytes:
-		// 1. opcode
-		// 2. least significant byte of address
-		// 3. most significant byte of address
-		// The formulated address, along with the next,
-		// are then accessed again to get the final address.
-		return c.read16(c.read16(c.pc + 1))
-
-	case modeIndirectX:
-		// Instructions with modeIndirectX take 2 bytes:
-		// 1. opcode
-		// 2. single byte
-		// The byte is then added to the X register, which then
-		// gives the least significant byte of the target address.
-		return c.read16(uint16(c.Read(c.pc+1) + c.x))
-
-	case modeIndirectY:
-		// Instructions with modeIndirectY take 2 bytes:
-		// 1. opcode
-		// 2. least significant byte of zero page address
-		// The zero page address is then accessed, and the data
-		// is added to the Y register. The resulting data is the
-		// target address.
-		return c.read16(uint16(c.Read(c.pc+1))) + uint16(c.y)
-
-	default:
-		// shouldn't happen, but handle gracefully
-		return 0
-	}
-}
-
 // Step performs a single step of the cpu.
 // Briefly, this consists of:
 //  0. Handling any interrupts (i.e. loading PC with interrupt handling routine if needed)
@@ -377,42 +268,42 @@ func (c *cpu) step() {
 	opcode := c.Read(c.pc)
 
 	// 2. Decode opcode
-	name, addressingMode, byteCost, cycleCost, pageCrossCycleCost, execute, err := c.decode(opcode)
+	instr, err := c.decode(opcode)
 	if IsInvalidOpcodeErr(err) {
 		// TODO: If the opcode is invalid, shut down everything for now.
 		log.Fatalln(err)
 		return
 	}
-	instructionAddress := c.getAddressWithMode(addressingMode)
+	instructionAddress := c.getAddressWithMode(instr.addressingMode)
 
 	// 2.5. Log cpu execution if necessary
 	// Format according to ideal nestest log
 	if c.debug {
 		// Retrieve the raw next bytes used for this instruction.  Used purely for logging.
 		var nextBytes []byte
-		for i := 0; i < byteCost; i++ {
+		for i := 0; i < instr.byteCost; i++ {
 			nextBytes = append(nextBytes, c.Read(c.pc+uint16(i)))
 		}
 
 		// Form a trace (a line of logs for this single instruction including status state, cycles, all registers, etc.)
-		trace := fmt.Sprintf("%-6X% -10X%-7s%s CYC:%d\n", c.pc, nextBytes, name, c.registers, c.cycles)
+		trace := fmt.Sprintf("%-6X% -10X%-7s%s CYC:%d\n", c.pc, nextBytes, instr.name, c.registers, c.cycles)
 		io.WriteString(c.logger, trace)
 	}
 
 	// 3. Increment program counter
-	c.pc += uint16(byteCost)
+	c.pc += uint16(instr.byteCost)
 
 	// 4. Perform instruction
 	// Done after (3) because some instructions (relative addressing) will directly change the PC.
-	execute(instructionAddress)
+	instr.execute(instructionAddress)
 
 	// 5. Add cpu cycles based on instruction execution.
 	// cpu cycles are used to keep the CPU in sync with other modules (like the PPU).
-	c.cycles += cycleCost
+	c.cycles += instr.cycleCost
 	if c.branchSucceeded {
 		c.cycles += branchSuccCycleCost
 	}
 	if c.pageCrossed {
-		c.cycles += pageCrossCycleCost
+		c.cycles += instr.pageCrossCycleCost
 	}
 }

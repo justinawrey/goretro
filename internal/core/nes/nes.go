@@ -1,40 +1,30 @@
-package core
+package nes
 
 import (
 	"fmt"
 	"io"
 
-	"github.com/justinawrey/goretro/internal/audio"
-	"github.com/justinawrey/goretro/internal/display"
-	"github.com/justinawrey/goretro/internal/input"
-	"github.com/justinawrey/goretro/internal/log"
+	"github.com/justinawrey/goretro/internal/core/audio"
+	"github.com/justinawrey/goretro/internal/core/display"
+	"github.com/justinawrey/goretro/internal/core/input"
+	"github.com/justinawrey/goretro/internal/core/log"
 )
 
 // NES represents an entire nes system.  It contains a collection of modules
 // which work together to power the entire system.
 // NES is meant be used primarily as a high-level emulation API.
 type nes struct {
+	// emulated nes internals
 	cpu  *cpu
 	ppu  *ppu
 	apu  *apu
 	mem  *memory
 	cart *cartridge
 
+	// real io
 	disp  *display.Display
 	input *input.Input
 	audio *audio.Audio
-}
-
-func (n *nes) UseDisplay(d *display.Display) {
-	n.disp = d
-}
-
-func (n *nes) UseInput(i *input.Input) {
-	n.input = i
-}
-
-func (n *nes) UseAudio(a *audio.Audio) {
-	n.audio = a
 }
 
 func (n *nes) UseCartridge(path string) error {
@@ -49,10 +39,10 @@ func (n *nes) UseCartridge(path string) error {
 	return nil
 }
 
-// New creates a new NES.
-func NewNes() *nes {
-	// Create all modules
+// NewNes creates a new NES.
+func NewNes(disp *display.Display, input *input.Input, audio *audio.Audio) *nes {
 	cpu := newCpu()
+
 	// ppu := newPpu()
 	// apu := newApu()
 	// mem := newMemory()
@@ -68,7 +58,8 @@ func NewNes() *nes {
 	// 	apu: apu,
 	// 	mem: mem,
 	// }
-	return &nes{cpu: cpu}
+
+	return &nes{cpu: cpu, disp: disp, input: input, audio: audio}
 }
 
 // OutputTo sets the nes to log its execution to io.Writer w.
