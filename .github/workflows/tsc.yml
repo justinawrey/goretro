@@ -1,0 +1,20 @@
+name: tsc
+run-name: tsc
+on:
+  push:
+    branches:
+      - master
+jobs:
+  tsc:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v4
+      - name: Install NodeJS
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: 'internal/standalone/frontend/package.json'
+      - run: npm ci
+        working-directory: ./internal/standalone/frontend
+      - run: npm run typecheck
+        working-directory: ./internal/standalone/frontend
