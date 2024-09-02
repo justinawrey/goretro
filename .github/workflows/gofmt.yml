@@ -1,5 +1,5 @@
 name: gofmt
-run-name: ${{ github.actor }} running gofmt 🚀
+run-name: gofmt
 on:
   push:
     branches:

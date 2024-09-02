@@ -1,5 +1,5 @@
 name: eslint
-run-name: ${{ github.actor }} running eslint 🚀
+run-name: eslint
 on:
   push:
     branches:

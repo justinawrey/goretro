@@ -1,5 +1,5 @@
 name: prettier
-run-name: ${{ github.actor }} running prettier 🚀
+run-name: prettier
 on:
   push:
     branches:
@@ -15,5 +15,6 @@ jobs:
         with:
           node-version-file: 'internal/standalone/frontend/package.json'
       - run: cd internal/standalone/frontend
+      - run: pwd
       - run: npm ci
       - run: npx prettier . --check
