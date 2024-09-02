@@ -3,7 +3,7 @@ run-name: ${{ github.actor }} running gofmt 🚀
 on:
   push:
     branches:
-      - main
+      - master
 jobs:
   gofmt:
     runs-on: ubuntu-latest

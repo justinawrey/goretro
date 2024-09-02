@@ -3,7 +3,7 @@ run-name: ${{ github.actor }} running eslint 🚀
 on:
   push:
     branches:
-      - main
+      - master
 jobs:
   eslint:
     runs-on: ubuntu-latest

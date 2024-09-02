@@ -3,7 +3,7 @@ run-name: ${{ github.actor }} running prettier 🚀
 on:
   push:
     branches:
-      - main
+      - master
 jobs:
   prettier:
     runs-on: ubuntu-latest
