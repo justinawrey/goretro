@@ -17,4 +17,3 @@ jobs:
       - run: go version
       - name: Format go files
         uses: Jerome1337/gofmt-action@v1.0.5
-      - run: echo "🍏 This job's status is ${{ job.status }}."

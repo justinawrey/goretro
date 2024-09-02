@@ -14,6 +14,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version-file: 'internal/standalone/frontend/package.json'
-      - run: cd internal/standalone/frontend
       - run: npm ci
+        working-directory: ./internal/standalone/frontend
       - run: npx eslint --max-warnings=1 .
+        working-directory: ./internal/standalone/frontend
