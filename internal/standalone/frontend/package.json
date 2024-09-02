@@ -12,7 +12,8 @@
         "build": "vite build",
         "serve": "vite preview",
         "format": "prettier . --write",
-        "lint": "eslint ."
+        "lint": "eslint .",
+        "typecheck": "npx tsc --skipLibCheck --noEmit"
     },
     "license": "MIT",
     "devDependencies": {
