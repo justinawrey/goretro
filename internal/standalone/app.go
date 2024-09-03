@@ -5,9 +5,9 @@ import (
 	"math/rand"
 )
 
-type Stream [256 * 256 * 4]int
+const displayBufSize = 256 * 256 * 4
 
-var stream Stream
+var stream [displayBufSize]int
 
 func init() {
 	for i := 0; i < len(stream); i += 4 {
@@ -50,6 +50,6 @@ func (a *App) shutdown(ctx context.Context) {
 	// Perform your teardown here
 }
 
-func (a *App) RequestFrame() Stream {
+func (a *App) RequestFrame() [displayBufSize]int {
 	return stream
 }
