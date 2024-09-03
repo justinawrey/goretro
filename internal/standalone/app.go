@@ -32,6 +32,7 @@ func NewApp() *App {
 func (a *App) startup(ctx context.Context) {
 	// Perform your setup here
 	a.ctx = ctx
+	a.InitializeInputListeners()
 }
 
 // domReady is called after front-end resources have been loaded
