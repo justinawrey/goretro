@@ -50,6 +50,6 @@ func (a *App) shutdown(ctx context.Context) {
 	// Perform your teardown here
 }
 
-func (a *App) ForceRender() Stream {
+func (a *App) RequestFrame() Stream {
 	return stream
 }
