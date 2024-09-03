@@ -1,46 +1,51 @@
 /* @refresh reload */
 
-// import { render } from "solid-js/web";
-
 import './tailwind.css'
+import './index.css'
 import trace from './trace'
+import { ForceRender } from '../wailsjs/go/main/App'
 
-const NUM_TEXELS_WIDTH = 256 * 4
-const NUM_TEXELS_HEIGHT = 256 * 4
-const REAL_TEXEL_WIDTH = 10 / 4
-const REAL_TEXEL_HEIGHT = 10 / 4
+const NUM_TEXELS_WIDTH = 256
+const NUM_TEXELS_HEIGHT = 256
 
 const canvas = document.getElementById('render-target') as HTMLCanvasElement
-const ctx = canvas.getContext('2d')
+const canvasCtx = canvas.getContext('2d', { alpha: false })
 
-if (ctx == null) {
+let imageData: ImageData
+let ctx: CanvasRenderingContext2D
+
+if (canvasCtx == null) {
     console.error('canvas unsupported')
 } else {
-    draw(ctx)
+    ctx = canvasCtx
+    ctx.imageSmoothingEnabled = false
+
+    // @ts-expect-error fuck
+    ctx.mozImageSmoothingEnabled = false
+    // @ts-expect-error fuck
+    ctx.oImageSmoothingEnabled = false
+    // @ts-expect-error fuck
+    ctx.webkitImageSmoothingEnabled = false
+    // @ts-expect-error fuck
+    ctx.msImageSmoothingEnabled = false
+
+    imageData = ctx.createImageData(NUM_TEXELS_WIDTH, NUM_TEXELS_HEIGHT)
 }
 
-function draw(ctx: CanvasRenderingContext2D): void {
-    let toggle = true
-
-    for (let i = 0; i < NUM_TEXELS_WIDTH; i++) {
-        for (let j = 0; j < NUM_TEXELS_HEIGHT; j++) {
-            ctx.fillStyle = toggle ? 'white' : 'black'
-            toggle = !toggle
-
-            ctx.fillRect(
-                i * REAL_TEXEL_WIDTH,
-                j * REAL_TEXEL_HEIGHT,
-                REAL_TEXEL_WIDTH,
-                REAL_TEXEL_HEIGHT,
-            )
-        }
+function draw(data: number[]): void {
+    for (let i = 0; i < imageData.data.length; i += 4) {
+        imageData.data[i] = data[i]
+        imageData.data[i + 1] = data[i + 1]
+        imageData.data[i + 2] = data[i + 2]
+        imageData.data[i + 3] = data[i + 3]
     }
+
+    ctx.putImageData(imageData, 0, 0)
 }
 
 // debug!
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-;(window as any).forceDraw = () => {
-    trace(() => draw(ctx as CanvasRenderingContext2D))
-}
-
-// render(() => <></>, document.getElementById("root") as HTMLElement);
+;(window as any).requestData = () =>
+    trace('roundtrip js -> go -> js asking for data', () => {
+        ForceRender().then((data) => draw(data))
+    })

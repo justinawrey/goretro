@@ -2,8 +2,21 @@ package main
 
 import (
 	"context"
-	"fmt"
+	"math/rand"
 )
+
+type Stream [256 * 256 * 4]int
+
+var stream Stream
+
+func init() {
+	for i := 0; i < len(stream); i += 4 {
+		stream[i] = rand.Intn(256)
+		stream[i+1] = rand.Intn(256)
+		stream[i+2] = rand.Intn(256)
+		stream[i+3] = 255
+	}
+}
 
 // App struct
 type App struct {
@@ -23,13 +36,12 @@ func (a *App) startup(ctx context.Context) {
 
 // domReady is called after front-end resources have been loaded
 func (a App) domReady(ctx context.Context) {
-	// Add your action here
 }
 
 // beforeClose is called when the application is about to quit,
 // either by clicking the window close button or calling runtime.Quit.
 // Returning true will cause the application to continue, false will continue shutdown as normal.
-func (a *App) beforeClose(ctx context.Context) (prevent bool) {
+func (a *App) beforeClose(ctx context.Context) bool {
 	return false
 }
 
@@ -38,7 +50,6 @@ func (a *App) shutdown(ctx context.Context) {
 	// Perform your teardown here
 }
 
-// Greet returns a greeting for the given name
-func (a *App) Greet(name string) string {
-	return fmt.Sprintf("Hello %s, It's show time!", name)
+func (a *App) ForceRender() Stream {
+	return stream
 }

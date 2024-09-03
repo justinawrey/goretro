@@ -24,12 +24,12 @@ func main() {
 	// Create application with options
 	err := wails.Run(&options.App{
 		Title:             "standalone",
-		Width:             1024,
-		Height:            768,
-		MinWidth:          1024,
-		MinHeight:         768,
-		MaxWidth:          1280,
-		MaxHeight:         800,
+		Width:             512,
+		Height:            512,
+		MinWidth:          512,
+		MinHeight:         512,
+		MaxWidth:          512,
+		MaxHeight:         512,
 		DisableResize:     false,
 		Fullscreen:        false,
 		Frameless:         false,
@@ -74,6 +74,10 @@ func main() {
 				Message: "",
 				Icon:    icon,
 			},
+		},
+		// TODO: get rid of this
+		Debug: options.Debug{
+			OpenInspectorOnStartup: true,
 		},
 	})
 
