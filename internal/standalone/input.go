@@ -29,12 +29,12 @@ const (
 func (a *App) InitializeInputListeners() {
 	runtime.EventsOn(a.ctx, RECEIVE_INPUT_A, LogInput)
 	runtime.EventsOn(a.ctx, RECEIVE_INPUT_B, LogInput)
-	runtime.EventsOn(a.ctx, REQUEST_INPUT_SELECT, LogInput)
-	runtime.EventsOn(a.ctx, REQUEST_INPUT_START, LogInput)
-	runtime.EventsOn(a.ctx, REQUEST_INPUT_UP, LogInput)
-	runtime.EventsOn(a.ctx, REQUEST_INPUT_RIGHT, LogInput)
-	runtime.EventsOn(a.ctx, REQUEST_INPUT_DOWN, LogInput)
-	runtime.EventsOn(a.ctx, REQUEST_INPUT_LEFT, LogInput)
+	runtime.EventsOn(a.ctx, RECEIVE_INPUT_SELECT, LogInput)
+	runtime.EventsOn(a.ctx, RECEIVE_INPUT_START, LogInput)
+	runtime.EventsOn(a.ctx, RECEIVE_INPUT_UP, LogInput)
+	runtime.EventsOn(a.ctx, RECEIVE_INPUT_RIGHT, LogInput)
+	runtime.EventsOn(a.ctx, RECEIVE_INPUT_DOWN, LogInput)
+	runtime.EventsOn(a.ctx, RECEIVE_INPUT_LEFT, LogInput)
 }
 
 func (a *App) ReadA() {
