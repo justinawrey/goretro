@@ -5,6 +5,17 @@ import (
 	"math/rand"
 )
 
+const (
+	buttonA      = "a"
+	buttonB      = "b"
+	buttonStart  = "start"
+	buttonSelect = "select"
+	buttonUp     = "up"
+	buttonRight  = "right"
+	buttonDown   = "down"
+	buttonLeft   = "left"
+)
+
 const displayBufSize = 256 * 256 * 4
 
 var stream [displayBufSize]int
@@ -20,19 +31,21 @@ func init() {
 
 // App struct
 type App struct {
-	ctx context.Context
+	ctx         context.Context
+	joypadState map[string]bool
 }
 
 // NewApp creates a new App application struct
 func NewApp() *App {
-	return &App{}
+	return &App{
+		joypadState: make(map[string]bool),
+	}
 }
 
 // startup is called at application startup
 func (a *App) startup(ctx context.Context) {
 	// Perform your setup here
 	a.ctx = ctx
-	a.InitializeInputListeners()
 }
 
 // domReady is called after front-end resources have been loaded

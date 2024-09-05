@@ -1,74 +1,78 @@
 package main
 
-import (
-	"fmt"
-
-	"github.com/wailsapp/wails/v2/pkg/runtime"
-)
-
-const (
-	RECEIVE_INPUT_A      = "receive-input-a"
-	RECEIVE_INPUT_B      = "receive-input-b"
-	RECEIVE_INPUT_SELECT = "receive-input-select"
-	RECEIVE_INPUT_START  = "receive-input-start"
-	RECEIVE_INPUT_UP     = "receive-input-up"
-	RECEIVE_INPUT_RIGHT  = "receive-input-right"
-	RECEIVE_INPUT_DOWN   = "receive-input-down"
-	RECEIVE_INPUT_LEFT   = "receive-input-left"
-
-	REQUEST_INPUT_A      = "request-input-a"
-	REQUEST_INPUT_B      = "request-input-b"
-	REQUEST_INPUT_SELECT = "request-input-select"
-	REQUEST_INPUT_START  = "request-input-start"
-	REQUEST_INPUT_UP     = "request-input-up"
-	REQUEST_INPUT_RIGHT  = "request-input-right"
-	REQUEST_INPUT_DOWN   = "request-input-down"
-	REQUEST_INPUT_LEFT   = "request-input-left"
-)
-
-func (a *App) InitializeInputListeners() {
-	runtime.EventsOn(a.ctx, RECEIVE_INPUT_A, LogInput)
-	runtime.EventsOn(a.ctx, RECEIVE_INPUT_B, LogInput)
-	runtime.EventsOn(a.ctx, RECEIVE_INPUT_SELECT, LogInput)
-	runtime.EventsOn(a.ctx, RECEIVE_INPUT_START, LogInput)
-	runtime.EventsOn(a.ctx, RECEIVE_INPUT_UP, LogInput)
-	runtime.EventsOn(a.ctx, RECEIVE_INPUT_RIGHT, LogInput)
-	runtime.EventsOn(a.ctx, RECEIVE_INPUT_DOWN, LogInput)
-	runtime.EventsOn(a.ctx, RECEIVE_INPUT_LEFT, LogInput)
+func (a *App) setJoypadState(button string, to bool) {
+	a.joypadState[button] = to
 }
 
-func (a *App) ReadA() {
-	runtime.EventsEmit(a.ctx, REQUEST_INPUT_A)
+func (a *App) getJoypadState(button string) bool {
+	pressed, ok := a.joypadState[button]
+	if !ok {
+		return false
+	}
+
+	return pressed
 }
 
-func (a *App) ReadB() {
-	runtime.EventsEmit(a.ctx, REQUEST_INPUT_B)
+func (a *App) SetButtonA(to bool) {
+	a.setJoypadState(buttonA, to)
 }
 
-func (a *App) ReadSelect() {
-	runtime.EventsEmit(a.ctx, REQUEST_INPUT_SELECT)
+func (a *App) SetButtonB(to bool) {
+	a.setJoypadState(buttonB, to)
 }
 
-func (a *App) ReadStart() {
-	runtime.EventsEmit(a.ctx, REQUEST_INPUT_START)
+func (a *App) SetButtonStart(to bool) {
+	a.setJoypadState(buttonStart, to)
 }
 
-func (a *App) ReadUp() {
-	runtime.EventsEmit(a.ctx, REQUEST_INPUT_UP)
+func (a *App) SetButtonSelect(to bool) {
+	a.setJoypadState(buttonSelect, to)
 }
 
-func (a *App) ReadRight() {
-	runtime.EventsEmit(a.ctx, REQUEST_INPUT_RIGHT)
+func (a *App) SetButtonUp(to bool) {
+	a.setJoypadState(buttonUp, to)
 }
 
-func (a *App) ReadDown() {
-	runtime.EventsEmit(a.ctx, REQUEST_INPUT_DOWN)
+func (a *App) SetButtonRight(to bool) {
+	a.setJoypadState(buttonRight, to)
 }
 
-func (a *App) ReadLeft() {
-	runtime.EventsEmit(a.ctx, REQUEST_INPUT_LEFT)
+func (a *App) SetButtonDown(to bool) {
+	a.setJoypadState(buttonDown, to)
 }
 
-func LogInput(args ...any) {
-	fmt.Println(args)
+func (a *App) SetButtonLeft(to bool) {
+	a.setJoypadState(buttonLeft, to)
+}
+
+func (a *App) getButtonA(to bool) bool {
+	return a.getJoypadState(buttonA)
+}
+
+func (a *App) getButtonB(to bool) bool {
+	return a.getJoypadState(buttonB)
+}
+
+func (a *App) getButtonStart(to bool) bool {
+	return a.getJoypadState(buttonStart)
+}
+
+func (a *App) getButtonSelect(to bool) bool {
+	return a.getJoypadState(buttonSelect)
+}
+
+func (a *App) getButtonUp(to bool) bool {
+	return a.getJoypadState(buttonUp)
+}
+
+func (a *App) getButtonRight(to bool) bool {
+	return a.getJoypadState(buttonRight)
+}
+
+func (a *App) getButtonDown(to bool) bool {
+	return a.getJoypadState(buttonDown)
+}
+
+func (a *App) getButtonLeft(to bool) bool {
+	return a.getJoypadState(buttonLeft)
 }
