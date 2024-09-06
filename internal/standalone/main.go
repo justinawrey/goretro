@@ -4,6 +4,7 @@ import (
 	"context"
 	"embed"
 	"log"
+	"os"
 
 	"github.com/wailsapp/wails/v2"
 	"github.com/wailsapp/wails/v2/pkg/logger"
@@ -24,6 +25,8 @@ func main() {
 	inputDriver := newWebviewInputDriver()
 	displayDriver := newWebviewDisplayDriver()
 	audioDriver := newWebviewAudioDriver()
+
+	_, isDev := os.LookupEnv("WAILS_DEV")
 
 	// Create application with options
 	err := wails.Run(&options.App{
@@ -92,9 +95,8 @@ func main() {
 				Icon:    icon,
 			},
 		},
-		// TODO: get rid of this
 		Debug: options.Debug{
-			OpenInspectorOnStartup: true,
+			OpenInspectorOnStartup: isDev,
 		},
 	})
 
