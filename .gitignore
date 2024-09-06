@@ -22,9 +22,7 @@
 **/.DS_Store
 
 # Wails app build artifacts
-standalone/frontend/dist/*
-!standalone/frontend/dist/gitkeep
-
+**/dist
 **/node_modules
 **/build/bin
 
