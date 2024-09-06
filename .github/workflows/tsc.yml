@@ -19,8 +19,7 @@ jobs:
         with:
           go-version-file: 'go.mod'
       - run: go install github.com/wailsapp/wails/v2/cmd/wails@latest
-      # for some reason 'wails generate module' requires on the 'dist' folder to exist -- just build
-      - run: wails build
+      - run: wails generate module
         working-directory: ./internal/standalone
       - run: npm ci
         working-directory: ./internal/standalone/frontend
