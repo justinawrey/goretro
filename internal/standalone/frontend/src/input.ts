@@ -28,6 +28,7 @@ function handleKeypress(joypad: main.Joypad, key: string, to: boolean): void {
 window.addEventListener('keydown', (e) =>
     handleKeypress(main.Joypad.PRIMARY, e.key, true),
 )
+
 window.addEventListener('keyup', (e) =>
     handleKeypress(main.Joypad.PRIMARY, e.key, false),
 )

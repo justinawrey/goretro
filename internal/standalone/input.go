@@ -1,5 +1,7 @@
 package main
 
+import "context"
+
 type Button string
 
 const (
@@ -43,6 +45,7 @@ var joypads = []struct {
 }
 
 type WebviewInputDriver struct {
+	ctx     context.Context
 	joypad1 map[Button]bool
 	joypad2 map[Button]bool
 }

@@ -22,6 +22,7 @@ func main() {
 	// Create an instance of the app structure
 	app := newApp()
 	inputDriver := newWebviewInputDriver()
+	displayDriver := newWebviewDisplayDriver()
 
 	// Create application with options
 	err := wails.Run(&options.App{
@@ -44,6 +45,8 @@ func main() {
 		LogLevel:          logger.DEBUG,
 		OnStartup: func(ctx context.Context) {
 			app.ctx = ctx
+			inputDriver.ctx = ctx
+			displayDriver.ctx = ctx
 		},
 		OnDomReady:       app.domReady,
 		OnBeforeClose:    app.beforeClose,
@@ -52,10 +55,12 @@ func main() {
 		Bind: []any{
 			app,
 			inputDriver,
+			displayDriver,
 		},
 		EnumBind: []interface{}{
 			joypads,
 			buttons,
+			displayEvents,
 		},
 		// Windows platform specific options
 		Windows: &windows.Options{

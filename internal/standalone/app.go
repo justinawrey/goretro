@@ -1,33 +1,6 @@
 package main
 
-import (
-	"context"
-	"math/rand"
-)
-
-const (
-	buttonA      = "a"
-	buttonB      = "b"
-	buttonStart  = "start"
-	buttonSelect = "select"
-	buttonUp     = "up"
-	buttonRight  = "right"
-	buttonDown   = "down"
-	buttonLeft   = "left"
-)
-
-const displayBufSize = 256 * 256 * 4
-
-var stream [displayBufSize]int
-
-func init() {
-	for i := 0; i < len(stream); i += 4 {
-		stream[i] = rand.Intn(256)
-		stream[i+1] = rand.Intn(256)
-		stream[i+2] = rand.Intn(256)
-		stream[i+3] = 255
-	}
-}
+import "context"
 
 // App struct
 type App struct {
@@ -53,8 +26,4 @@ func (a *App) beforeClose(ctx context.Context) bool {
 // shutdown is called at application termination
 func (a *App) shutdown(ctx context.Context) {
 	// Perform your teardown here
-}
-
-func (a *App) RequestFrame() [displayBufSize]int {
-	return stream
 }
