@@ -14,6 +14,13 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version-file: 'internal/standalone/frontend/package.json'
+      - name: Install go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: 'go.mod'
+      - run: go install github.com/wailsapp/wails/v2/cmd/wails@latest
+      - run: wails generate module
+        working-directory: ./internal/standalone/frontend
       - run: npm ci
         working-directory: ./internal/standalone/frontend
       - run: npm run typecheck
