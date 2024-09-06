@@ -23,6 +23,7 @@ func main() {
 	app := newApp()
 	inputDriver := newWebviewInputDriver()
 	displayDriver := newWebviewDisplayDriver()
+	audioDriver := newWebviewAudioDriver()
 
 	// Create application with options
 	err := wails.Run(&options.App{
@@ -47,6 +48,7 @@ func main() {
 			app.ctx = ctx
 			inputDriver.ctx = ctx
 			displayDriver.ctx = ctx
+			audioDriver.ctx = ctx
 		},
 		OnDomReady:       app.domReady,
 		OnBeforeClose:    app.beforeClose,
@@ -56,6 +58,7 @@ func main() {
 			app,
 			inputDriver,
 			displayDriver,
+			audioDriver,
 		},
 		EnumBind: []interface{}{
 			joypads,
