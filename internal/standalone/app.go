@@ -31,21 +31,12 @@ func init() {
 
 // App struct
 type App struct {
-	ctx         context.Context
-	joypadState map[string]bool
+	ctx context.Context
 }
 
 // NewApp creates a new App application struct
-func NewApp() *App {
-	return &App{
-		joypadState: make(map[string]bool),
-	}
-}
-
-// startup is called at application startup
-func (a *App) startup(ctx context.Context) {
-	// Perform your setup here
-	a.ctx = ctx
+func newApp() *App {
+	return &App{}
 }
 
 // domReady is called after front-end resources have been loaded

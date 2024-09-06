@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"embed"
 	"log"
 
@@ -19,11 +20,12 @@ var icon []byte
 
 func main() {
 	// Create an instance of the app structure
-	app := NewApp()
+	app := newApp()
+	inputDriver := newWebviewInputDriver()
 
 	// Create application with options
 	err := wails.Run(&options.App{
-		Title:             "standalone",
+		Title:             "goretro",
 		Width:             512,
 		Height:            512,
 		MinWidth:          512,
@@ -40,13 +42,20 @@ func main() {
 		Menu:              nil,
 		Logger:            nil,
 		LogLevel:          logger.DEBUG,
-		OnStartup:         app.startup,
-		OnDomReady:        app.domReady,
-		OnBeforeClose:     app.beforeClose,
-		OnShutdown:        app.shutdown,
-		WindowStartState:  options.Normal,
-		Bind: []interface{}{
+		OnStartup: func(ctx context.Context) {
+			app.ctx = ctx
+		},
+		OnDomReady:       app.domReady,
+		OnBeforeClose:    app.beforeClose,
+		OnShutdown:       app.shutdown,
+		WindowStartState: options.Normal,
+		Bind: []any{
 			app,
+			inputDriver,
+		},
+		EnumBind: []interface{}{
+			joypads,
+			buttons,
 		},
 		// Windows platform specific options
 		Windows: &windows.Options{
