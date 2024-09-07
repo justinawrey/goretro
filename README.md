@@ -12,7 +12,14 @@ GoRetro is a [NES](https://en.wikipedia.org/wiki/Nintendo_Entertainment_System) 
 Run the emulator in development mode:
 
 > [!IMPORTANT]
-> You probably need to `chmod` the executable first.
+> Requirements:
+>
+> - [Go](https://go.dev)
+> - [NPM](https://www.npmjs.com)
+> - [Wails CLI](https://wails.io/docs/gettingstarted/installation#installing-wails) (make sure its in your `$PATH`)
+> - [Platform specific dependencies](https://wails.io/docs/gettingstarted/installation#platform-specific-dependencies)
+>
+> You probably also need to `chmod` the `dev.sh` executable first.
 
 ```bash
 cd internal/standalone
