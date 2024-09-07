@@ -22,6 +22,5 @@ Run the emulator in development mode:
 > You probably also need to `chmod` the `dev.sh` executable first.
 
 ```bash
-cd internal/standalone
 ./dev.sh
 ```

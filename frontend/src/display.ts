@@ -1,5 +1,5 @@
 import { EventsOn } from '../wailsjs/runtime/runtime'
-import { main } from '../wailsjs/go/models'
+import { app } from '../wailsjs/go/models'
 
 const NUM_TEXELS_WIDTH = 256
 const NUM_TEXELS_HEIGHT = 256
@@ -28,7 +28,7 @@ if (canvasCtx == null) {
     imageData = ctx.createImageData(NUM_TEXELS_WIDTH, NUM_TEXELS_HEIGHT)
 }
 
-EventsOn(main.RenderEvent.RENDER, draw)
+EventsOn(app.RenderEvent.RENDER, draw)
 
 function draw(data: number[]): void {
     for (let i = 0; i < imageData.data.length; i += 4) {

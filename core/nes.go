@@ -1,13 +1,11 @@
-package nes
+package core
 
 import (
 	"fmt"
 	"io"
 
-	"github.com/justinawrey/goretro/internal/core/audio"
-	"github.com/justinawrey/goretro/internal/core/display"
-	"github.com/justinawrey/goretro/internal/core/input"
-	"github.com/justinawrey/goretro/internal/core/log"
+	"github.com/justinawrey/goretro/app"
+	"github.com/justinawrey/goretro/log"
 )
 
 // NES represents an entire nes system.  It contains a collection of modules
@@ -22,9 +20,9 @@ type nes struct {
 	cart *cartridge
 
 	// real io
-	disp  *display.Display
-	input *input.Input
-	audio *audio.Audio
+	disp  *app.WebviewDisplayDriver
+	input *app.WebviewInputDriver
+	audio *app.WebviewAudioDriver
 }
 
 func (n *nes) UseCartridge(path string) error {
@@ -40,7 +38,7 @@ func (n *nes) UseCartridge(path string) error {
 }
 
 // NewNes creates a new NES.
-func NewNes(disp *display.Display, input *input.Input, audio *audio.Audio) *nes {
+func NewNes(disp *app.WebviewDisplayDriver, input *app.WebviewInputDriver, audio *app.WebviewAudioDriver) *nes {
 	cpu := newCpu()
 
 	// ppu := newPpu()

@@ -11,6 +11,8 @@ import (
 	"github.com/wailsapp/wails/v2/pkg/options"
 	"github.com/wailsapp/wails/v2/pkg/options/mac"
 	"github.com/wailsapp/wails/v2/pkg/options/windows"
+
+	"github.com/justinawrey/goretro/app"
 )
 
 //go:embed frontend/dist
@@ -21,10 +23,10 @@ var icon []byte
 
 func main() {
 	// Create an instance of the app structure
-	app := newApp()
-	inputDriver := newWebviewInputDriver()
-	displayDriver := newWebviewDisplayDriver()
-	audioDriver := newWebviewAudioDriver()
+	appInstance := app.NewApp()
+	inputDriver := app.NewWebviewInputDriver()
+	displayDriver := app.NewWebviewDisplayDriver()
+	audioDriver := app.NewWebviewAudioDriver()
 
 	_, isDev := os.LookupEnv("WAILS_DEV")
 
@@ -48,25 +50,25 @@ func main() {
 		Logger:            nil,
 		LogLevel:          logger.DEBUG,
 		OnStartup: func(ctx context.Context) {
-			app.ctx = ctx
-			inputDriver.ctx = ctx
-			displayDriver.ctx = ctx
-			audioDriver.ctx = ctx
+			appInstance.SetContext(ctx)
+			inputDriver.SetContext(ctx)
+			displayDriver.SetContext(ctx)
+			audioDriver.SetContext(ctx)
 		},
-		OnDomReady:       app.domReady,
-		OnBeforeClose:    app.beforeClose,
-		OnShutdown:       app.shutdown,
+		OnDomReady:       appInstance.DomReady,
+		OnBeforeClose:    appInstance.BeforeClose,
+		OnShutdown:       appInstance.Shutdown,
 		WindowStartState: options.Normal,
 		Bind: []any{
-			app,
+			appInstance,
 			inputDriver,
 			displayDriver,
 			audioDriver,
 		},
 		EnumBind: []interface{}{
-			joypads,
-			buttons,
-			displayEvents,
+			app.Joypads,
+			app.Buttons,
+			app.DisplayEvents,
 		},
 		// Windows platform specific options
 		Windows: &windows.Options{

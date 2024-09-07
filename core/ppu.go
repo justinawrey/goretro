@@ -1,4 +1,4 @@
-package nes
+package core
 
 // ctrl1 is the first ppu control register.
 // See https://wiki.nesdev.com/w/index.php/ppu_registers.

@@ -1,4 +1,4 @@
-package nes_test
+package core_test
 
 //
 // import (

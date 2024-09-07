@@ -1,7 +1,6 @@
-package main
+package app
 
 import (
-	"context"
 	"github.com/wailsapp/wails/v2/pkg/runtime"
 )
 
@@ -9,7 +8,7 @@ type RenderEvent string
 
 const Render RenderEvent = "RENDER"
 
-var displayEvents = []struct {
+var DisplayEvents = []struct {
 	Value  RenderEvent
 	TSName string
 }{
@@ -19,10 +18,10 @@ var displayEvents = []struct {
 var frameBuffer [256 * 256 * 4]int
 
 type WebviewDisplayDriver struct {
-	ctx context.Context
+	ContextHolder
 }
 
-func newWebviewDisplayDriver() *WebviewDisplayDriver {
+func NewWebviewDisplayDriver() *WebviewDisplayDriver {
 	return &WebviewDisplayDriver{}
 }
 

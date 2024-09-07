@@ -1,6 +1,4 @@
-package main
-
-import "context"
+package app
 
 type Button string
 
@@ -22,7 +20,7 @@ const (
 	Secondary Joypad = "SECONDARY"
 )
 
-var buttons = []struct {
+var Buttons = []struct {
 	Value  Button
 	TSName string
 }{
@@ -36,7 +34,7 @@ var buttons = []struct {
 	{Left, "LEFT"},
 }
 
-var joypads = []struct {
+var Joypads = []struct {
 	Value  Joypad
 	TSName string
 }{
@@ -45,12 +43,12 @@ var joypads = []struct {
 }
 
 type WebviewInputDriver struct {
-	ctx     context.Context
+	ContextHolder
 	joypad1 map[Button]bool
 	joypad2 map[Button]bool
 }
 
-func newWebviewInputDriver() *WebviewInputDriver {
+func NewWebviewInputDriver() *WebviewInputDriver {
 	return &WebviewInputDriver{
 		joypad1: make(map[Button]bool),
 		joypad2: make(map[Button]bool),

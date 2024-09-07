@@ -1,4 +1,4 @@
-package nes
+package core
 
 const (
 	// 6502 has a 64kB memory map

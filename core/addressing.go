@@ -1,4 +1,4 @@
-package nes
+package core
 
 // CPU addressing modes
 const (

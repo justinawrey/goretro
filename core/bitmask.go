@@ -1,4 +1,4 @@
-package nes
+package core
 
 const (
 	mask0 = 1 << iota
