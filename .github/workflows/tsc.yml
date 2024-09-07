@@ -19,6 +19,9 @@ jobs:
         with:
           go-version-file: 'go.mod'
       - run: go install github.com/wailsapp/wails/v2/cmd/wails@latest
+      - run: rm -rf frontend/dist
+      - run: mkdir frontend/dist
+      - run: touch frontend/dist/gitkeep
       - run: wails generate module
       - run: npm ci
         working-directory: ./frontend
