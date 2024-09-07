@@ -22,11 +22,8 @@ var assets embed.FS
 var icon []byte
 
 func main() {
-	// Create an instance of the app structure
-	appInstance := app.NewApp()
 	inputDriver := app.NewWebviewInputDriver()
 	displayDriver := app.NewWebviewDisplayDriver()
-	audioDriver := app.NewWebviewAudioDriver()
 
 	_, isDev := os.LookupEnv("WAILS_DEV")
 
@@ -50,20 +47,15 @@ func main() {
 		Logger:            nil,
 		LogLevel:          logger.DEBUG,
 		OnStartup: func(ctx context.Context) {
-			appInstance.SetContext(ctx)
-			inputDriver.SetContext(ctx)
-			displayDriver.SetContext(ctx)
-			audioDriver.SetContext(ctx)
+			displayDriver.Ctx = ctx
 		},
-		OnDomReady:       appInstance.DomReady,
-		OnBeforeClose:    appInstance.BeforeClose,
-		OnShutdown:       appInstance.Shutdown,
+		// OnDomReady:       appInstance.domReady,
+		// OnBeforeClose:    appInstance.beforeClose,
+		// OnShutdown:       appInstance.shutdown,
 		WindowStartState: options.Normal,
 		Bind: []any{
-			appInstance,
 			inputDriver,
 			displayDriver,
-			audioDriver,
 		},
 		EnumBind: []interface{}{
 			app.Joypads,

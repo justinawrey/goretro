@@ -43,7 +43,6 @@ var Joypads = []struct {
 }
 
 type WebviewInputDriver struct {
-	ContextHolder
 	joypad1 map[Button]bool
 	joypad2 map[Button]bool
 }

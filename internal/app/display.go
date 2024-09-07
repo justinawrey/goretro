@@ -1,6 +1,8 @@
 package app
 
 import (
+	"context"
+
 	"github.com/wailsapp/wails/v2/pkg/runtime"
 )
 
@@ -18,7 +20,7 @@ var DisplayEvents = []struct {
 var frameBuffer [256 * 256 * 4]int
 
 type WebviewDisplayDriver struct {
-	ContextHolder
+	Ctx context.Context
 }
 
 func NewWebviewDisplayDriver() *WebviewDisplayDriver {
@@ -26,5 +28,5 @@ func NewWebviewDisplayDriver() *WebviewDisplayDriver {
 }
 
 func (w *WebviewDisplayDriver) renderFrame() {
-	runtime.EventsEmit(w.ctx, string(Render), frameBuffer)
+	runtime.EventsEmit(w.Ctx, string(Render), frameBuffer)
 }
