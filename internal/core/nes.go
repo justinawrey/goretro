@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"io"
 
-	"github.com/justinawrey/goretro/app"
-	"github.com/justinawrey/goretro/log"
+	"github.com/justinawrey/goretro/internal/app"
+	"github.com/justinawrey/goretro/internal/log"
 )
 
 // NES represents an entire nes system.  It contains a collection of modules
